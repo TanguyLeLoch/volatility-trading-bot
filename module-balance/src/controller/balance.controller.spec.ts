@@ -1,5 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { BalanceController } from './balance.controller';
+import { BalanceService } from '../service/balance.service';
+
+const mockBalanceService = {
+  findAll: jest.fn(),
+};
 
 describe('AppController', () => {
   let balanceController: BalanceController;
@@ -7,6 +12,12 @@ describe('AppController', () => {
   beforeEach(async () => {
     const app: TestingModule = await Test.createTestingModule({
       controllers: [BalanceController],
+      providers: [
+        {
+          provide: BalanceService,
+          useValue: mockBalanceService,
+        },
+      ],
     }).compile();
 
     balanceController = app.get<BalanceController>(BalanceController);
@@ -15,9 +26,9 @@ describe('AppController', () => {
     expect(balanceController).toBeDefined();
   });
   describe('get balances', () => {
-    it('should return a list of balance"', () => {
-      const balances = balanceController.getBalances();
-      expect(balances.length).toBeGreaterThan(0);
+    it('should return a list of balance', () => {
+      balanceController.getBalances();
+      expect(mockBalanceService.findAll).toHaveBeenCalled();
     });
   });
 });
