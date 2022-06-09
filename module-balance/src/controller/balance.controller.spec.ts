@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { BalanceController } from './balance.controller';
-import { BalanceService } from '../service/balance.service';
+import { BalanceSvc } from '../service/balance.service';
 
-const mockBalanceService = {
+const mockBalanceSvc = {
   findAll: jest.fn(),
 };
 
@@ -14,8 +14,8 @@ describe('AppController', () => {
       controllers: [BalanceController],
       providers: [
         {
-          provide: BalanceService,
-          useValue: mockBalanceService,
+          provide: BalanceSvc,
+          useValue: mockBalanceSvc,
         },
       ],
     }).compile();
@@ -28,7 +28,7 @@ describe('AppController', () => {
   describe('get balances', () => {
     it('should return a list of balance', () => {
       balanceController.getBalances();
-      expect(mockBalanceService.findAll).toHaveBeenCalled();
+      expect(mockBalanceSvc.findAll).toHaveBeenCalled();
     });
   });
 });

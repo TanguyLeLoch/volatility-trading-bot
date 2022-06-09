@@ -4,7 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Balance } from '../model/balance';
 
 @Injectable()
-export class BalanceService {
+export class BalanceSvc {
   constructor(
     @InjectModel('Balance') private readonly balanceModel: Model<Balance>,
   ) {}
