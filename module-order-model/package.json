@@ -4,14 +4,19 @@
   "description": "model of order",
   "scripts": {
     "transpile": "tsc",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:cov": "jest --coverage",
+    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
+    "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
     "@nestjs/common": "^8.0.0",
     "@nestjs/core": "^8.0.0",
     "@nestjs/mongoose": "^9.1.0",
     "mongoose": "^6.3.5",
-    "rxjs": "^7.2.0"
+    "reflect-metadata": "^0.1.13",
+    "rxjs": "^7.5.5"
   },
   "devDependencies": {
     "@types/jest": "27.5.0",
