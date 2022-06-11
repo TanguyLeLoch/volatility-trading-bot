@@ -7,7 +7,7 @@ import {
   Param,
   Delete,
 } from '@nestjs/common';
-import { Order } from 'module-order-model/order';
+import { Order } from 'module-order-model';
 import { OrderSvc } from '../service/order.service';
 
 @Controller('orders')

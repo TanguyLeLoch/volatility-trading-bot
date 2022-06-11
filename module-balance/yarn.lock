@@ -675,14 +675,6 @@
     tslib "2.4.0"
     uuid "8.3.2"
 
-"@nestjs/microservices@^8.4.6":
-  version "8.4.6"
-  resolved "https://registry.npmjs.org/@nestjs/microservices/-/microservices-8.4.6.tgz"
-  integrity sha512-HEGznxFKnNwjIk+GT/xKzZ4jo4Itus0PhSMm689SDCBOzvdAOuqCkCWZXsP+jTRzeqaI+/7GEFq+P8q1eZsc/A==
-  dependencies:
-    iterare "1.2.1"
-    tslib "2.4.0"
-
 "@nestjs/mongoose@^9.1.0":
   version "9.1.0"
   resolved "https://registry.npmjs.org/@nestjs/mongoose/-/mongoose-9.1.0.tgz"
@@ -3471,6 +3463,9 @@ mkdirp@^0.5.4:
   integrity sha512-FP+p8RB8OWpF3YZBCrP5gtADmtXApB5AMLn+vdyA+PyxCjrCs00mjyUozssO33cwDeT3wNGdLxJ5M//YqtHAJw==
   dependencies:
     minimist "^1.2.6"
+
+"module-balance-model@file:../module-balance-model/dist":
+  version "0.0.0"
 
 mongodb-connection-string-url@^2.5.2:
   version "2.5.2"

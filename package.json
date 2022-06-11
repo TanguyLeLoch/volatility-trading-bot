@@ -1,0 +1,13 @@
+{
+    "name": "volatility-trading-bot",
+    "version": "1.0.0",
+    "description": "Volatility trading bot",
+    "main": "index.js",
+    "repository": "git@github.com:TanguyLeLoch/volatility-trading-bot.git",
+    "author": "Tanguy Le Loch <lelochtanguy@gmail.com>",
+    "license": "MIT",
+    "private": false,
+    "scripts": {
+        "install-modules": "./install.sh"
+    }
+}

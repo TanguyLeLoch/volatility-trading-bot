@@ -3,7 +3,7 @@ import { AppController } from './app.controller';
 import { BalanceController } from './controller/balance.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { BalanceSvc } from './service/balance.service';
-import { BalanceSchema } from './model/balance';
+import { BalanceSchema } from 'module-balance-model';
 
 @Module({
   imports: [

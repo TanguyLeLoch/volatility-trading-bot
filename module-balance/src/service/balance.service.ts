@@ -1,7 +1,7 @@
 import { Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Balance } from '../model/balance';
+import { Balance } from 'module-balance-model';
 
 @Injectable()
 export class BalanceSvc {
