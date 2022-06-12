@@ -3467,6 +3467,9 @@ mkdirp@^0.5.4:
 "module-balance-model@file:../module-balance-model/dist":
   version "0.0.0"
 
+"module-core@file:../module-core/dist":
+  version "0.0.0"
+
 mongodb-connection-string-url@^2.5.2:
   version "2.5.2"
   resolved "https://registry.npmjs.org/mongodb-connection-string-url/-/mongodb-connection-string-url-2.5.2.tgz"

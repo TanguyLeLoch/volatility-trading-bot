@@ -6,7 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "preinstall": "cd ../module-balance-model && yarn && yarn run transpile && cd -",
+    "preinstall": "../scripts/installLocalDependencies.sh module-balance-model module-core",
     "prebuild": "rimraf dist",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
@@ -27,6 +27,7 @@
     "@nestjs/mongoose": "^9.1.0",
     "@nestjs/platform-express": "^8.0.0",
     "module-balance-model": "file:../module-balance-model/dist",
+    "module-core": "file:../module-core/dist",
     "mongoose": "^6.3.5",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
