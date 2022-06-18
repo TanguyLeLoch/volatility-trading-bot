@@ -1,5 +1,40 @@
 {
   "$schema": "https://json.schemastore.org/nest-cli",
   "collection": "@nestjs/schematics",
-  "sourceRoot": "src"
+  "sourceRoot": "apps/volatility-trading-bot/src",
+  "monorepo": true,
+  "root": "apps/volatility-trading-bot",
+  "compilerOptions": {
+    "webpack": true,
+    "tsConfigPath": "apps/volatility-trading-bot/tsconfig.app.json"
+  },
+  "projects": {
+    "volatility-trading-bot": {
+      "type": "application",
+      "root": "apps/volatility-trading-bot",
+      "entryFile": "main",
+      "sourceRoot": "apps/volatility-trading-bot/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/volatility-trading-bot/tsconfig.app.json"
+      }
+    },
+    "module-brain": {
+      "type": "application",
+      "root": "apps/module-brain",
+      "entryFile": "main",
+      "sourceRoot": "apps/module-brain/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/module-brain/tsconfig.app.json"
+      }
+    },
+    "module-balance": {
+      "type": "application",
+      "root": "apps/module-balance",
+      "entryFile": "main",
+      "sourceRoot": "apps/module-balance/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/module-balance/tsconfig.app.json"
+      }
+    }
+  }
 }
