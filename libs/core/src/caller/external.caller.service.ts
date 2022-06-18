@@ -8,14 +8,27 @@ export class ExternalCallerSvc {
 
   constructor(private httpService: HttpService) {}
 
-  async callExternal(method: Method, url: string, body: any): Promise<any> {
+  async callExternal(
+    method: Method,
+    url: string,
+    body?: any,
+    headers?: any,
+  ): Promise<any> {
     this.logger.log(`url: ${url}`);
-    const response = await this.httpService.axiosRef({
-      method,
-      url,
-      data: body,
-    });
+    let response;
+    try {
+      response = await this.httpService.axiosRef({
+        method,
+        url,
+        data: body,
+        headers,
+      });
+    } catch (error) {
+      this.logger.error(error.response.data);
 
-    return response.data;
+      this.logger.log(`error: ${JSON.stringify(error)}`);
+      throw error;
+    }
+    return response;
   }
 }
