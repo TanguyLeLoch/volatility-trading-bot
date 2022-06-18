@@ -1,10 +1,10 @@
-import { ModuleCallerModule } from '@app/core/module-caller/module.caller.module';
+import { CallerModule } from '@app/core/caller/caller.module';
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { BrainSvc } from './service/brain.service';
 
 @Module({
-  imports: [ModuleCallerModule],
+  imports: [CallerModule],
   controllers: [AppController],
   providers: [BrainSvc],
 })

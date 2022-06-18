@@ -53,6 +53,51 @@
       "compilerOptions": {
         "tsConfigPath": "libs/balance/tsconfig.lib.json"
       }
+    },
+    "module-network": {
+      "type": "application",
+      "root": "apps/module-network",
+      "entryFile": "main",
+      "sourceRoot": "apps/module-network/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/module-network/tsconfig.app.json"
+      }
+    },
+    "common": {
+      "type": "library",
+      "root": "libs/common",
+      "entryFile": "index",
+      "sourceRoot": "libs/common/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/common/tsconfig.lib.json"
+      }
+    },
+    "network": {
+      "type": "library",
+      "root": "libs/network",
+      "entryFile": "index",
+      "sourceRoot": "libs/network/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/network/tsconfig.lib.json"
+      }
+    },
+    "order": {
+      "type": "library",
+      "root": "libs/order",
+      "entryFile": "index",
+      "sourceRoot": "libs/order/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/order/tsconfig.lib.json"
+      }
+    },
+    "module-order": {
+      "type": "application",
+      "root": "apps/module-order",
+      "entryFile": "main",
+      "sourceRoot": "apps/module-order/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/module-order/tsconfig.app.json"
+      }
     }
   }
 }

@@ -29,6 +29,24 @@
       ],
       "@model/balance/*": [
         "libs/balance/src/*"
+      ],
+      "@model/common": [
+        "libs/common/src"
+      ],
+      "@model/common/*": [
+        "libs/common/src/*"
+      ],
+      "@model/network": [
+        "libs/network/src"
+      ],
+      "@model/network/*": [
+        "libs/network/src/*"
+      ],
+      "@model/order": [
+        "libs/order/src"
+      ],
+      "@model/order/*": [
+        "libs/order/src/*"
       ]
     }
   }
