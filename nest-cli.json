@@ -35,6 +35,24 @@
       "compilerOptions": {
         "tsConfigPath": "apps/module-balance/tsconfig.app.json"
       }
+    },
+    "core": {
+      "type": "library",
+      "root": "libs/core",
+      "entryFile": "index",
+      "sourceRoot": "libs/core/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/core/tsconfig.lib.json"
+      }
+    },
+    "balance": {
+      "type": "library",
+      "root": "libs/balance",
+      "entryFile": "index",
+      "sourceRoot": "libs/balance/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/balance/tsconfig.lib.json"
+      }
     }
   }
 }

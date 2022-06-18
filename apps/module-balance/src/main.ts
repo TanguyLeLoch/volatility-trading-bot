@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ports } from 'module-core';
+// import { ports } from 'module-core';
+import { ports } from '@app/core';
 
 const moduleName = 'balance';
 async function bootstrap() {

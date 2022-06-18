@@ -7,7 +7,7 @@ import {
   Param,
   Delete,
 } from '@nestjs/common';
-import { Balance } from 'module-balance-model';
+import { Balance } from '@model/balance';
 import { BalanceSvc } from '../service/balance.service';
 
 @Controller('balances')
