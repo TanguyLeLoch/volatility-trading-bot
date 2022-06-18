@@ -15,7 +15,7 @@ export class BalanceController {
   constructor(private balanceSvc: BalanceSvc) {}
 
   @Get(':id')
-  getBalanceById(@Param() { id }): Promise<Balance> {
+  getBalanceById(@Param() { id }: { id: string }): Promise<Balance> {
     return this.balanceSvc.findById(id);
   }
 
@@ -35,7 +35,7 @@ export class BalanceController {
   }
 
   @Delete(':id')
-  deleteBalance(@Param() { id }): Promise<Balance> {
+  deleteBalance(@Param() { id }: { id: string }): Promise<Balance> {
     return this.balanceSvc.delete(id);
   }
 }

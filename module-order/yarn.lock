@@ -3465,6 +3465,9 @@ mkdirp@^0.5.4:
   dependencies:
     minimist "^1.2.6"
 
+"module-core@file:../module-core/dist":
+  version "0.0.0"
+
 "module-order-model@file:../module-order-model/dist":
   version "0.0.0"
 

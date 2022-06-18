@@ -15,7 +15,7 @@ export class OrderController {
   constructor(private orderSvc: OrderSvc) {}
 
   @Get(':id')
-  getOrderById(@Param() { id }): Promise<Order> {
+  getOrderById(@Param() { id }: { id: string }): Promise<Order> {
     return this.orderSvc.findById(id);
   }
 
@@ -35,7 +35,7 @@ export class OrderController {
   }
 
   @Delete(':id')
-  deleteOrder(@Param() { id }): Promise<Order> {
+  deleteOrder(@Param() { id }: { id: string }): Promise<Order> {
     return this.orderSvc.delete(id);
   }
 }
