@@ -17,7 +17,7 @@ export class SyncSvc {
   async syncOrder(pair: Pair, platform: string): Promise<Order> {
     this.logger.log(`pair: ${JSON.stringify(pair)}`);
 
-    this.mexcSvc.getActiveOrders();
+    const res = await this.mexcSvc.getActiveOrders(pair);
 
     // const orderFromDb = await this.moduleCallerSvc.callModule(
     //   'order',

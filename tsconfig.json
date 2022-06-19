@@ -47,6 +47,12 @@
       ],
       "@model/order/*": [
         "libs/order/src/*"
+      ],
+      "@model/plan": [
+        "libs/plan/src"
+      ],
+      "@model/plan/*": [
+        "libs/plan/src/*"
       ]
     }
   }

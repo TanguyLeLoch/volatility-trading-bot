@@ -98,6 +98,24 @@
       "compilerOptions": {
         "tsConfigPath": "apps/module-order/tsconfig.app.json"
       }
+    },
+    "plan": {
+      "type": "library",
+      "root": "libs/plan",
+      "entryFile": "index",
+      "sourceRoot": "libs/plan/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/plan/tsconfig.lib.json"
+      }
+    },
+    "module-plan": {
+      "type": "application",
+      "root": "apps/module-plan",
+      "entryFile": "main",
+      "sourceRoot": "apps/module-plan/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/module-plan/tsconfig.app.json"
+      }
     }
   }
 }

@@ -7,4 +7,5 @@ export const ports: Ports = {
   brain: 43002,
   network: 43003,
   order: 43004,
+  plan: 43005,
 };
