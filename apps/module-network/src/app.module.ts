@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
-import { SyncModule } from './module/sync.module';
+import { DexModule } from './module/dex.module';
 
 @Module({
-  imports: [SyncModule],
+  imports: [DexModule],
   controllers: [AppController],
   providers: [],
 })

@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { Order } from '@model/order';
 import { OrderSvc } from '../service/order.service';
+import { Plan } from '@model/plan';
 
 @Controller('orders')
 export class OrderController {
@@ -17,6 +18,11 @@ export class OrderController {
   @Get(':id')
   getOrderById(@Param() { id }: { id: string }): Promise<Order> {
     return this.orderSvc.findById(id);
+  }
+
+  @Post('/plan')
+  postOrdersWithPlan(@Body() plan: Plan): Promise<Array<Order>> {
+    return this.orderSvc.createByPlan(plan);
   }
 
   @Get()

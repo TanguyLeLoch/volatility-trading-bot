@@ -1,30 +1,18 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ExchangeStatus } from './exchange.status';
 
-@Schema()
+@Schema({ timestamps: true })
 export class Exchange {
   public _id: string;
   public __v: string;
-  @Prop()
-  public date: number;
-  @Prop()
+  @Prop({ required: true })
+  public date: Date;
+  @Prop({ type: String, required: true })
   public status: ExchangeStatus;
-  @Prop()
+  @Prop({ required: true })
   public url: string;
   @Prop({ type: Object })
-  public content: Record<string, unknown>;
-
-  constructor(
-    date: number,
-    status: ExchangeStatus,
-    url: string,
-    content: Record<string, unknown>,
-  ) {
-    this.date = date;
-    this.status = status;
-    this.url = url;
-    this.content = content;
-  }
+  public content: any;
 }
 
 export const ExchangeSchema = SchemaFactory.createForClass(Exchange);

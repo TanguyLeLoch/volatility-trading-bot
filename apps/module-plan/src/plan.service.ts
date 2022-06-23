@@ -1,11 +1,13 @@
 import { Model } from 'mongoose';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Plan } from '@model/plan';
-import { Method, ModuleCallerSvc } from '@app/core';
+import { ModuleCallerSvc } from '@app/core';
+import { Pair } from '@model/common';
 
 @Injectable()
 export class PlanSvc {
+  private readonly logger = new Logger(PlanSvc.name);
   constructor(
     @InjectModel('Plan') private readonly planModel: Model<Plan>,
     private readonly moduleCallerSvc: ModuleCallerSvc,
@@ -16,25 +18,33 @@ export class PlanSvc {
   }
 
   async create(plan: Plan): Promise<Plan> {
-    if (plan.computedSteps === undefined) {
-      plan.computedSteps = [];
+    this.logger.log(`Creating plan ${new Pair(plan.pair).toString()}`);
+
+    if (plan.stepLevels === undefined) {
+      plan.stepLevels = [];
     }
     const planToCreate = new this.planModel(plan);
     const createdPlan = await planToCreate.save();
-    this.moduleCallerSvc.callModule('brain', Method.POST, 'init', createdPlan);
+    // this.moduleCallerSvc.callModule('brain', Method.POST, 'init', createdPlan);
     return createdPlan;
   }
 
   async computeStep(id: string): Promise<Plan> {
     const plan = await this.planModel.findById(id).exec();
     let moneyLeft = plan.startAmount;
-    plan.computedSteps.push(plan.priceMin);
+    // reinit step levels
+    plan.stepLevels = [];
+    plan.stepLevels.push(plan.priceMin);
 
-    while (moneyLeft > plan.amountPerStep) {
-      const lastStep = plan.computedSteps.at(-1);
-      plan.computedSteps.push(lastStep * (1 + plan.step / 100));
+    while (moneyLeft >= plan.amountPerStep) {
+      const lastStep = plan.stepLevels.at(-1);
+      plan.stepLevels.push(lastStep * (1 + plan.step / 100));
       moneyLeft -= plan.amountPerStep;
     }
+    // round prices to 3 decimals
+    plan.stepLevels = plan.stepLevels.map(
+      (step) => Math.round(step * 1000) / 1000,
+    );
     //save updated plan
     const updatedPlan = await this.planModel
       .findByIdAndUpdate(id, plan, { new: true })

@@ -1,8 +1,11 @@
 export class Pair {
   token1: string;
   token2: string;
-  constructor(token1: string, token2: string) {
-    this.token1 = token1;
-    this.token2 = token2;
+
+  constructor(obj: { token1: string; token2: string }) {
+    Object.assign(this, obj);
+  }
+  toString(): string {
+    return `${this.token1}_${this.token2}`;
   }
 }

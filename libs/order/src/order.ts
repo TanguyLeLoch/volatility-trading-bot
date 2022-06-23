@@ -1,30 +1,42 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Status } from './order.status';
+import { Pair } from '@model/common';
+import { Prop, Schema as NestShema, SchemaFactory } from '@nestjs/mongoose';
+// import { Schema } from 'mongoose';
 
-@Schema()
+// const orderSchema = new Schema({ timestamps: true });
+@NestShema({ timestamps: true })
 export class Order {
   public _id: string;
   public __v: string;
-  @Prop()
-  public token1: string;
-  @Prop()
-  public token2: string;
-  @Prop()
-  public quantity: number;
-  @Prop({ type: String })
-  public status: Status;
+  @Prop({ required: true })
+  public planId: string;
+  @Prop({ type: Pair, required: true })
+  public pair: Pair;
+  @Prop({ required: true })
+  public amount: number;
+  @Prop({ type: String, required: true })
+  public status: OrderStatus;
+  @Prop({ type: Object, required: true })
+  public price: OrderPrice;
+  @Prop({ required: true })
+  public side: Side;
+}
+export const OrderSchema = SchemaFactory.createForClass(Order);
 
-  constructor(
-    token1: string,
-    token2: string,
-    quantity: number,
-    status: Status,
-  ) {
-    this.token1 = token1;
-    this.token2 = token2;
-    this.quantity = quantity;
-    this.status = status;
-  }
+export type OrderPrice = {
+  type: PriceType;
+  value: number;
+};
+export enum PriceType {
+  LIMIT = 'LIMIT',
+  MARKET = 'MARKET',
+}
+export enum Side {
+  BUY = 'BUY',
+  SELL = 'SELL',
 }
 
-export const OrderSchema = SchemaFactory.createForClass(Order);
+export enum OrderStatus {
+  OPEN = 'OPEN',
+  FILLED = 'FILLED',
+  CANCELLED = 'CANCELLED',
+}

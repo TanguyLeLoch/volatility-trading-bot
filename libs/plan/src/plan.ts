@@ -9,7 +9,7 @@ export class Plan {
   @Prop({ type: Pair, required: true })
   public pair: Pair;
   @Prop({ type: String, required: true })
-  public plateform: string;
+  public platform: string;
   @Prop({ type: Number, required: true })
   public priceMin: number;
   @Prop({ required: true })
@@ -19,23 +19,23 @@ export class Plan {
   @Prop({ type: Number, required: true })
   public amountPerStep: number;
   @Prop({ type: Array, required: true })
-  public computedSteps: Array<number> = [];
+  public stepLevels: Array<number> = [];
 
   constructor(
     pair: Pair,
-    plateform: string,
+    platform: string,
     priceMin: number,
     step: number,
     startAmount: number,
     amountPerStep: number,
   ) {
     this.pair = pair;
-    this.plateform = plateform;
+    this.platform = platform;
     this.priceMin = priceMin;
     this.step = step;
     this.startAmount = startAmount;
     this.amountPerStep = amountPerStep;
-    this.computedSteps = [];
+    this.stepLevels = [];
   }
 }
 
