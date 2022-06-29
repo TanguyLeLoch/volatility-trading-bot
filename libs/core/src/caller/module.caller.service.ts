@@ -15,9 +15,7 @@ export class ModuleCallerSvc {
     path: string,
     body: any,
   ): Promise<any> {
-    const baseUrl = process.env.BASE_URL_DEV;
-    const port: number = ports[module];
-    const url = `${baseUrl}:${port}/${path}`;
+    const url = this.createFullUrl(module, path);
     this.logger.log(`url: ${url}`);
     let response;
     try {
@@ -33,7 +31,7 @@ export class ModuleCallerSvc {
       try {
         this.logger.log(`trying to ping module ${module}`);
         const pingResponse = await this.httpService.axiosRef.get(
-          `${baseUrl}:${port}/ping`,
+          `${process.env.BASE_URL_DEV}:${ports[module]}/ping`,
         );
         this.logger.log(`pingResponse: ${JSON.stringify(pingResponse)}`);
         this.logger.log(`module ${module} is running`);
@@ -44,5 +42,11 @@ export class ModuleCallerSvc {
       }
     }
     return response.data;
+  }
+
+  createFullUrl(module: string, path: string): string {
+    const baseUrl = process.env.BASE_URL_DEV;
+    const port: number = ports[module];
+    return `${baseUrl}:${port}/${path}`;
   }
 }

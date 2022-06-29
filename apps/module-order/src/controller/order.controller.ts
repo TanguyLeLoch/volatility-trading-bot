@@ -24,6 +24,10 @@ export class OrderController {
   postOrdersWithPlan(@Body() plan: Plan): Promise<Array<Order>> {
     return this.orderSvc.createByPlan(plan);
   }
+  @Post('synchronize/:planId')
+  synchronize(@Param() { planId }: { planId: string }): Promise<any> {
+    return this.orderSvc.synchronize(planId);
+  }
 
   @Get()
   getOrders(): Promise<Array<Order>> {

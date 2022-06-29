@@ -15,7 +15,7 @@ export class ExternalCallerSvc {
     headers?: any,
   ): Promise<any> {
     this.logger.log(`url: ${url}`);
-    let response;
+    let response: any;
     try {
       response = await this.httpService.axiosRef({
         method,

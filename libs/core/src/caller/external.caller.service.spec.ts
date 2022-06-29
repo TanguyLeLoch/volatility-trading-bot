@@ -1,11 +1,13 @@
+import { HttpModule } from '@nestjs/axios';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ExternalCallerSvc } from './external.caller.service';
 
-describe('CoreService', () => {
+describe('CoreSvc', () => {
   let service: ExternalCallerSvc;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [HttpModule],
       providers: [ExternalCallerSvc],
     }).compile();
 

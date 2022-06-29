@@ -85,7 +85,8 @@
       "^@model/common(|/.*)$": "<rootDir>/libs/common/src/$1",
       "^@model/network(|/.*)$": "<rootDir>/libs/network/src/$1",
       "^@model/order(|/.*)$": "<rootDir>/libs/order/src/$1",
-      "^@model/plan(|/.*)$": "<rootDir>/libs/plan/src/$1"
+      "^@model/plan(|/.*)$": "<rootDir>/libs/plan/src/$1",
+      "^@model/async(|/.*)$": "<rootDir>/libs/async/src/$1"
     }
   }
 }

@@ -13,9 +13,11 @@ export class AppController {
     this.logger.warn(`trxUuid : + ${generateTrxUuid()}`);
     return this.brainSvc.init(planId);
   }
-  @Get('ping')
-  ping(): string {
-    return 'pong';
+
+  @Post('synchronize/:planId')
+  synchronize(@Param() { planId }: { planId: string }): Promise<any> {
+    this.logger.log(`synchronize with for plan id ${planId}`);
+    return this.brainSvc.synchronize(planId);
   }
 }
 

@@ -53,6 +53,12 @@
       ],
       "@model/plan/*": [
         "libs/plan/src/*"
+      ],
+      "@model/async": [
+        "libs/async/src"
+      ],
+      "@model/async/*": [
+        "libs/async/src/*"
       ]
     }
   }

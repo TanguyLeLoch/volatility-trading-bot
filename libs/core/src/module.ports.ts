@@ -8,4 +8,5 @@ export const ports: Ports = {
   network: 43003,
   order: 43004,
   plan: 43005,
+  async: 43006,
 };

@@ -60,6 +60,17 @@ export class OrderSvc {
       .findByIdAndUpdate(order._id, order, { new: true })
       .exec();
   }
+  async synchronize(planId: string): Promise<any> {
+    // get all orders for plan
+    const ordersDb = await this.orderModel.find({ planId }).exec();
+    // get all orders for plan from dex
+    const ordersDex = await this.moduleCallerSvc.callModule(
+      'network',
+      Method.POST,
+      'dex/orders',
+      { planId },
+    );
+  }
 
   async findAll(): Promise<Array<Order>> {
     return this.orderModel.find().exec();

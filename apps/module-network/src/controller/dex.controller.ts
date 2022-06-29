@@ -2,7 +2,7 @@ import { Body, Controller, Logger, Post } from '@nestjs/common';
 import { DexSvc } from '../service/dex.service';
 import { Order } from '@model/order';
 import { Pair, Price } from '@model/common';
-import { Exchange } from '@model/network';
+import { Exchange, GetOrderRequest, GetPriceRequest } from '@model/network';
 
 @Controller('dex')
 export class DexController {
@@ -10,11 +10,11 @@ export class DexController {
   constructor(private readonly dexSvc: DexSvc) {}
 
   @Post('order')
-  getOrder(@Body() getRequest: GetRequest): Promise<Order> {
+  getOrder(@Body() getRequest: GetOrderRequest): Promise<Order> {
     return this.dexSvc.dexOrder(getRequest.pair, getRequest.platform);
   }
   @Post('price')
-  getPrice(@Body() getRequest: GetRequest): Promise<Price> {
+  getPrice(@Body() getRequest: GetPriceRequest): Promise<Price> {
     return this.dexSvc.getPrice(getRequest.pair, getRequest.platform);
   }
   @Post('postOrders')
@@ -22,7 +22,3 @@ export class DexController {
     return this.dexSvc.postOrders(orders);
   }
 }
-type GetRequest = {
-  pair: Pair;
-  platform: string;
-};

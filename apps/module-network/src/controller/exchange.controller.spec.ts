@@ -1,12 +1,20 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ExchangeController } from './exchange.controller';
 import { ExchangeSvc } from '../service/exchange.service';
+import { MongooseModule } from '@nestjs/mongoose';
+import { ExchangeSchema } from '@model/network';
 
-describe('AppController', () => {
+describe('ExchangeController', () => {
   let exchangeController: ExchangeController;
 
   beforeEach(async () => {
     const app: TestingModule = await Test.createTestingModule({
+      imports: [
+        MongooseModule.forRoot('mongodb://localhost/test-module-network'),
+        MongooseModule.forFeature([
+          { name: 'Exchange', schema: ExchangeSchema },
+        ]),
+      ],
       controllers: [ExchangeController],
       providers: [ExchangeSvc],
     }).compile();
@@ -14,9 +22,9 @@ describe('AppController', () => {
     exchangeController = app.get<ExchangeController>(ExchangeController);
   });
 
-  describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(true).toBe(true);
+  describe('ExchangeController', () => {
+    it('should be defined', () => {
+      expect(exchangeController).toBeDefined();
     });
   });
 });

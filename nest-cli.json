@@ -116,6 +116,24 @@
       "compilerOptions": {
         "tsConfigPath": "apps/module-plan/tsconfig.app.json"
       }
+    },
+    "async": {
+      "type": "library",
+      "root": "libs/async",
+      "entryFile": "index",
+      "sourceRoot": "libs/async/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/async/tsconfig.lib.json"
+      }
+    },
+    "module-async": {
+      "type": "application",
+      "root": "apps/module-async",
+      "entryFile": "main",
+      "sourceRoot": "apps/module-async/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/module-async/tsconfig.app.json"
+      }
     }
   }
 }
