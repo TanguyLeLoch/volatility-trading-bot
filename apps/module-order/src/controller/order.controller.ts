@@ -6,14 +6,21 @@ import {
   Body,
   Param,
   Delete,
+  Logger,
 } from '@nestjs/common';
 import { Order } from '@model/order';
 import { OrderSvc } from '../service/order.service';
 import { Plan } from '@model/plan';
+import { SyncOrderSvc } from '../service/sync.order.service';
+import { Exchange } from '@model/network';
 
 @Controller('orders')
 export class OrderController {
-  constructor(private orderSvc: OrderSvc) {}
+  private readonly logger = new Logger(OrderController.name);
+  constructor(
+    private readonly orderSvc: OrderSvc,
+    private readonly syncOrderSvc: SyncOrderSvc,
+  ) {}
 
   @Get(':id')
   getOrderById(@Param() { id }: { id: string }): Promise<Order> {
@@ -25,8 +32,9 @@ export class OrderController {
     return this.orderSvc.createByPlan(plan);
   }
   @Post('synchronize/:planId')
-  synchronize(@Param() { planId }: { planId: string }): Promise<any> {
-    return this.orderSvc.synchronize(planId);
+  synchronize(@Param() { planId }: { planId: string }): Promise<Exchange[]> {
+    this.logger.log(`synchronize with for plan id ${planId}`);
+    return this.syncOrderSvc.synchronize(planId);
   }
 
   @Get()

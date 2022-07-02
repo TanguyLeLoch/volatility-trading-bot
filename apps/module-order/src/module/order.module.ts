@@ -4,6 +4,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { OrderSvc } from '../service/order.service';
 import { OrderSchema } from '@model/order';
 import { CallerModule } from '@app/core';
+import { SyncOrderSvc } from '../service/sync.order.service';
 
 @Module({
   imports: [
@@ -12,6 +13,6 @@ import { CallerModule } from '@app/core';
     CallerModule,
   ],
   controllers: [OrderController],
-  providers: [OrderSvc],
+  providers: [OrderSvc, SyncOrderSvc],
 })
 export class OrderModule {}

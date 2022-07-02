@@ -1,5 +1,13 @@
 import { AsyncCall } from '@model/async';
-import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { AsyncSvc } from './async.service';
@@ -29,5 +37,10 @@ export class AsyncController {
   @Put()
   async modifyAsync(@Body() asyncCall: AsyncCall): Promise<AsyncCall> {
     return this.asyncSvc.modify(asyncCall);
+  }
+
+  @Delete(':id')
+  async deleteAsync(@Param() { id }: { id: string }): Promise<AsyncCall> {
+    return this.asyncSvc.delete(id);
   }
 }

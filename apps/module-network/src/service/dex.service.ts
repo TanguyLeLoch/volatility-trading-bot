@@ -4,7 +4,7 @@ import { Method } from '@app/core';
 import { ModuleCallerSvc, ExternalCallerSvc } from '@app/core';
 import { Pair, Price } from '@model/common';
 import { MexcSvc } from './mexc.service';
-import { Exchange } from '@model/network';
+import { Exchange, GetOrderRequest } from '@model/network';
 
 @Injectable()
 export class DexSvc {
@@ -21,12 +21,13 @@ export class DexSvc {
     private readonly mexcSvc: MexcSvc,
   ) {}
 
-  async dexOrder(pair: Pair, platform: string): Promise<Order> {
-    this.logger.log(`pair: ${JSON.stringify(pair)}`);
-    if (platform !== 'MEXC') {
+  async getDexOrder(request: GetOrderRequest): Promise<Order[]> {
+    this.logger.log(`request: ${JSON.stringify(request)}`);
+    if (request.platform !== 'MEXC') {
       throw new Error('Only mexc is supported');
     }
-    return this.mexcSvc.getActiveOrders(pair);
+    this.logger.log(`Getting order for ${JSON.stringify(request.pair)}`);
+    return this.mexcSvc.getActiveOrders(request.pair);
   }
   async postOrders(orders: Order[]): Promise<Exchange[]> {
     const plan = await this.moduleCallerSvc.callModule(
@@ -35,6 +36,7 @@ export class DexSvc {
       `plans/${orders[0].planId}`,
       null,
     );
+    this.logger.log(`plan: ${JSON.stringify(plan)}`);
     if (plan.platform !== 'MEXC') {
       throw new Error('Only mexc is supported');
     }

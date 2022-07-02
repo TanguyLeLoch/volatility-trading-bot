@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ExternalCallerSvc, Method } from '@app/core';
-import { Order } from '@model/order';
+import { MexcOrder, mexcOrderToOrder, Order } from '@model/order';
 import * as CryptoJS from 'crypto-js';
 import { Pair, Price } from '@model/common';
 import { Exchange, ExchangeStatus } from '@model/network';
@@ -15,13 +15,15 @@ export class MexcSvc {
     private readonly exchangeSvc: ExchangeSvc,
   ) {}
 
-  async getActiveOrders(pair: Pair): Promise<Order> {
+  async getActiveOrders(pair: Pair): Promise<Array<Order>> {
     const url = this.mexcBaseUrl + '/api/v3/openOrders';
     const params: Map<string, string> = new Map();
     params.set('symbol', pair.token1 + pair.token2);
     params.set('timestamp', String(Date.now()));
     const fullUrl = this.signUrl(url, params);
-    return await this.send(Method.GET, fullUrl);
+    this.logger.log(`Sending request to ${fullUrl}`);
+    const mexcOrders: MexcOrder[] = await this.send(Method.GET, fullUrl);
+    return mexcOrders.map((mexcOrder) => mexcOrderToOrder(mexcOrder, pair));
   }
 
   async getPrice(pair: Pair): Promise<Price> {

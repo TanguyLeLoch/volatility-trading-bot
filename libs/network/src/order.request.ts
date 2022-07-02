@@ -5,7 +5,7 @@ export type GetOrderRequest = {
   platform: string;
   planId: string;
   pair: Pair;
-  status: OrderStatus;
+  status?: OrderStatus; // optional
 };
 
 export type GetPriceRequest = {

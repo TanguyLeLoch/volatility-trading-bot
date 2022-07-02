@@ -16,7 +16,11 @@ export class ModuleCallerSvc {
     body: any,
   ): Promise<any> {
     const url = this.createFullUrl(module, path);
-    this.logger.log(`url: ${url}`);
+    this.logger.debug(
+      `${method} on module ${module} on url ${url} with body: ${JSON.stringify(
+        body,
+      )}`,
+    );
     let response;
     try {
       response = await this.httpService.axiosRef({

@@ -18,6 +18,9 @@ export class OrderSvc {
   async findById(id: string): Promise<Order> {
     return this.orderModel.findById(id).exec();
   }
+  async findByPlanId(planId: string): Promise<Order[]> {
+    return await this.orderModel.find({ planId }).exec();
+  }
 
   async createByPlan(plan: Plan): Promise<Array<Order>> {
     this.logger.log(`Creating orders for plan ${plan._id}`);
@@ -60,17 +63,6 @@ export class OrderSvc {
       .findByIdAndUpdate(order._id, order, { new: true })
       .exec();
   }
-  async synchronize(planId: string): Promise<any> {
-    // get all orders for plan
-    const ordersDb = await this.orderModel.find({ planId }).exec();
-    // get all orders for plan from dex
-    const ordersDex = await this.moduleCallerSvc.callModule(
-      'network',
-      Method.POST,
-      'dex/orders',
-      { planId },
-    );
-  }
 
   async findAll(): Promise<Array<Order>> {
     return this.orderModel.find().exec();
@@ -91,7 +83,7 @@ function createFirstMarketOrder(plan: Plan): Order {
   order.pair = plan.pair;
   const price: OrderPrice = {} as OrderPrice;
   price.type = PriceType.MARKET;
-  order.status = OrderStatus.OPEN;
+  order.status = OrderStatus.NEW;
   order.price = price;
   order.side = Side.BUY;
   order.amount = 0;
@@ -108,7 +100,7 @@ function createOrder(
   order.planId = plan._id;
   order.pair = plan.pair;
   const price: OrderPrice = {} as OrderPrice;
-  order.status = OrderStatus.OPEN;
+  order.status = OrderStatus.NEW;
   price.type = PriceType.LIMIT;
   price.value = stepLevel;
   order.price = price;

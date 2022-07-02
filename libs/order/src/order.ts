@@ -36,7 +36,7 @@ export enum Side {
 }
 
 export enum OrderStatus {
-  OPEN = 'OPEN',
+  NEW = 'NEW',
   FILLED = 'FILLED',
   CANCELLED = 'CANCELLED',
 }

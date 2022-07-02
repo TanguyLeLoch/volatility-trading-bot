@@ -3,8 +3,9 @@ import { ModuleCallerSvc } from '@app/core';
 import { Method } from '@app/core';
 import { Plan } from '@model/plan';
 import { AsyncCall, AsyncStatus } from '@model/async';
+import { Exchange } from '@model/network';
 
-const TIME_BETWEEN_CALL = 60 * 3; // 3 minutes
+const TIME_BETWEEN_CALL = 60 * 1; // 1 minute
 
 @Injectable()
 export class BrainSvc {
@@ -30,6 +31,20 @@ export class BrainSvc {
       orders,
     );
 
+    const asyncCall: AsyncCall = this.createAsyncSynchronise(planId);
+    await this.sendAsync(asyncCall);
+    return sentOrders;
+  }
+  private async sendAsync(asyncCall: AsyncCall) {
+    await this.moduleCallerSvc.callModule(
+      'async',
+      Method.POST,
+      'asyncs',
+      asyncCall,
+    );
+  }
+
+  private createAsyncSynchronise(planId: string) {
     const asyncCall: AsyncCall = new AsyncCall();
     const dateToCall = new Date();
     dateToCall.setSeconds(dateToCall.getSeconds() + TIME_BETWEEN_CALL);
@@ -38,20 +53,17 @@ export class BrainSvc {
     asyncCall.method = Method.POST;
     asyncCall.module = 'brain';
     asyncCall.url = `synchronize/${planId}`;
-    await this.moduleCallerSvc.callModule(
-      'async',
-      Method.POST,
-      'asyncs',
-      asyncCall,
-    );
-    return sentOrders;
+    return asyncCall;
   }
-  synchronize(planId: string): Promise<any> {
-    return this.moduleCallerSvc.callModule(
+
+  async synchronize(planId: string): Promise<Exchange[]> {
+    const exchanges: Exchange[] = await this.moduleCallerSvc.callModule(
       'order',
       Method.POST,
-      `synchronize/${planId}`,
+      `orders/synchronize/${planId}`,
       null,
     );
+    this.sendAsync(this.createAsyncSynchronise(planId));
+    return exchanges;
   }
 }

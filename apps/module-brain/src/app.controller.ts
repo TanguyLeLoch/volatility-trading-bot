@@ -1,7 +1,6 @@
-import { Body, Controller, Get, Logger, Param, Post } from '@nestjs/common';
+import { Controller, Logger, Param, Post } from '@nestjs/common';
 import { BrainSvc } from './service/brain.service';
 import { v4 as uuidv4 } from 'uuid';
-import { Plan } from '@model/plan';
 @Controller()
 export class AppController {
   private readonly logger = new Logger(AppController.name);

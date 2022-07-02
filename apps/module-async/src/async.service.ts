@@ -27,4 +27,8 @@ export class AsyncSvc {
     const createdAsyncCall = new this.asyncModel(asyncCall);
     return createdAsyncCall.save();
   }
+
+  delete(id: string): Promise<AsyncCall> {
+    return this.asyncModel.findByIdAndDelete(id).exec();
+  }
 }
