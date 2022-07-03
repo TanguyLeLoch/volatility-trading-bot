@@ -51,6 +51,10 @@ export class OrderController {
   postOrder(@Body() order: Order): Promise<Order> {
     return this.orderSvc.create(order);
   }
+  @Delete('all')
+  deleteAllOrders(): Promise<void> {
+    return this.orderSvc.deleteAll();
+  }
 
   @Delete(':id')
   deleteOrder(@Param() { id }: { id: string }): Promise<Order> {

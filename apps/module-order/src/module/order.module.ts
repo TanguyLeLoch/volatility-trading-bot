@@ -8,7 +8,7 @@ import { SyncOrderSvc } from '../service/sync.order.service';
 
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb://localhost/module-order'),
+    MongooseModule.forRoot('mongodb://localhost/grid-trading-bot'),
     MongooseModule.forFeature([{ name: 'Order', schema: OrderSchema }]),
     CallerModule,
   ],

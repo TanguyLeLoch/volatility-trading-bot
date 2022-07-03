@@ -19,14 +19,14 @@ export class AsyncController {
     private readonly asyncSvc: AsyncSvc,
   ) {}
 
+  @Get('all')
+  async getAllAsync(): Promise<Array<AsyncCall>> {
+    return this.asyncSvc.findAll();
+  }
+
   @Get(':id')
   async getAsyncById(@Param() { id }: { id: string }): Promise<AsyncCall> {
     return this.asyncSvc.findById(id);
-  }
-
-  @Get()
-  async getAllAsync(): Promise<Array<AsyncCall>> {
-    return this.asyncSvc.findAll();
   }
 
   @Post()
@@ -39,6 +39,10 @@ export class AsyncController {
     return this.asyncSvc.modify(asyncCall);
   }
 
+  @Delete('all')
+  async deleteAllAsync(): Promise<void> {
+    return this.asyncSvc.deleteAll();
+  }
   @Delete(':id')
   async deleteAsync(@Param() { id }: { id: string }): Promise<AsyncCall> {
     return this.asyncSvc.delete(id);

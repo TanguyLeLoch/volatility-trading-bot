@@ -7,7 +7,7 @@ import { BalanceSchema } from '@model/balance';
 
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb://localhost/module-balance'),
+    MongooseModule.forRoot('mongodb://localhost/grid-trading-bot'),
     MongooseModule.forFeature([{ name: 'Balance', schema: BalanceSchema }]),
   ],
   controllers: [AppController, BalanceController],

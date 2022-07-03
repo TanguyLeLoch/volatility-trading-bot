@@ -24,6 +24,7 @@ export const AsyncCallSchema = SchemaFactory.createForClass(AsyncCall);
 
 export enum AsyncStatus {
   OPEN = 'OPEN',
+  IN_PROGRESS = 'IN_PROGRESS',
   DONE = 'DONE',
   CANCELLED = 'CANCELLED',
 }

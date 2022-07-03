@@ -7,7 +7,7 @@ import { PlanSvc } from './plan.service';
 
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb://localhost/module-plan'),
+    MongooseModule.forRoot('mongodb://localhost/grid-trading-bot'),
     MongooseModule.forFeature([{ name: 'Plan', schema: PlanSchema }]),
     CallerModule,
   ],

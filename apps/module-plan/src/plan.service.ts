@@ -52,4 +52,10 @@ export class PlanSvc {
 
     return updatedPlan;
   }
+  async findAll(): Promise<Plan[]> {
+    return this.planModel.find().exec();
+  }
+  async deleteAll(): Promise<void> {
+    await this.planModel.deleteMany({}).exec();
+  }
 }

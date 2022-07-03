@@ -14,7 +14,7 @@ describe('PingController', () => {
   });
 
   describe('ping', () => {
-    it('should return ""pong', () => {
+    it('should return "pong"', () => {
       expect(pingController.ping()).toBe('pong');
     });
   });

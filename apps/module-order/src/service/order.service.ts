@@ -76,6 +76,9 @@ export class OrderSvc {
   async delete(id: string): Promise<Order> {
     return this.orderModel.findByIdAndDelete(id).exec();
   }
+  async deleteAll(): Promise<void> {
+    await this.orderModel.deleteMany({}).exec();
+  }
 }
 function createFirstMarketOrder(plan: Plan): Order {
   const order = new Order();

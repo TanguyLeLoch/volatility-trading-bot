@@ -6,7 +6,7 @@ import { ExchangeSvc } from '../service/exchange.service';
 
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb://localhost/module-network'),
+    MongooseModule.forRoot('mongodb://localhost/grid-trading-bot'),
     MongooseModule.forFeature([{ name: 'Exchange', schema: ExchangeSchema }]),
   ],
   controllers: [ExchangeController],

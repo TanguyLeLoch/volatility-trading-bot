@@ -8,12 +8,6 @@ import { Exchange, GetOrderRequest } from '@model/network';
 
 @Injectable()
 export class DexSvc {
-  getPrice(pair: Pair, platform: string): Promise<Price> {
-    if (platform !== 'MEXC') {
-      throw new Error('Method not implemented.');
-    }
-    return this.mexcSvc.getPrice(pair);
-  }
   private readonly logger = new Logger(DexSvc.name);
   constructor(
     private readonly externalCallerSvc: ExternalCallerSvc,
@@ -41,5 +35,11 @@ export class DexSvc {
       throw new Error('Only mexc is supported');
     }
     return this.mexcSvc.postOrders(orders);
+  }
+  getPrice(pair: Pair, platform: string): Promise<Price> {
+    if (platform !== 'MEXC') {
+      throw new Error('Method not implemented.');
+    }
+    return this.mexcSvc.getPrice(pair);
   }
 }
