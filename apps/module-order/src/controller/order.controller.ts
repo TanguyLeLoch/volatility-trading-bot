@@ -1,13 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Put,
-  Body,
-  Param,
-  Delete,
-  Logger,
-} from '@nestjs/common';
+import { Controller, Get, Post, Put, Body, Param, Delete, Logger } from '@nestjs/common';
 import { Order } from '@model/order';
 import { OrderSvc } from '../service/order.service';
 import { Plan } from '@model/plan';
@@ -17,10 +8,7 @@ import { Exchange } from '@model/network';
 @Controller('orders')
 export class OrderController {
   private readonly logger = new Logger(OrderController.name);
-  constructor(
-    private readonly orderSvc: OrderSvc,
-    private readonly syncOrderSvc: SyncOrderSvc,
-  ) {}
+  constructor(private readonly orderSvc: OrderSvc, private readonly syncOrderSvc: SyncOrderSvc) {}
 
   @Get(':id')
   getOrderById(@Param() { id }: { id: string }): Promise<Order> {

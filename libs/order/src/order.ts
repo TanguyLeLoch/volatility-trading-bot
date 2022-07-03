@@ -5,8 +5,8 @@ import { Prop, Schema as NestShema, SchemaFactory } from '@nestjs/mongoose';
 // const orderSchema = new Schema({ timestamps: true });
 @NestShema({ timestamps: true })
 export class Order {
-  public _id: string;
-  public __v: string;
+  public _id?: string;
+  public __v?: string;
   @Prop({ required: true })
   public planId: string;
   @Prop({ type: Pair, required: true })
@@ -24,7 +24,7 @@ export const OrderSchema = SchemaFactory.createForClass(Order);
 
 export type OrderPrice = {
   type: PriceType;
-  value: number;
+  value?: number;
 };
 export enum PriceType {
   LIMIT = 'LIMIT',

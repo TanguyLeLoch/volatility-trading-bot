@@ -10,10 +10,7 @@ import { ExchangeSvc } from './exchange.service';
 export class MexcSvc {
   private readonly logger = new Logger(MexcSvc.name);
   private readonly mexcBaseUrl = 'https://api.mexc.com';
-  constructor(
-    private readonly externalCallerSvc: ExternalCallerSvc,
-    private readonly exchangeSvc: ExchangeSvc,
-  ) {}
+  constructor(private readonly externalCallerSvc: ExternalCallerSvc, private readonly exchangeSvc: ExchangeSvc) {}
 
   async getActiveOrders(pair: Pair): Promise<Array<Order>> {
     const url = this.mexcBaseUrl + '/api/v3/openOrders';
@@ -59,11 +56,11 @@ export class MexcSvc {
     exchange.date = new Date();
     exchange.url = fullUrl;
     // save exchange before sending order
-    const createdExchange = await this.exchangeSvc.create(exchange);
+    const createcexchange = await this.exchangeSvc.create(exchange);
     const content = await this.send(Method.POST, fullUrl);
-    createdExchange.content = content;
-    createdExchange.status = ExchangeStatus.ACCEPTED;
-    return await this.exchangeSvc.update(createdExchange);
+    createcexchange.content = content;
+    createcexchange.status = ExchangeStatus.ACCEPTED;
+    return await this.exchangeSvc.update(createcexchange);
   }
 
   getParamsAsString(params: Map<string, string>): string {
@@ -83,12 +80,7 @@ export class MexcSvc {
 
   async send(method: Method, url: string): Promise<any> {
     const headers = { 'X-MEXC-APIKEY': process.env.ACCESS_KEY };
-    const { data } = await this.externalCallerSvc.callExternal(
-      method,
-      url,
-      null,
-      headers,
-    );
+    const { data } = await this.externalCallerSvc.callExternal(method, url, null, headers);
     this.logger.log(`Response data: ${JSON.stringify(data)}`);
     return data;
   }
@@ -107,10 +99,7 @@ export class MexcSvc {
   }
 
   private getSignature(paramsAsString: string): string {
-    const signature = CryptoJS.HmacSHA256(
-      paramsAsString,
-      process.env.SECRET_KEY,
-    );
+    const signature = CryptoJS.HmacSHA256(paramsAsString, process.env.SECRET_KEY);
     return signature.toString();
   }
 }

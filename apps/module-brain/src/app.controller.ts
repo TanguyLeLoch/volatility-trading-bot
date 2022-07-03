@@ -1,6 +1,5 @@
 import { Controller, Logger, Param, Post } from '@nestjs/common';
 import { BrainSvc } from './service/brain.service';
-import { v4 as uuidv4 } from 'uuid';
 @Controller()
 export class AppController {
   private readonly logger = new Logger(AppController.name);
@@ -9,7 +8,6 @@ export class AppController {
   @Post('init/:planId')
   init(@Param() { planId }: { planId: string }): Promise<any> {
     this.logger.log(`init with for plan id ${planId}`);
-    this.logger.warn(`trxUuid : + ${generateTrxUuid()}`);
     return this.brainSvc.init(planId);
   }
 
@@ -18,9 +16,4 @@ export class AppController {
     this.logger.log(`synchronize with for plan id ${planId}`);
     return this.brainSvc.synchronize(planId);
   }
-}
-
-function generateTrxUuid(): string {
-  const uuid = uuidv4();
-  return uuid;
 }

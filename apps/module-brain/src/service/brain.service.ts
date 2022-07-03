@@ -18,30 +18,15 @@ export class BrainSvc {
       `plans/computeStep/${planId}`,
       null,
     );
-    const orders = await this.moduleCallerSvc.callModule(
-      'order',
-      Method.POST,
-      'orders/plan',
-      planWithStep,
-    );
-    const sentOrders = await this.moduleCallerSvc.callModule(
-      'network',
-      Method.POST,
-      'dex/postOrders',
-      orders,
-    );
+    //create initial orders
+    const orders = await this.moduleCallerSvc.callModule('order', Method.POST, 'orders/plan', planWithStep);
 
     const asyncCall: AsyncCall = this.createAsyncSynchronise(planId);
     await this.sendAsync(asyncCall);
-    return sentOrders;
+    return orders;
   }
   private async sendAsync(asyncCall: AsyncCall) {
-    await this.moduleCallerSvc.callModule(
-      'async',
-      Method.POST,
-      'asyncs',
-      asyncCall,
-    );
+    await this.moduleCallerSvc.callModule('async', Method.POST, 'asyncs', asyncCall);
   }
 
   private createAsyncSynchronise(planId: string) {

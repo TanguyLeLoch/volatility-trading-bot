@@ -1,24 +1,24 @@
 import { Body, Controller, Logger, Post } from '@nestjs/common';
-import { DexSvc } from '../service/dex.service';
+import { CexSvc } from '../service/cex.service';
 import { Order } from '@model/order';
 import { Price } from '@model/common';
 import { Exchange, GetOrderRequest, GetPriceRequest } from '@model/network';
 
-@Controller('dex')
-export class DexController {
-  private readonly logger = new Logger(DexController.name);
-  constructor(private readonly dexSvc: DexSvc) {}
+@Controller('cex')
+export class CexController {
+  private readonly logger = new Logger(CexController.name);
+  constructor(private readonly cexSvc: CexSvc) {}
 
   @Post('orders')
   getOrder(@Body() getRequest: GetOrderRequest): Promise<Order[]> {
-    return this.dexSvc.getDexOrder(getRequest);
+    return this.cexSvc.getCexOrder(getRequest);
   }
   @Post('price')
   getPrice(@Body() getRequest: GetPriceRequest): Promise<Price> {
-    return this.dexSvc.getPrice(getRequest.pair, getRequest.platform);
+    return this.cexSvc.getPrice(getRequest.pair, getRequest.platform);
   }
   @Post('postOrders')
   postOrders(@Body() orders: Array<Order>): Promise<Exchange[]> {
-    return this.dexSvc.postOrders(orders);
+    return this.cexSvc.postOrders(orders);
   }
 }

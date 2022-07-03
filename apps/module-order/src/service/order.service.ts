@@ -18,19 +18,18 @@ export class OrderSvc {
   async findById(id: string): Promise<Order> {
     return this.orderModel.findById(id).exec();
   }
-  async findByPlanId(planId: string): Promise<Order[]> {
-    return await this.orderModel.find({ planId }).exec();
+  async findByPlanId(planId: string, filter?: any): Promise<Order[]> {
+    return await this.orderModel.find({ planId, ...filter }).exec();
   }
 
   async createByPlan(plan: Plan): Promise<Array<Order>> {
     this.logger.log(`Creating orders for plan ${plan._id}`);
     plan.pair = new Pair(plan.pair);
-    const { price: currentprice } = await this.moduleCallerSvc.callModule(
-      'network',
-      Method.POST,
-      'dex/price',
-      { pair: plan.pair, platform: plan.platform },
-    );
+
+    const { price: currentprice } = await this.moduleCallerSvc.callModule('network', Method.POST, 'cex/price', {
+      pair: plan.pair,
+      platform: plan.platform,
+    });
     const orders: Array<Order> = [];
     const firstMarketOrder = createFirstMarketOrder(plan);
     orders.push(firstMarketOrder);
@@ -48,20 +47,35 @@ export class OrderSvc {
       }
       orders.splice(orders.indexOf(orderToRemove), 1);
     } else {
-      throw new Error('Price is above last step level');
+      throw new Error('Price is below last step level');
     }
     // save orders in db
     this.logger.log(`Saving ${orders.length} orders`);
-    const createdOrders = await Promise.all(
-      orders.map((order) => this.create(order)),
-    );
-    return createdOrders;
+    const createdOrders = await Promise.all(orders.map((order) => this.create(order)));
+    // send orders to CEX
+    const sentOrders = await this.moduleCallerSvc.callModule('network', Method.POST, 'cex/postOrders', createdOrders);
+
+    await this.markMarketOrdersAsFilled(createdOrders);
+
+    return sentOrders;
+  }
+
+  private async markMarketOrdersAsFilled(createdOrders: Order[]) {
+    const marketOrdersSaved: Order[] = createdOrders.filter((order) => order.price.type === PriceType.MARKET);
+    const modifiedOrder = [];
+    for (const order of marketOrdersSaved) {
+      order.status = OrderStatus.FILLED;
+      modifiedOrder.push(await this.modify(order));
+      this.logger.log(`Marked order ${order._id} as filled`);
+    }
+    for (const order of modifiedOrder) {
+      //delete from list
+      createdOrders.splice(createdOrders.indexOf(order), 1);
+    }
   }
 
   async modify(order: Order): Promise<Order> {
-    return this.orderModel
-      .findByIdAndUpdate(order._id, order, { new: true })
-      .exec();
+    return this.orderModel.findByIdAndUpdate(order._id, order, { new: true }).exec();
   }
 
   async findAll(): Promise<Array<Order>> {
@@ -69,8 +83,18 @@ export class OrderSvc {
   }
 
   async create(order: Order): Promise<Order> {
-    const createdOrder = new this.orderModel(order);
-    return createdOrder.save();
+    console.log('createOrder');
+    const existingsOrder: Order[] = await this.orderModel
+      .find({ status: OrderStatus.NEW, price: order.price, pair: order.pair })
+      .exec();
+
+    if (existingsOrder.length > 0) {
+      this.logger.log(`Order already exists for price ${order.price.value}`);
+      return existingsOrder[0];
+    } else {
+      const orderCreated = new this.orderModel(order);
+      return orderCreated.save();
+    }
   }
 
   async delete(id: string): Promise<Order> {
@@ -93,12 +117,7 @@ function createFirstMarketOrder(plan: Plan): Order {
   return order;
 }
 
-function createOrder(
-  plan: Plan,
-  stepLevel: number,
-  currentprice: number,
-  firstMarketOrder: Order,
-): Order {
+function createOrder(plan: Plan, stepLevel: number, currentprice: number, firstMarketOrder: Order): Order {
   const order = new Order();
   order.planId = plan._id;
   order.pair = plan.pair;

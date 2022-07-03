@@ -4,7 +4,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 @Schema()
 export class Plan {
   public _id: string;
-  public __v: string;
+  public __v: number;
 
   @Prop({ type: Pair, required: true })
   public pair: Pair;

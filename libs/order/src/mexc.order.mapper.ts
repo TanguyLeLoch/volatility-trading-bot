@@ -4,9 +4,7 @@ import { Order, OrderPrice } from './order';
 
 export function mexcOrderToOrder(mexcOrder: MexcOrder, pair: Pair): Order {
   const order = new Order();
-  order._id = mexcOrder.clientOrderId
-    ? mexcOrder.clientOrderId
-    : mexcOrder.orderId;
+  order._id = mexcOrder.clientOrderId ? mexcOrder.clientOrderId : mexcOrder.orderId;
   order.pair = pair;
   order.side = mexcOrder.side;
   order.amount = Number(mexcOrder.origQty);

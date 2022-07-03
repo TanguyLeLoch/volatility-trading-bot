@@ -1,13 +1,13 @@
 import { CallerModule } from '@app/core';
 import { Module } from '@nestjs/common';
-import { DexController } from '../controller/dex.controller';
+import { CexController } from '../controller/cex.controller';
 import { MexcSvc } from '../service/mexc.service';
-import { DexSvc } from '../service/dex.service';
+import { CexSvc } from '../service/cex.service';
 import { ExchangeModule } from './exchange.module';
 
 @Module({
   imports: [CallerModule, ExchangeModule],
-  controllers: [DexController],
-  providers: [DexSvc, MexcSvc],
+  controllers: [CexController],
+  providers: [CexSvc, MexcSvc],
 })
-export class DexModule {}
+export class CexModule {}
