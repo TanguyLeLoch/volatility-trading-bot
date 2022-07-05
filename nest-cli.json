@@ -134,6 +134,15 @@
       "compilerOptions": {
         "tsConfigPath": "apps/module-async/tsconfig.app.json"
       }
+    },
+    "module-discord": {
+      "type": "application",
+      "root": "apps/module-discord",
+      "entryFile": "main",
+      "sourceRoot": "apps/module-discord/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/module-discord/tsconfig.app.json"
+      }
     }
   }
 }

@@ -1,11 +1,13 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { Method } from '../method';
+import winston from 'winston';
+import { createCustomLogger } from '../logger';
+import { getModuleName } from '../module.ports';
 
 @Injectable()
 export class ExternalCallerSvc {
-  private readonly logger = new Logger(ExternalCallerSvc.name);
-
+  private readonly logger: winston.Logger = createCustomLogger(getModuleName(), ExternalCallerSvc.name);
   constructor(private httpService: HttpService) {}
 
   async callExternal(method: Method, url: string, body?: any, headers?: any): Promise<any> {

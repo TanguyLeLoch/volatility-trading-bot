@@ -1,14 +1,16 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { ExternalCallerSvc, Method } from '@app/core';
+import { Injectable } from '@nestjs/common';
+import { createCustomLogger, ExternalCallerSvc, Method } from '@app/core';
 import { MexcOrder, mexcOrderToOrder, Order, PriceType } from '@model/order';
 import * as CryptoJS from 'crypto-js';
 import { Pair, Price } from '@model/common';
 import { Exchange, ExchangeStatus } from '@model/network';
 import { ExchangeSvc } from './exchange.service';
+import winston from 'winston';
+import { moduleName } from '../main';
 
 @Injectable()
 export class MexcSvc {
-  private readonly logger = new Logger(MexcSvc.name);
+  private readonly logger: winston.Logger = createCustomLogger(moduleName, MexcSvc.name);
   private readonly mexcBaseUrl = 'https://api.mexc.com';
   constructor(private readonly externalCallerSvc: ExternalCallerSvc, private readonly exchangeSvc: ExchangeSvc) {}
 

@@ -1,14 +1,15 @@
+import { createCustomLogger } from '@app/core';
 import { Exchange } from '@model/network';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import winston from 'winston';
+import { moduleName } from '../main';
 
 @Injectable()
 export class ExchangeSvc {
-  private readonly logger = new Logger(ExchangeSvc.name);
-  constructor(
-    @InjectModel('Exchange') private readonly exchangeModel: Model<Exchange>,
-  ) {}
+  private readonly logger: winston.Logger = createCustomLogger(moduleName, ExchangeSvc.name);
+  constructor(@InjectModel('Exchange') private readonly exchangeModel: Model<Exchange>) {}
 
   async findById(id: string): Promise<Exchange> {
     return this.exchangeModel.findById(id).exec();

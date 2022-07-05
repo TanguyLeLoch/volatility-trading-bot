@@ -1,14 +1,16 @@
 import { Model } from 'mongoose';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Order, OrderStatus, OrderPrice, PriceType, Side } from '@model/order';
 import { Plan } from '@model/plan';
-import { Method, ModuleCallerSvc } from '@app/core';
+import { createCustomLogger, Method, ModuleCallerSvc } from '@app/core';
 import { Pair } from '@model/common';
+import winston from 'winston';
+import { moduleName } from '../main';
 
 @Injectable()
 export class OrderSvc {
-  private readonly logger = new Logger(OrderSvc.name);
+  private readonly logger: winston.Logger = createCustomLogger(moduleName, OrderSvc.name);
 
   constructor(
     @InjectModel('Order') private readonly orderModel: Model<Order>,
@@ -23,7 +25,7 @@ export class OrderSvc {
   }
 
   async createByPlan(plan: Plan): Promise<Array<Order>> {
-    this.logger.log(`Creating orders for plan ${plan._id}`);
+    this.logger.info(`Creating orders for plan ${plan._id}`);
     plan.pair = new Pair(plan.pair);
 
     const { price: currentprice } = await this.moduleCallerSvc.callModule('network', Method.POST, 'cex/price', {
@@ -50,7 +52,7 @@ export class OrderSvc {
       throw new Error('Price is below last step level');
     }
     // save orders in db
-    this.logger.log(`Saving ${orders.length} orders`);
+    this.logger.info(`Saving ${orders.length} orders`);
     const createdOrders = await Promise.all(orders.map((order) => this.create(order)));
     // send orders to CEX
     const sentOrders = await this.moduleCallerSvc.callModule('network', Method.POST, 'cex/postOrders', createdOrders);
@@ -65,7 +67,7 @@ export class OrderSvc {
     const modifiedOrder = [];
     for (const order of marketOrdersSaved) {
       modifiedOrder.push(await this.markAsFilled(order));
-      this.logger.log(`Marked order ${order._id} as filled`);
+      this.logger.info(`Marked order ${order._id} as filled`);
     }
     for (const order of modifiedOrder) {
       //delete from list
@@ -90,7 +92,7 @@ export class OrderSvc {
       .exec();
 
     if (existingsOrder.length > 0) {
-      this.logger.log(`Order already exists for price ${order.price.value}`);
+      this.logger.info(`Order already exists for price ${order.price.value}`);
       return existingsOrder[0];
     } else {
       const orderCreated = new this.orderModel(order);

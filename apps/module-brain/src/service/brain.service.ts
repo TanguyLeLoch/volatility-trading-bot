@@ -1,14 +1,17 @@
 import { Injectable } from '@nestjs/common';
-import { ModuleCallerSvc } from '@app/core';
+import { createCustomLogger, ModuleCallerSvc } from '@app/core';
 import { Method } from '@app/core';
 import { Plan } from '@model/plan';
 import { AsyncCall, AsyncStatus } from '@model/async';
 import { Exchange } from '@model/network';
+import winston from 'winston';
+import { moduleName } from '../main';
 
 const TIME_BETWEEN_CALL = 60 * 5; // 5 minutes
 
 @Injectable()
 export class BrainSvc {
+  private readonly logger: winston.Logger = createCustomLogger(moduleName, BrainSvc.name);
   constructor(private readonly moduleCallerSvc: ModuleCallerSvc) {}
 
   async init(planId: string): Promise<any> {
@@ -25,8 +28,8 @@ export class BrainSvc {
     await this.sendAsync(asyncCall);
     return orders;
   }
-  private async sendAsync(asyncCall: AsyncCall) {
-    await this.moduleCallerSvc.callModule('async', Method.POST, 'asyncs', asyncCall);
+  private async sendAsync(asyncCall: AsyncCall): Promise<AsyncCall> {
+    return await this.moduleCallerSvc.callModule('async', Method.POST, 'asyncs', asyncCall);
   }
 
   private createAsyncSynchronise(planId: string) {
@@ -48,7 +51,10 @@ export class BrainSvc {
       `orders/synchronize/${planId}`,
       null,
     );
-    this.sendAsync(this.createAsyncSynchronise(planId));
+    const asyncToCreate: AsyncCall = this.createAsyncSynchronise(planId);
+    await this.sendAsync(asyncToCreate);
+    this.logger.info(`Next async at: ${asyncToCreate.dateToCall}`);
+
     return exchanges;
   }
 }

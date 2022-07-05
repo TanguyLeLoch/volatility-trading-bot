@@ -1,13 +1,16 @@
-import { Controller, Get, Post, Put, Body, Param, Delete, Logger } from '@nestjs/common';
+import { Controller, Get, Post, Put, Body, Param, Delete } from '@nestjs/common';
 import { Order } from '@model/order';
 import { OrderSvc } from '../service/order.service';
 import { Plan } from '@model/plan';
 import { SyncOrderSvc } from '../service/sync.order.service';
 import { Exchange } from '@model/network';
+import winston from 'winston';
+import { createCustomLogger } from '@app/core';
+import { moduleName } from '../main';
 
 @Controller('orders')
 export class OrderController {
-  private readonly logger = new Logger(OrderController.name);
+  private readonly logger: winston.Logger = createCustomLogger(moduleName, OrderController.name);
   constructor(private readonly orderSvc: OrderSvc, private readonly syncOrderSvc: SyncOrderSvc) {}
 
   @Get(':id')
@@ -21,7 +24,7 @@ export class OrderController {
   }
   @Post('synchronize/:planId')
   synchronize(@Param() { planId }: { planId: string }): Promise<Exchange[]> {
-    this.logger.log(`synchronize with for plan id ${planId}`);
+    this.logger.info(`synchronize with for plan id ${planId}`);
     return this.syncOrderSvc.synchronize(planId);
   }
 

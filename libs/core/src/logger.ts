@@ -1,19 +1,30 @@
 import { createLogger, format, transports } from 'winston';
-const { combine, splat, timestamp, printf } = format;
+const { combine, timestamp, printf, colorize } = format;
 
-const myFormat = printf(({ level, message, timestamp, ...metadata }) => {
-  let msg = `${timestamp} [${level}] : ${message} `;
-  if (metadata) {
-    msg += JSON.stringify(metadata);
-  }
-  return msg;
-});
+function getFormatFile(moduleName: string, name: string) {
+  return combine(
+    timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+    printf(
+      (info) => `${info.timestamp} - Module ${moduleName} - ${info.level.toUpperCase()} - [${name}] : ${info.message}`,
+    ),
+  );
+}
 
-export const logger = createLogger({
-  level: 'verbose',
-  format: combine(format.colorize(), splat(), timestamp(), myFormat),
-  transports: [
-    new transports.Console({ level: 'verbose' }),
-    new transports.File({ filename: 'global.log', level: 'verbose' }),
-  ],
-});
+export function createCustomLogger(moduleName: string, name: string) {
+  const logger = createLogger({
+    level: 'silly',
+    transports: [
+      new transports.Console({
+        format: format.combine(getFormatFile(moduleName, name), colorize({ all: true })),
+        level: 'silly',
+      }),
+      new transports.File({
+        filename: 'global.log',
+        level: 'silly',
+        format: getFormatFile(moduleName, name),
+      }),
+    ],
+  });
+
+  return logger;
+}

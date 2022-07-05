@@ -1,15 +1,15 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Order, OrderStatus, PriceType, Side } from '@model/order';
 import { Plan } from '@model/plan';
-import { logger, Method, ModuleCallerSvc } from '@app/core';
+import { createCustomLogger, Method, ModuleCallerSvc } from '@app/core';
 import { Exchange, GetOrderRequest } from '@model/network';
 import { OrderSvc } from './order.service';
+import winston from 'winston';
+import { moduleName } from '../main';
 
 @Injectable()
 export class SyncOrderSvc {
-  private readonly logger = new Logger(SyncOrderSvc.name);
-  private readonly logger2 = logger;
-
+  private readonly logger: winston.Logger = createCustomLogger(moduleName, SyncOrderSvc.name);
   constructor(private readonly orderSvc: OrderSvc, private readonly moduleCallerSvc: ModuleCallerSvc) {}
 
   async synchronize(planId: string): Promise<any> {
@@ -25,15 +25,13 @@ export class SyncOrderSvc {
     const desyncOrders: Order[] = getDesyncOrders(ordersDb, ordersCex);
     if (desyncOrders.length > 0) {
       for (const desyncOrder of desyncOrders) {
-        this.logger.log(`Order ${desyncOrder._id} is not on cex, we assume it was triggered`);
-        this.logger2.info(`Order ${desyncOrder._id} is not on cex, we assume it was triggered`);
+        this.logger.info(`Order ${desyncOrder._id} is not on cex, we assume it was triggered`);
         await this.orderSvc.markAsFilled(desyncOrder);
         const exchange: Exchange = await this.createOrderAfterTrigger(desyncOrder, plan);
         exchanges.push(exchange);
       }
     } else {
-      this.logger.log(`DB and cex orders are synced`);
-      this.logger2.info(`DB and cex orders are synced`);
+      this.logger.info(`DB and cex orders are synced`);
     }
     return exchanges;
   }
@@ -56,12 +54,12 @@ export class SyncOrderSvc {
 
     this.logger.debug(`Creating order in database: ${JSON.stringify(newOrder)}`);
     const orderDb = await this.orderSvc.create(newOrder);
-    this.logger.log(`Order ${orderDb._id} created in database`);
+    this.logger.info(`Order ${orderDb._id} created in database`);
     // create order in cex
     const ordersCex: Exchange[] = await this.moduleCallerSvc.callModule('network', Method.POST, 'cex/postOrders', [
       orderDb,
     ]);
-    this.logger.log(`Order ${ordersCex[0]._id} created on cex`);
+    this.logger.info(`Order ${ordersCex[0]._id} created on cex`);
     return ordersCex[0];
   }
   private createOrderRequestByPlan(planId: string, plan: any): GetOrderRequest {
@@ -82,7 +80,7 @@ export class SyncOrderSvc {
         throw new Error(`Order ${JSON.stringify(order)} is not new`);
       }
     });
-    this.logger.log(`Found ${ordersCex.length} orders on cex`);
+    this.logger.info(`Found ${ordersCex.length} orders on cex`);
     if (ordersDb.length < ordersCex.length) {
       throw new Error(`There is more orders on cex than in database`);
     }

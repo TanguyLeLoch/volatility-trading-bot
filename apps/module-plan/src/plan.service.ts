@@ -1,13 +1,15 @@
 import { Model } from 'mongoose';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Plan } from '@model/plan';
-import { ModuleCallerSvc } from '@app/core';
+import { createCustomLogger, ModuleCallerSvc } from '@app/core';
 import { Pair } from '@model/common';
+import winston from 'winston';
+import { moduleName } from './main';
 
 @Injectable()
 export class PlanSvc {
-  private readonly logger = new Logger(PlanSvc.name);
+  private readonly logger: winston.Logger = createCustomLogger(moduleName, PlanSvc.name);
   constructor(
     @InjectModel('Plan') private readonly planModel: Model<Plan>,
     private readonly moduleCallerSvc: ModuleCallerSvc,
@@ -18,7 +20,7 @@ export class PlanSvc {
   }
 
   async create(plan: Plan): Promise<Plan> {
-    this.logger.log(`Creating plan ${new Pair(plan.pair).toString()}`);
+    this.logger.info(`Creating plan ${new Pair(plan.pair).toString()}`);
 
     if (plan.stepLevels === undefined) {
       plan.stepLevels = [];
@@ -42,13 +44,9 @@ export class PlanSvc {
       moneyLeft -= plan.amountPerStep;
     }
     // round prices to 3 decimals
-    plan.stepLevels = plan.stepLevels.map(
-      (step) => Math.round(step * 1000) / 1000,
-    );
+    plan.stepLevels = plan.stepLevels.map((step) => Math.round(step * 1000) / 1000);
     //save updated plan
-    const updatedPlan = await this.planModel
-      .findByIdAndUpdate(id, plan, { new: true })
-      .exec();
+    const updatedPlan = await this.planModel.findByIdAndUpdate(id, plan, { new: true }).exec();
 
     return updatedPlan;
   }

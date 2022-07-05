@@ -10,3 +10,11 @@ export const ports: Ports = {
   plan: 43005,
   async: 43006,
 };
+
+let moduleName = '';
+export const setModuleName = (name: string) => {
+  moduleName = name;
+};
+export const getModuleName = () => {
+  return moduleName;
+};

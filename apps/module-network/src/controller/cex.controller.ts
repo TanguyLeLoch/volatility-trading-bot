@@ -1,12 +1,15 @@
-import { Body, Controller, Logger, Post } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { CexSvc } from '../service/cex.service';
 import { Order } from '@model/order';
 import { Price } from '@model/common';
 import { Exchange, GetOrderRequest, GetPriceRequest } from '@model/network';
+import winston from 'winston';
+import { createCustomLogger } from '@app/core';
+import { moduleName } from '../main';
 
 @Controller('cex')
 export class CexController {
-  private readonly logger = new Logger(CexController.name);
+  private readonly logger: winston.Logger = createCustomLogger(moduleName, CexController.name);
   constructor(private readonly cexSvc: CexSvc) {}
 
   @Post('orders')

@@ -6,7 +6,7 @@ export class AsyncCall {
   public _id: string;
   public __v: string;
 
-  @Prop({ required: true })
+  @Prop({ type: Date, required: true })
   public dateToCall: Date;
   @Prop({ type: String, required: true })
   public status: AsyncStatus;

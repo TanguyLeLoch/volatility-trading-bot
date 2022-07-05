@@ -1,12 +1,14 @@
-import { ModuleCallerSvc } from '@app/core';
+import { createCustomLogger, ModuleCallerSvc } from '@app/core';
 import { AsyncCall, AsyncFilter, AsyncStatus } from '@model/async';
-import { Injectable, Logger, OnApplicationBootstrap, OnModuleDestroy } from '@nestjs/common';
+import { Injectable, OnApplicationBootstrap, OnModuleDestroy } from '@nestjs/common';
 import { CronJob } from 'cron';
+import winston from 'winston';
 import { AsyncSvc } from './async.service';
+import { moduleName } from './main';
 
 @Injectable()
 export class AsyncEngineSvc implements OnApplicationBootstrap, OnModuleDestroy {
-  private readonly logger = new Logger(AsyncEngineSvc.name);
+  private readonly logger: winston.Logger = createCustomLogger(moduleName, AsyncEngineSvc.name);
   private cronJob: CronJob;
   constructor(private readonly asyncSvc: AsyncSvc, private readonly moduleCallerSvc: ModuleCallerSvc) {}
   onApplicationBootstrap() {
