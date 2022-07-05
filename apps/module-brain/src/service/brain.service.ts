@@ -5,7 +5,7 @@ import { Plan } from '@model/plan';
 import { AsyncCall, AsyncStatus } from '@model/async';
 import { Exchange } from '@model/network';
 
-const TIME_BETWEEN_CALL = 60 * 1; // 1 minute
+const TIME_BETWEEN_CALL = 60 * 5; // 5 minutes
 
 @Injectable()
 export class BrainSvc {

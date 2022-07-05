@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ExternalCallerSvc, Method } from '@app/core';
-import { MexcOrder, mexcOrderToOrder, Order } from '@model/order';
+import { MexcOrder, mexcOrderToOrder, Order, PriceType } from '@model/order';
 import * as CryptoJS from 'crypto-js';
 import { Pair, Price } from '@model/common';
 import { Exchange, ExchangeStatus } from '@model/network';
@@ -18,7 +18,7 @@ export class MexcSvc {
     params.set('symbol', pair.token1 + pair.token2);
     params.set('timestamp', String(Date.now()));
     const fullUrl = this.signUrl(url, params);
-    this.logger.log(`Sending request to ${fullUrl}`);
+    this.logger.debug(`Sending request to ${fullUrl}`);
     const mexcOrders: MexcOrder[] = await this.send(Method.GET, fullUrl);
     return mexcOrders.map((mexcOrder) => mexcOrderToOrder(mexcOrder, pair));
   }
@@ -27,7 +27,6 @@ export class MexcSvc {
     const url = this.mexcBaseUrl + '/api/v3/ticker/price';
     const params: Map<string, string> = new Map();
     params.set('symbol', pair.token1 + pair.token2);
-
     return await this.send(Method.GET, this.addParameters(url, params));
   }
   async postOrders(orders: Order[]): Promise<Exchange[]> {
@@ -36,18 +35,21 @@ export class MexcSvc {
       const exchange = await this.sendOrder(order);
       createdOrderExchanges.push(exchange);
     }
-
     return createdOrderExchanges;
   }
 
   private async sendOrder(order: Order): Promise<Exchange> {
-    const url = this.mexcBaseUrl + '/api/v3/order/test';
+    const url = this.mexcBaseUrl + '/api/v3/order';
     const params: Map<string, string> = new Map();
     params.set('symbol', order.pair.token1 + order.pair.token2);
     params.set('side', order.side);
     params.set('type', order.price.type);
-    params.set('quantity', String(order.amount));
-    order.price.value && params.set('price', String(order.price.value));
+    if (order.price.type === PriceType.MARKET) {
+      params.set('quoteOrderQty', String(order.amount));
+    } else {
+      params.set('price', String(order.price.value));
+      params.set('quantity', String(Math.round((1000000 * order.amount) / order.price.value) / 1000000));
+    }
     params.set('newClientOrderId', order._id);
     params.set('timestamp', String(Date.now()));
     const fullUrl = this.signUrl(url, params);
@@ -81,7 +83,7 @@ export class MexcSvc {
   async send(method: Method, url: string): Promise<any> {
     const headers = { 'X-MEXC-APIKEY': process.env.ACCESS_KEY };
     const { data } = await this.externalCallerSvc.callExternal(method, url, null, headers);
-    this.logger.log(`Response data: ${JSON.stringify(data)}`);
+    this.logger.verbose(`Response data: ${JSON.stringify(data)}`);
     return data;
   }
   private addParameters(url: string, params: Map<string, string>): string {

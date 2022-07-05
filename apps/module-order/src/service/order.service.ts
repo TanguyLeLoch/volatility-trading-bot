@@ -64,8 +64,7 @@ export class OrderSvc {
     const marketOrdersSaved: Order[] = createdOrders.filter((order) => order.price.type === PriceType.MARKET);
     const modifiedOrder = [];
     for (const order of marketOrdersSaved) {
-      order.status = OrderStatus.FILLED;
-      modifiedOrder.push(await this.modify(order));
+      modifiedOrder.push(await this.markAsFilled(order));
       this.logger.log(`Marked order ${order._id} as filled`);
     }
     for (const order of modifiedOrder) {
@@ -73,7 +72,10 @@ export class OrderSvc {
       createdOrders.splice(createdOrders.indexOf(order), 1);
     }
   }
-
+  async markAsFilled(order: Order): Promise<Order> {
+    order.status = OrderStatus.FILLED;
+    return this.modify(order);
+  }
   async modify(order: Order): Promise<Order> {
     return this.orderModel.findByIdAndUpdate(order._id, order, { new: true }).exec();
   }
@@ -83,7 +85,6 @@ export class OrderSvc {
   }
 
   async create(order: Order): Promise<Order> {
-    console.log('createOrder');
     const existingsOrder: Order[] = await this.orderModel
       .find({ status: OrderStatus.NEW, price: order.price, pair: order.pair })
       .exec();

@@ -5,18 +5,14 @@ import { Model } from 'mongoose';
 
 @Injectable()
 export class AsyncSvc {
-  constructor(
-    @InjectModel('Async') private readonly asyncModel: Model<AsyncCall>,
-  ) {}
+  constructor(@InjectModel('Async') private readonly asyncModel: Model<AsyncCall>) {}
 
   async findById(id: string): Promise<AsyncCall> {
     return this.asyncModel.findById(id).exec();
   }
 
   async modify(asyncCall: AsyncCall): Promise<AsyncCall> {
-    return this.asyncModel
-      .findByIdAndUpdate(asyncCall._id, asyncCall, { new: true })
-      .exec();
+    return this.asyncModel.findByIdAndUpdate(asyncCall._id, asyncCall, { new: true }).exec();
   }
 
   async findAll(): Promise<Array<AsyncCall>> {

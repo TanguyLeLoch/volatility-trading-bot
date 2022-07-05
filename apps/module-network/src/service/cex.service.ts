@@ -9,11 +9,7 @@ import { Exchange, GetOrderRequest } from '@model/network';
 @Injectable()
 export class CexSvc {
   private readonly logger = new Logger(CexSvc.name);
-  constructor(
-    private readonly externalCallerSvc: ExternalCallerSvc,
-    private readonly moduleCallerSvc: ModuleCallerSvc,
-    private readonly mexcSvc: MexcSvc,
-  ) {}
+  constructor(private readonly moduleCallerSvc: ModuleCallerSvc, private readonly mexcSvc: MexcSvc) {}
 
   async getCexOrder(request: GetOrderRequest): Promise<Order[]> {
     this.logger.log(`request: ${JSON.stringify(request)}`);

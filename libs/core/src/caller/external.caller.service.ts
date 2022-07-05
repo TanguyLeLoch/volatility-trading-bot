@@ -8,15 +8,8 @@ export class ExternalCallerSvc {
 
   constructor(private httpService: HttpService) {}
 
-  async callExternal(
-    method: Method,
-    url: string,
-    body?: any,
-    headers?: any,
-  ): Promise<any> {
-    this.logger.log(
-      `${method} on url ${url} with body: ${JSON.stringify(body)}`,
-    );
+  async callExternal(method: Method, url: string, body?: any, headers?: any): Promise<any> {
+    this.logger.debug(`${method} on url ${url} with body: ${JSON.stringify(body)}`);
 
     let response: any;
     try {
@@ -28,8 +21,7 @@ export class ExternalCallerSvc {
       });
     } catch (error) {
       this.logger.error(error.response.data);
-
-      this.logger.log(`error: ${JSON.stringify(error)}`);
+      this.logger.error(`error: ${JSON.stringify(error)}`);
       throw error;
     }
     return response;

@@ -1,42 +1,40 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Order, OrderStatus, PriceType, Side } from '@model/order';
 import { Plan } from '@model/plan';
-import { Method, ModuleCallerSvc } from '@app/core';
+import { logger, Method, ModuleCallerSvc } from '@app/core';
 import { Exchange, GetOrderRequest } from '@model/network';
 import { OrderSvc } from './order.service';
 
 @Injectable()
 export class SyncOrderSvc {
   private readonly logger = new Logger(SyncOrderSvc.name);
+  private readonly logger2 = logger;
 
   constructor(private readonly orderSvc: OrderSvc, private readonly moduleCallerSvc: ModuleCallerSvc) {}
 
   async synchronize(planId: string): Promise<any> {
     const ordersDb = await this.orderSvc.findByPlanId(planId, { status: OrderStatus.NEW });
-    this.logger.log(`Found ${ordersDb.length} orders`);
+    this.logger.debug(`Found ${ordersDb.length} orders in database at NEW status`);
     const plan = await this.getPlan(planId);
     // get all orders for plan from cex
     const request: GetOrderRequest = this.createOrderRequestByPlan(planId, plan);
-
     const ordersCex = await this.moduleCallerSvc.callModule('network', Method.POST, 'cex/orders', request);
+    this.logger.verbose(`ordersCex: ${JSON.stringify(ordersCex)}`);
     this.checkOrders(ordersCex, ordersDb);
     const exchanges: Exchange[] = [];
-    if (ordersDb.length > ordersCex.length) {
-      this.logger.log(`${ordersDb.length - ordersCex.length} orders seems to have been triggered`);
-      let i = 0;
-      for (const order of ordersDb) {
-        this.logger.verbose(`Treating order [${++i}/${ordersDb.length}]`);
-        const orderCex = ordersCex.find((o: Order) => o._id === order._id);
-        if (!orderCex) {
-          this.logger.log(`Order ${order._id} is not on cex, we assume it was triggered`);
-          const exchange: Exchange = await this.createOrderAfterTrigger(order, plan);
-          exchanges.push(exchange);
-        }
+    const desyncOrders: Order[] = getDesyncOrders(ordersDb, ordersCex);
+    if (desyncOrders.length > 0) {
+      for (const desyncOrder of desyncOrders) {
+        this.logger.log(`Order ${desyncOrder._id} is not on cex, we assume it was triggered`);
+        this.logger2.info(`Order ${desyncOrder._id} is not on cex, we assume it was triggered`);
+        await this.orderSvc.markAsFilled(desyncOrder);
+        const exchange: Exchange = await this.createOrderAfterTrigger(desyncOrder, plan);
+        exchanges.push(exchange);
       }
     } else {
-      this.logger.log(`DB and cex orders seems to be in sync`);
+      this.logger.log(`DB and cex orders are synced`);
+      this.logger2.info(`DB and cex orders are synced`);
     }
-
     return exchanges;
   }
 
@@ -98,4 +96,14 @@ function findClosestNumberIdx(steps: Array<number>, valueToFound: number): numbe
     }
   }
   return steps.indexOf(closest);
+}
+function getDesyncOrders(ordersDb: Order[], ordersCex: any): Order[] {
+  const desyncOrders: Order[] = [];
+  ordersDb.forEach((order: Order) => {
+    const orderCex = ordersCex.find((orderCex: Order) => orderCex._id == order._id);
+    if (!orderCex) {
+      desyncOrders.push(order);
+    }
+  });
+  return desyncOrders;
 }

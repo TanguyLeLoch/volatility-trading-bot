@@ -1,11 +1,6 @@
 import { ModuleCallerSvc } from '@app/core';
 import { AsyncCall, AsyncFilter, AsyncStatus } from '@model/async';
-import {
-  Injectable,
-  Logger,
-  OnApplicationBootstrap,
-  OnModuleDestroy,
-} from '@nestjs/common';
+import { Injectable, Logger, OnApplicationBootstrap, OnModuleDestroy } from '@nestjs/common';
 import { CronJob } from 'cron';
 import { AsyncSvc } from './async.service';
 
@@ -13,10 +8,7 @@ import { AsyncSvc } from './async.service';
 export class AsyncEngineSvc implements OnApplicationBootstrap, OnModuleDestroy {
   private readonly logger = new Logger(AsyncEngineSvc.name);
   private cronJob: CronJob;
-  constructor(
-    private readonly asyncSvc: AsyncSvc,
-    private readonly moduleCallerSvc: ModuleCallerSvc,
-  ) {}
+  constructor(private readonly asyncSvc: AsyncSvc, private readonly moduleCallerSvc: ModuleCallerSvc) {}
   onApplicationBootstrap() {
     this.logger.warn(`Initialization of async engine ...`);
     this.cronJob = this.createCronJob();
@@ -60,21 +52,14 @@ export class AsyncEngineSvc implements OnApplicationBootstrap, OnModuleDestroy {
   }
 
   private async executeAsyncCall(asyncCall: AsyncCall) {
-    this.logger.log(`Processing async call: ${JSON.stringify(asyncCall)}`);
+    this.logger.debug(`Processing async call: ${JSON.stringify(asyncCall)}`);
     // update status to IN_PROGRESS
     asyncCall.status = AsyncStatus.IN_PROGRESS;
     asyncCall = await this.asyncSvc.modify(asyncCall);
     // make call
-    const response = await this.moduleCallerSvc.callModule(
-      asyncCall.module,
-      asyncCall.method,
-      asyncCall.url,
-      asyncCall.body,
-    );
-    this.logger.log(`Response: ${JSON.stringify(response)}`);
-    // update status to DONE
-    asyncCall.status = AsyncStatus.DONE;
-    asyncCall = await this.asyncSvc.modify(asyncCall);
+    await this.moduleCallerSvc.callModule(asyncCall.module, asyncCall.method, asyncCall.url, asyncCall.body);
+    // delete async
+    await this.asyncSvc.delete(asyncCall._id);
     return asyncCall;
   }
 }
