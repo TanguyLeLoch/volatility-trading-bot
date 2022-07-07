@@ -15,7 +15,7 @@ export class SyncOrderSvc {
   async synchronize(planId: string): Promise<any> {
     const ordersDb = await this.orderSvc.findByPlanId(planId, { status: OrderStatus.NEW });
     this.logger.debug(`Found ${ordersDb.length} orders in database at NEW status`);
-    const plan = await this.getPlan(planId);
+    const plan: Plan = await this.getPlan(planId);
     // get all orders for plan from cex
     const request: GetOrderRequest = this.createOrderRequestByPlan(planId, plan);
     const ordersCex = await this.moduleCallerSvc.callModule('network', Method.POST, 'cex/orders', request);
@@ -25,13 +25,19 @@ export class SyncOrderSvc {
     const desyncOrders: Order[] = getDesyncOrders(ordersDb, ordersCex);
     if (desyncOrders.length > 0) {
       for (const desyncOrder of desyncOrders) {
-        this.logger.info(`Order ${desyncOrder._id} is not on cex, we assume it was triggered`);
+        this.logger.warn(`Order ${desyncOrder._id} is not on cex, we assume it was triggered`);
+        this.postMessageOnDiscord(
+          `${desyncOrder.side} at ${desyncOrder.price.value} for pair ${
+            plan.pair.token1 + '-' + plan.pair.token2
+          } has been triggered`,
+        );
         await this.orderSvc.markAsFilled(desyncOrder);
         const exchange: Exchange = await this.createOrderAfterTrigger(desyncOrder, plan);
         exchanges.push(exchange);
       }
     } else {
       this.logger.info(`DB and cex orders are synced`);
+      this.postMessageOnDiscord(`Pair ${plan.pair.token1 + '-' + plan.pair.token2} is synced `);
     }
     return exchanges;
   }
@@ -60,8 +66,19 @@ export class SyncOrderSvc {
       orderDb,
     ]);
     this.logger.info(`Order ${ordersCex[0]._id} created on cex`);
+    this.postMessageOnDiscord(
+      `${orderDb.side} at ${orderDb.price.value} for pair ${
+        plan.pair.token1 + '-' + plan.pair.token2
+      }  has been created`,
+    );
     return ordersCex[0];
   }
+  private postMessageOnDiscord(message: string) {
+    this.moduleCallerSvc.callModule('discord', Method.POST, '', { content: message }).catch((err) => {
+      this.logger.error(`Error posting message on discord: ${err}`);
+    });
+  }
+
   private createOrderRequestByPlan(planId: string, plan: any): GetOrderRequest {
     return {
       planId,

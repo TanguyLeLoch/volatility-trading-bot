@@ -61,6 +61,11 @@ export class MexcSvc {
     exchange.url = fullUrl;
     // save exchange before sending order
     const createcexchange = await this.exchangeSvc.create(exchange);
+    this.logger.warn(
+      `Send Order ${order.side} ${order.amount} ${order.pair.token1} ${order.price.value ? order.price.value : ''} at ${
+        order.price.type
+      }}`,
+    );
     const content = await this.send(Method.POST, fullUrl);
     createcexchange.content = content;
     createcexchange.status = ExchangeStatus.ACCEPTED;

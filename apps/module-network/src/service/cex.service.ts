@@ -14,16 +14,16 @@ export class CexSvc {
   constructor(private readonly moduleCallerSvc: ModuleCallerSvc, private readonly mexcSvc: MexcSvc) {}
 
   async getCexOrder(request: GetOrderRequest): Promise<Order[]> {
-    this.logger.info(`request: ${JSON.stringify(request)}`);
+    this.logger.verbose(`request: ${JSON.stringify(request)}`);
     if (request.platform !== 'MEXC') {
       throw new Error('Only mexc is supported');
     }
-    this.logger.info(`Getting order for ${JSON.stringify(request.pair)}`);
+    this.logger.verbose(`Getting order for ${JSON.stringify(request.pair)}`);
     return this.mexcSvc.getActiveOrders(request.pair);
   }
   async postOrders(orders: Order[]): Promise<Exchange[]> {
     const plan = await this.moduleCallerSvc.callModule('plan', Method.GET, `plans/${orders[0].planId}`, null);
-    this.logger.info(`plan: ${JSON.stringify(plan)}`);
+    this.logger.verbose(`plan: ${JSON.stringify(plan)}`);
     if (plan.platform !== 'MEXC') {
       throw new Error('Only mexc is supported');
     }

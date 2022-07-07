@@ -12,16 +12,17 @@ function getFormatFile(moduleName: string, name: string) {
 
 export function createCustomLogger(moduleName: string, name: string) {
   const logger = createLogger({
-    level: 'silly',
+    level: 'debug',
     transports: [
       new transports.Console({
         format: format.combine(getFormatFile(moduleName, name), colorize({ all: true })),
-        level: 'silly',
+        level: 'debug',
       }),
       new transports.File({
         filename: 'global.log',
-        level: 'silly',
+        level: 'debug',
         format: getFormatFile(moduleName, name),
+        maxsize: 1000000,
       }),
     ],
   });

@@ -28,10 +28,13 @@ export class OrderSvc {
     this.logger.info(`Creating orders for plan ${plan._id}`);
     plan.pair = new Pair(plan.pair);
 
-    const { price: currentprice } = await this.moduleCallerSvc.callModule('network', Method.POST, 'cex/price', {
+    const { price: currentpriceStr } = await this.moduleCallerSvc.callModule('network', Method.POST, 'cex/price', {
       pair: plan.pair,
       platform: plan.platform,
     });
+    const currentprice = Number(currentpriceStr);
+    this.logger.info(`Current price for ${plan.pair.toString()} is ${currentprice}`);
+    this.logger.info(typeof currentprice);
     const orders: Array<Order> = [];
     const firstMarketOrder = createFirstMarketOrder(plan);
     orders.push(firstMarketOrder);
