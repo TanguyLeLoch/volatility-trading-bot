@@ -27,7 +27,7 @@ export class SyncOrderSvc {
       for (const desyncOrder of desyncOrders) {
         this.logger.warn(`Order ${desyncOrder._id} is not on cex, we assume it was triggered`);
         this.postMessageOnDiscord(
-          `${desyncOrder.side} at ${desyncOrder.price.value} for pair ${
+          `@here \n${desyncOrder.side} at ${desyncOrder.price.value} for pair ${
             plan.pair.token1 + '-' + plan.pair.token2
           } has been triggered`,
         );
@@ -94,7 +94,8 @@ export class SyncOrderSvc {
   private checkOrders(ordersCex: any, ordersDb: Order[]) {
     ordersCex.forEach((order: Order) => {
       if (order.status !== OrderStatus.NEW) {
-        throw new Error(`Order ${JSON.stringify(order)} is not new`);
+        this.logger.warn(`Order ${order._id} is not in NEW status`);
+        // throw new Error(`Order ${JSON.stringify(order)} is not new`);
       }
     });
     this.logger.info(`Found ${ordersCex.length} orders on cex`);

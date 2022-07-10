@@ -1,4 +1,4 @@
-import { createCustomLogger } from '@app/core';
+import { createCustomLogger, Method, ModuleCallerSvc, ports } from '@app/core';
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import * as Discord from 'discord.js'; //import discord.js
 import { Message } from 'discord.js';
@@ -10,6 +10,7 @@ import { moduleName } from './main';
 export class DiscordService implements OnApplicationBootstrap {
   private readonly logger: winston.Logger = createCustomLogger(moduleName, DiscordService.name);
   private client: Discord.Client;
+  constructor(private readonly moduleCallerSvc: ModuleCallerSvc) {}
   onApplicationBootstrap() {
     this.client = new Discord.Client({ intents: ['GUILDS', 'GUILD_MESSAGES'] });
 
@@ -26,18 +27,19 @@ export class DiscordService implements OnApplicationBootstrap {
     return await gridTradingChannel.send(content);
   }
   async manageMessageCreate(message: Discord.Message) {
-    if (message.author.bot) return;
+    // if (message.author.bot) return;
+    const isAdmin = message.member.permissions;
+    this.logger.info(`${message.author.username} isAdmin: ${isAdmin.has('ADMINISTRATOR')}`);
     this.logger.info(`Message from ${message.author.username}: ${message.content}`);
-    if (message.content.startsWith('!ping')) {
-      await message.channel.send('pong');
+    if (message.content === '!ping') {
+      await this.pingAllModules();
+    } else if (message.content === '!delete' && message.member.permissions.has('ADMINISTRATOR')) {
+      await this.deletePreviousChannelMessage('grid-trading-bot');
     }
-    // if (message.content.startsWith('!delete')) {
-    //   await this.deletePreviousChannelMessage('grid-trading-bot');
-    // }
   }
   async deletePreviousChannelMessage(channelName: string) {
     const channel = this.getChannel(channelName);
-    const messages = await channel.messages.fetch({ limit: 20 });
+    const messages = await channel.messages.fetch({ limit: 100 });
     const deletedMessage: Array<Promise<Discord.Message<boolean>>> = messages.map(async (message) => {
       try {
         return await message.delete();
@@ -52,5 +54,20 @@ export class DiscordService implements OnApplicationBootstrap {
     return this.client.channels.cache.find(
       (channel: Discord.TextChannel) => channel.name === channelName,
     ) as Discord.TextChannel;
+  }
+
+  private async pingAllModules() {
+    let message = '';
+    for (const moduleNameOfModuleToPing of Object.keys(ports)) {
+      try {
+        const response = await this.moduleCallerSvc.callModule(moduleNameOfModuleToPing, Method.GET, 'ping', null);
+        this.logger.info(`${moduleNameOfModuleToPing}: ${response}`);
+        message += `${moduleNameOfModuleToPing}: UP 🫡  ✅\n`;
+      } catch (error) {
+        this.logger.error(`Error pinging module ${moduleNameOfModuleToPing}: ${error}`);
+        message += `${moduleNameOfModuleToPing}: DOWN 🔫  ❌\n`;
+      }
+    }
+    await this.postMessage(message);
   }
 }

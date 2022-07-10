@@ -5,6 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AsyncController } from './async.controller';
 import { AsyncEngineSvc } from './async.engine.service';
 import { AsyncSvc } from './async.service';
+import { PingController } from './ping.controller';
 
 @Module({
   imports: [
@@ -12,7 +13,7 @@ import { AsyncSvc } from './async.service';
     MongooseModule.forFeature([{ name: 'Async', schema: AsyncCallSchema }]),
     CallerModule,
   ],
-  controllers: [AsyncController],
+  controllers: [AsyncController, PingController],
   providers: [AsyncSvc, AsyncEngineSvc],
 })
 export class AsyncModule {}

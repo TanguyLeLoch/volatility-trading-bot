@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { createCustomLogger, ExternalCallerSvc, Method } from '@app/core';
-import { MexcOrder, mexcOrderToOrder, Order, PriceType } from '@model/order';
+import { MexcOrder, mexcOrderToOrder, Order, OrderStatus, PriceType } from '@model/order';
 import * as CryptoJS from 'crypto-js';
-import { Pair, Price } from '@model/common';
-import { Exchange, ExchangeStatus } from '@model/network';
+import { Pair, Price, Utils } from '@model/common';
+import { Exchange, ExchangeStatus, SymbolInfoResponse } from '@model/network';
 import { ExchangeSvc } from './exchange.service';
 import winston from 'winston';
 import { moduleName } from '../main';
@@ -23,6 +23,24 @@ export class MexcSvc {
     this.logger.debug(`Sending request to ${fullUrl}`);
     const mexcOrders: MexcOrder[] = await this.send(Method.GET, fullUrl);
     return mexcOrders.map((mexcOrder) => mexcOrderToOrder(mexcOrder, pair));
+  }
+  async getOrderById(orderDb: Order): Promise<Order> {
+    const url = this.mexcBaseUrl + '/api/v3/order';
+    const params: Map<string, string> = new Map();
+    params.set('symbol', orderDb.pair.token1 + orderDb.pair.token2);
+    params.set('timestamp', String(Date.now()));
+    params.set('origClientOrderId', orderDb._id);
+    const fullUrl = this.signUrl(url, params);
+    this.logger.debug(`Sending request to ${fullUrl}`);
+    let orderCex: Order;
+
+    try {
+      const mexcOrder: MexcOrder = await this.send(Method.GET, fullUrl);
+      orderCex = mexcOrderToOrder(mexcOrder, orderDb.pair);
+    } catch (e) {
+      this.logger.error(`Error getting order ${e}`);
+    }
+    return orderCex;
   }
 
   async getPrice(pair: Pair): Promise<Price> {
@@ -45,12 +63,24 @@ export class MexcSvc {
     const params: Map<string, string> = new Map();
     params.set('symbol', order.pair.token1 + order.pair.token2);
     params.set('side', order.side);
-    params.set('type', order.price.type);
+    let needToWait = false;
     if (order.price.type === PriceType.MARKET) {
-      params.set('quoteOrderQty', String(order.amount));
+      if (await this.isTokenAvailableToMarketOrder(order.pair)) {
+        this.logger.info(`Token ${order.pair.token1} is available to market order`);
+        params.set('type', PriceType.MARKET);
+        params.set('quoteOrderQty', String(order.amount));
+      } else {
+        this.logger.warn(`Token ${order.pair.token1} is not available to market order set LIMIT order instead`);
+        needToWait = true;
+        params.set('type', PriceType.LIMIT);
+        const { price: currentprice } = await this.getPrice(order.pair);
+        this.setPriceForLimitOrder(params, currentprice * 1.01, order.amount);
+      }
     } else {
+      params.set('type', order.price.type);
       params.set('price', String(order.price.value));
       params.set('quantity', String(Math.round((1000000 * order.amount) / order.price.value) / 1000000));
+      this.setPriceForLimitOrder(params, order.price.value, order.amount);
     }
     params.set('newClientOrderId', order._id);
     params.set('timestamp', String(Date.now()));
@@ -62,14 +92,47 @@ export class MexcSvc {
     // save exchange before sending order
     const createcexchange = await this.exchangeSvc.create(exchange);
     this.logger.warn(
-      `Send Order ${order.side} ${order.amount} ${order.pair.token1} ${order.price.value ? order.price.value : ''} at ${
-        order.price.type
-      }}`,
+      `Send Order ${params.get('side')} ${order.amount} ${order.pair.token1} ${
+        params.get('price') ? params.get('price') + ' ' : ''
+      }at ${params.get('type')}}`,
     );
     const content = await this.send(Method.POST, fullUrl);
+    if (needToWait) {
+      await this.waitMarketLimitOrderToBeTriggered(order);
+    }
+
     createcexchange.content = content;
     createcexchange.status = ExchangeStatus.ACCEPTED;
     return await this.exchangeSvc.update(createcexchange);
+  }
+
+  async waitMarketLimitOrderToBeTriggered(order: Order): Promise<Order> {
+    this.logger.info(`Wait for market order to be filled`);
+    let orderCex: Order;
+    let nbSeconds = 0;
+    while (true) {
+      orderCex = await this.getOrderById(order);
+      if (orderCex && orderCex.status === OrderStatus.FILLED) {
+        this.logger.info(`Market order is fullfilled`);
+        break;
+      }
+      this.logger.info(`LimitMarket order is not fullfilled yet, wait for 10 seconds`);
+      await Utils.sleep(10000);
+      nbSeconds++;
+      if (nbSeconds > 600) {
+        throw new Error('LimitMarket order is not fullfilled after 10 minutes');
+      }
+    }
+    return orderCex;
+  }
+
+  async isTokenAvailableToMarketOrder(pair: Pair) {
+    const url = this.mexcBaseUrl + '/api/v3/exchangeInfo';
+    const params: Map<string, string> = new Map();
+    params.set('symbol', pair.token1 + pair.token2);
+    const symbolInfo: SymbolInfoResponse = await this.send(Method.GET, this.addParameters(url, params));
+    const symbol = symbolInfo.symbols.find((symb) => symb.symbol === pair.token1 + pair.token2);
+    return undefined !== symbol.orderTypes.find((orderType) => orderType === PriceType.MARKET);
   }
 
   getParamsAsString(params: Map<string, string>): string {
@@ -110,5 +173,9 @@ export class MexcSvc {
   private getSignature(paramsAsString: string): string {
     const signature = CryptoJS.HmacSHA256(paramsAsString, process.env.SECRET_KEY);
     return signature.toString();
+  }
+  private setPriceForLimitOrder(params: Map<string, string>, price: number, amount: number): void {
+    params.set('price', String(price));
+    params.set('quantity', String(Utils.roundAmount(amount / price, 5)));
   }
 }

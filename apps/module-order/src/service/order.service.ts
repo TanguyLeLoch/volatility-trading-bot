@@ -4,7 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Order, OrderStatus, OrderPrice, PriceType, Side } from '@model/order';
 import { Plan } from '@model/plan';
 import { createCustomLogger, Method, ModuleCallerSvc } from '@app/core';
-import { Pair } from '@model/common';
+import { Pair, Utils } from '@model/common';
 import winston from 'winston';
 import { moduleName } from '../main';
 
@@ -51,6 +51,7 @@ export class OrderSvc {
         }
       }
       orders.splice(orders.indexOf(orderToRemove), 1);
+      firstMarketOrder.amount = Utils.roundAmount(firstMarketOrder.amount, 5);
     } else {
       throw new Error('Price is below last step level');
     }
@@ -110,6 +111,7 @@ export class OrderSvc {
     await this.orderModel.deleteMany({}).exec();
   }
 }
+
 function createFirstMarketOrder(plan: Plan): Order {
   const order = new Order();
   order.planId = plan._id;

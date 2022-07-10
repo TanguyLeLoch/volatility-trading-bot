@@ -11,7 +11,7 @@ export class ModuleCallerSvc {
 
   constructor(private httpService: HttpService) {}
 
-  async callModule(module: string, method: Method, path: string, body: any): Promise<any> {
+  async callModule(module: string, method: Method, path: string, body?: any): Promise<any> {
     const url = this.createFullUrl(module, path);
     this.logger.verbose(`${method} on module ${module} on url ${url} with body: ${JSON.stringify(body)}`);
     let response;
