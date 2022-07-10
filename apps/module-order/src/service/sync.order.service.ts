@@ -37,7 +37,9 @@ export class SyncOrderSvc {
       }
     } else {
       this.logger.info(`DB and cex orders are synced`);
-      this.postMessageOnDiscord(`Pair ${plan.pair.token1 + '-' + plan.pair.token2} is synced `);
+      this.postMessageOnDiscord(
+        `Pair ${plan.pair.token1 + '-' + plan.pair.token2} is synced at ${new Date().toLocaleTimeString()}`,
+      );
     }
     return exchanges;
   }

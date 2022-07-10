@@ -27,16 +27,17 @@ export class DiscordService implements OnApplicationBootstrap {
     return await gridTradingChannel.send(content);
   }
   async manageMessageCreate(message: Discord.Message) {
-    // if (message.author.bot) return;
-    const isAdmin = message.member.permissions;
-    this.logger.info(`${message.author.username} isAdmin: ${isAdmin.has('ADMINISTRATOR')}`);
+    if (message.author.bot) return;
     this.logger.info(`Message from ${message.author.username}: ${message.content}`);
     if (message.content === '!ping') {
       await this.pingAllModules();
     } else if (message.content === '!delete' && message.member.permissions.has('ADMINISTRATOR')) {
       await this.deletePreviousChannelMessage('grid-trading-bot');
+    } else if (message.content === '!triggerAllAsync' && message.member.permissions.has('ADMINISTRATOR')) {
+      await this.triggerAllAsync();
     }
   }
+
   async deletePreviousChannelMessage(channelName: string) {
     const channel = this.getChannel(channelName);
     const messages = await channel.messages.fetch({ limit: 100 });
@@ -69,5 +70,8 @@ export class DiscordService implements OnApplicationBootstrap {
       }
     }
     await this.postMessage(message);
+  }
+  private async triggerAllAsync() {
+    await this.moduleCallerSvc.callModule('async', Method.POST, 'asyncs/trigger/all', null);
   }
 }

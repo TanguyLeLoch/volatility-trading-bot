@@ -25,6 +25,13 @@ export class AsyncController {
   async createAsync(@Body() asyncCall: AsyncCall): Promise<AsyncCall> {
     return this.asyncSvc.create(asyncCall);
   }
+  @Post('trigger/:id')
+  async triggerAsync(@Param() { id }: { id: string }): Promise<AsyncCall | AsyncCall[]> {
+    if (id == 'all') {
+      return await this.asyncSvc.triggerAll();
+    }
+    return await this.asyncSvc.triggerById(id);
+  }
 
   @Put()
   async modifyAsync(@Body() asyncCall: AsyncCall): Promise<AsyncCall> {

@@ -1,4 +1,4 @@
-import { AsyncCall, AsyncFilter } from '@model/async';
+import { AsyncCall, AsyncFilter, AsyncStatus } from '@model/async';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -40,5 +40,22 @@ export class AsyncSvc {
   }
   async deleteAll(): Promise<void> {
     await this.asyncModel.deleteMany({}).exec();
+  }
+
+  async triggerById(id: string): Promise<AsyncCall> {
+    const async = await this.asyncModel.findById(id).exec();
+    if (!async) {
+      throw new Error('ASYNC_NOT_FOUND');
+    }
+    return await this.triggerAsync(async);
+  }
+  async triggerAll(): Promise<AsyncCall[]> {
+    const asyncs = await this.findAll();
+    return Promise.all(asyncs.map(async (asyncCall) => this.triggerAsync(asyncCall)));
+  }
+  private async triggerAsync(asyncCall: AsyncCall): Promise<AsyncCall> {
+    asyncCall.status = AsyncStatus.OPEN;
+    asyncCall.dateToCall = new Date();
+    return await this.modify(asyncCall);
   }
 }
