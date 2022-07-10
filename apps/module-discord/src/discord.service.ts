@@ -57,7 +57,7 @@ export class DiscordService implements OnApplicationBootstrap {
     ) as Discord.TextChannel;
   }
 
-  private async pingAllModules() {
+  async pingAllModules(): Promise<Message<boolean>> {
     let message = '';
     for (const moduleNameOfModuleToPing of Object.keys(ports)) {
       try {
@@ -69,7 +69,7 @@ export class DiscordService implements OnApplicationBootstrap {
         message += `${moduleNameOfModuleToPing}: DOWN 🔫  ❌\n`;
       }
     }
-    await this.postMessage(message);
+    return await this.postMessage(message);
   }
   private async triggerAllAsync() {
     await this.moduleCallerSvc.callModule('async', Method.POST, 'asyncs/trigger/all', null);

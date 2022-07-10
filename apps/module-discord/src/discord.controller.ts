@@ -10,6 +10,11 @@ type DiscordPostMessageRequest = {
 export class DiscordController {
   constructor(private readonly discordService: DiscordService) {}
 
+  @Post('ping') // difference is the verb is post, not get as in the other ping controller
+  pingDiscord(): Promise<Message<boolean>> {
+    return this.discordService.pingAllModules();
+  }
+
   @Post()
   postMessage(@Body() { content }: DiscordPostMessageRequest): Promise<Message<boolean>> {
     return this.discordService.postMessage(content);

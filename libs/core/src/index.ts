@@ -4,3 +4,4 @@ export * from './caller/module.caller.service';
 export * from './caller/external.caller.service';
 export * from './method';
 export * from './logger';
+export * from './middleware/api.middleware';

@@ -1,6 +1,6 @@
-import { CallerModule } from '@app/core';
+import { ApiMiddleware, CallerModule } from '@app/core';
 import { PlanSchema } from '@model/plan';
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { PingController } from './ping.controller';
 import { PlanController } from './plan.controller';
@@ -15,4 +15,11 @@ import { PlanSvc } from './plan.service';
   controllers: [PlanController, PingController],
   providers: [PlanSvc],
 })
-export class PlanModule {}
+export class PlanModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(ApiMiddleware).forRoutes({
+      path: '*',
+      method: RequestMethod.ALL,
+    });
+  }
+}

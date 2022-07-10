@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PingController } from './ping.controller';
 
-describe('AppController', () => {
-  let appController: PingController;
+describe('PingController', () => {
+  let pingController: PingController;
 
   beforeEach(async () => {
     const app: TestingModule = await Test.createTestingModule({
@@ -10,12 +10,12 @@ describe('AppController', () => {
       providers: [],
     }).compile();
 
-    appController = app.get<PingController>(PingController);
+    pingController = app.get<PingController>(PingController);
   });
 
-  describe('root', () => {
+  describe('ping', () => {
     it('should return "pong"', () => {
-      expect(appController.Ping()).toBe('pong');
+      expect(pingController.ping()).toBe('pong');
     });
   });
 });
