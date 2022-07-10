@@ -1,5 +1,6 @@
 import { createCustomLogger, ModuleCallerSvc } from '@app/core';
 import { AsyncCall, AsyncFilter, AsyncStatus } from '@model/async';
+import { Utils } from '@model/common';
 import { Injectable, OnApplicationBootstrap, OnModuleDestroy } from '@nestjs/common';
 import { CronJob } from 'cron';
 import winston from 'winston';
@@ -14,7 +15,8 @@ export class AsyncEngineSvc implements OnApplicationBootstrap, OnModuleDestroy {
   onApplicationBootstrap() {
     this.logger.warn(`Initialization of async engine ...`);
     this.cronJob = this.createCronJob();
-    this.startCronJob(this.cronJob);
+    this.logger.warn(`start cron job in 10 seconds ...`);
+    Utils.sleep(10000).then(() => this.startCronJob(this.cronJob));
   }
 
   onModuleDestroy() {
