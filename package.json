@@ -7,7 +7,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "prebuild": "rimraf dist",
-    "build": "nest build",
+    "build": "nest build module-brain && nest build module-discord && nest build module-network && nest build module-order && nest build module-plan && nest build module-async",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
     "start": "nest start",
     "start:all": "concurrently \"nest start module-brain\" \"nest start module-discord\" \"nest start module-network\" \"nest start module-order\" \"nest start module-plan\" \"nest start module-async\"",
