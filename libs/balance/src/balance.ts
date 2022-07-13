@@ -14,13 +14,7 @@ export class Balance {
   @Prop()
   public available: number;
 
-  constructor(
-    token: string,
-    platform: string,
-    balance: number,
-    inOrder: number,
-    available: number,
-  ) {
+  constructor(token: string, platform: string, balance: number, inOrder: number, available: number) {
     this.token = token;
     this.platform = platform;
     this.balance = balance;

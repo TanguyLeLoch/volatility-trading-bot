@@ -37,9 +37,7 @@ describe('AppController (e2e)', () => {
     balancePut.balance += 10;
     balancePut.inOrder += 10;
     balancePut.available += 10;
-    const res = await request(app.getHttpServer())
-      .put('/balances')
-      .send(balancePut);
+    const res = await request(app.getHttpServer()).put('/balances').send(balancePut);
     balance = res.body;
     expect(res.status).toBe(200);
     expect(balance._id).toBeDefined();
@@ -50,9 +48,7 @@ describe('AppController (e2e)', () => {
     expect(balance.__v).toBe(0);
   });
   it('/balances (GET)', async () => {
-    const res = await request(app.getHttpServer()).get(
-      `/balances/${balance._id}`,
-    );
+    const res = await request(app.getHttpServer()).get(`/balances/${balance._id}`);
     balance = res.body;
     expect(res.status).toBe(200);
     expect(balance._id).toBeDefined();
@@ -63,9 +59,7 @@ describe('AppController (e2e)', () => {
     expect(balance.__v).toBe(0);
   });
   it('/balances (DELETE)', async () => {
-    const res = await request(app.getHttpServer()).delete(
-      `/balances/${balance._id}`,
-    );
+    const res = await request(app.getHttpServer()).delete(`/balances/${balance._id}`);
     balance = res.body;
     expect(res.status).toBe(200);
     expect(balance._id).toBeDefined();
@@ -76,9 +70,7 @@ describe('AppController (e2e)', () => {
     expect(balance.__v).toBe(0);
   });
   it('/balances (GET) (checkDelete)', async () => {
-    const res = await request(app.getHttpServer()).get(
-      `/balances/${balance._id}`,
-    );
+    const res = await request(app.getHttpServer()).get(`/balances/${balance._id}`);
     balance = res.body;
     expect(res.status).toBe(200);
     expect(balance).toEqual({});

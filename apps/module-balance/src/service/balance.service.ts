@@ -1,22 +1,18 @@
-import { Model } from 'mongoose';
+import { Balance } from '@model/balance';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Balance } from '@model/balance';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class BalanceSvc {
-  constructor(
-    @InjectModel('Balance') private readonly balanceModel: Model<Balance>,
-  ) {}
+  constructor(@InjectModel('Balance') private readonly balanceModel: Model<Balance>) {}
 
   async findById(id: string): Promise<Balance> {
     return this.balanceModel.findById(id).exec();
   }
 
   async modify(balance: Balance): Promise<Balance> {
-    return this.balanceModel
-      .findByIdAndUpdate(balance._id, balance, { new: true })
-      .exec();
+    return this.balanceModel.findByIdAndUpdate(balance._id, balance, { new: true }).exec();
   }
 
   async findAll(): Promise<Array<Balance>> {
