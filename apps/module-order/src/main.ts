@@ -1,8 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { moduleName } from './module.info';
 import { ports, setModuleName } from '@app/core';
 
-export const moduleName = 'order';
 setModuleName(moduleName);
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

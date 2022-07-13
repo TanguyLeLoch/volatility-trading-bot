@@ -3,7 +3,7 @@ import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import * as Discord from 'discord.js'; //import discord.js
 import { Message } from 'discord.js';
 import winston from 'winston';
-import { moduleName } from './main';
+import { moduleName } from './module.info';
 // const { TextChannel } = Discord;
 
 @Injectable()

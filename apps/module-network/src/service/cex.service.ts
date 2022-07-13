@@ -1,12 +1,11 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { Order } from '@model/order';
-import { createCustomLogger, Method } from '@app/core';
-import { ModuleCallerSvc, ExternalCallerSvc } from '@app/core';
+import { createCustomLogger, Method, ModuleCallerSvc } from '@app/core';
 import { Pair, Price } from '@model/common';
-import { MexcSvc } from './mexc.service';
 import { Exchange, GetOrderRequest } from '@model/network';
+import { Order } from '@model/order';
+import { Injectable } from '@nestjs/common';
 import winston from 'winston';
-import { moduleName } from '../main';
+import { moduleName } from '../module.info';
+import { MexcSvc } from './mexc.service';
 
 @Injectable()
 export class CexSvc {

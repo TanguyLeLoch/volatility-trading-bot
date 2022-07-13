@@ -5,7 +5,7 @@ import { Price } from '@model/common';
 import { Exchange, GetOrderRequest, GetPriceRequest } from '@model/network';
 import winston from 'winston';
 import { createCustomLogger } from '@app/core';
-import { moduleName } from '../main';
+import { moduleName } from '../module.info';
 
 @Controller('cex')
 export class CexController {

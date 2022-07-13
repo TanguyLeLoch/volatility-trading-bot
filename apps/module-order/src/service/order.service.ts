@@ -6,7 +6,7 @@ import { Plan } from '@model/plan';
 import { createCustomLogger, Method, ModuleCallerSvc } from '@app/core';
 import { Pair, Utils } from '@model/common';
 import winston from 'winston';
-import { moduleName } from '../main';
+import { moduleName } from '../module.info';
 
 @Injectable()
 export class OrderSvc {

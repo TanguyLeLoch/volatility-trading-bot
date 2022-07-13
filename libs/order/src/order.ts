@@ -8,7 +8,7 @@ export class Order {
   public _id?: string;
   public __v?: string;
   @Prop({ required: true })
-  public planId: string;
+  public planId?: string;
   @Prop({ type: Pair, required: true })
   public pair: Pair;
   @Prop({ required: true })
@@ -38,5 +38,6 @@ export enum Side {
 export enum OrderStatus {
   NEW = 'NEW',
   FILLED = 'FILLED',
+  PARTIALLY_FILLED = 'PARTIALLY_FILLED',
   CANCELLED = 'CANCELLED',
 }

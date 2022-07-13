@@ -1,9 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-// import { ports } from '@app/core';
 import { ports, setModuleName } from '@app/core';
+import { moduleName } from './module.info';
 
-const moduleName = 'balance';
 setModuleName(moduleName);
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

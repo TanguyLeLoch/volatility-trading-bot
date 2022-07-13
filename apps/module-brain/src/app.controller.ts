@@ -1,7 +1,7 @@
 import { createCustomLogger } from '@app/core';
 import { Controller, Param, Post } from '@nestjs/common';
 import winston from 'winston';
-import { moduleName } from './main';
+import { moduleName } from './module.info';
 import { BrainSvc } from './service/brain.service';
 
 @Controller()

@@ -1,16 +1,21 @@
-import { Injectable } from '@nestjs/common';
-import { Order, OrderStatus, PriceType, Side } from '@model/order';
-import { Plan } from '@model/plan';
 import { createCustomLogger, Method, ModuleCallerSvc } from '@app/core';
 import { Exchange, GetOrderRequest } from '@model/network';
-import { OrderSvc } from './order.service';
+import { Order, OrderStatus, PriceType, Side } from '@model/order';
+import { Plan } from '@model/plan';
+import { Injectable } from '@nestjs/common';
 import winston from 'winston';
-import { moduleName } from '../main';
+import { moduleName } from '../module.info';
+import { OrderSvc } from './order.service';
 
 @Injectable()
 export class SyncOrderSvc {
   private readonly logger: winston.Logger = createCustomLogger(moduleName, SyncOrderSvc.name);
-  constructor(private readonly orderSvc: OrderSvc, private readonly moduleCallerSvc: ModuleCallerSvc) {}
+
+  constructor(
+    private readonly orderSvc: OrderSvc,
+    private readonly moduleCallerSvc: ModuleCallerSvc,
+    private readonly syncOrderCheckSvc,
+  ) {}
 
   async synchronize(planId: string): Promise<any> {
     const ordersDb = await this.orderSvc.findByPlanId(planId, { status: OrderStatus.NEW });
@@ -20,7 +25,7 @@ export class SyncOrderSvc {
     const request: GetOrderRequest = this.createOrderRequestByPlan(planId, plan);
     const ordersCex = await this.moduleCallerSvc.callModule('network', Method.POST, 'cex/orders', request);
     this.logger.verbose(`ordersCex: ${JSON.stringify(ordersCex)}`);
-    this.checkOrders(ordersCex, ordersDb);
+    this.syncOrderCheckSvc.checkOrders(ordersCex, ordersDb);
     const exchanges: Exchange[] = [];
     const desyncOrders: Order[] = getDesyncOrders(ordersDb, ordersCex);
     if (desyncOrders.length > 0) {
@@ -91,19 +96,6 @@ export class SyncOrderSvc {
 
   private async getPlan(planId: string) {
     return await this.moduleCallerSvc.callModule('plan', Method.GET, `plans/${planId}`, null);
-  }
-
-  private checkOrders(ordersCex: any, ordersDb: Order[]) {
-    ordersCex.forEach((order: Order) => {
-      if (order.status !== OrderStatus.NEW) {
-        this.logger.warn(`Order ${order._id} is not in NEW status`);
-        // throw new Error(`Order ${JSON.stringify(order)} is not new`);
-      }
-    });
-    this.logger.info(`Found ${ordersCex.length} orders on cex`);
-    if (ordersDb.length < ordersCex.length) {
-      throw new Error(`There is more orders on cex than in database`);
-    }
   }
 }
 function findClosestNumberIdx(steps: Array<number>, valueToFound: number): number {

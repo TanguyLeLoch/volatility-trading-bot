@@ -1,8 +1,8 @@
-import { NestFactory } from '@nestjs/core';
-import { PlanModule } from './plan.module';
 import { ports, setModuleName } from '@app/core';
+import { NestFactory } from '@nestjs/core';
+import { moduleName } from './module.info';
+import { PlanModule } from './plan.module';
 
-export const moduleName = 'plan';
 setModuleName(moduleName);
 async function bootstrap() {
   const app = await NestFactory.create(PlanModule);

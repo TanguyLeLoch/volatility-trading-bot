@@ -6,7 +6,7 @@ import { SyncOrderSvc } from '../service/sync.order.service';
 import { Exchange } from '@model/network';
 import winston from 'winston';
 import { createCustomLogger } from '@app/core';
-import { moduleName } from '../main';
+import { moduleName } from '../module.info';
 
 @Controller('orders')
 export class OrderController {
