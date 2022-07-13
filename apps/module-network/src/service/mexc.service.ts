@@ -1,12 +1,12 @@
-import { Injectable } from '@nestjs/common';
 import { createCustomLogger, ExternalCallerSvc, Method } from '@app/core';
-import { MexcOrder, mexcOrderToOrder, Order, OrderStatus, PriceType } from '@model/order';
-import * as CryptoJS from 'crypto-js';
 import { Pair, Price, Utils } from '@model/common';
 import { Exchange, ExchangeStatus, SymbolInfoResponse } from '@model/network';
-import { ExchangeSvc } from './exchange.service';
+import { MexcOrder, mexcOrderToOrder, Order, OrderStatus, PriceType } from '@model/order';
+import { Injectable } from '@nestjs/common';
+import * as CryptoJS from 'crypto-js';
 import winston from 'winston';
-import { moduleName } from '../main';
+import { moduleName } from '../module.info';
+import { ExchangeSvc } from './exchange.service';
 
 @Injectable()
 export class MexcSvc {

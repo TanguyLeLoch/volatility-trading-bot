@@ -1,11 +1,10 @@
-import { Injectable } from '@nestjs/common';
-import { createCustomLogger, ModuleCallerSvc } from '@app/core';
-import { Method } from '@app/core';
-import { Plan } from '@model/plan';
+import { createCustomLogger, Method, ModuleCallerSvc } from '@app/core';
 import { AsyncCall, AsyncStatus } from '@model/async';
 import { Exchange } from '@model/network';
+import { Plan } from '@model/plan';
+import { Injectable } from '@nestjs/common';
 import winston from 'winston';
-import { moduleName } from '../main';
+import { moduleName } from '../module.info';
 
 const TIME_BETWEEN_CALL = 60 * 5; // 5 minutes
 

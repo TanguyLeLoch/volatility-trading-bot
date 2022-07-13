@@ -1,11 +1,11 @@
-import { Model } from 'mongoose';
-import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Plan } from '@model/plan';
 import { createCustomLogger, ModuleCallerSvc } from '@app/core';
 import { Pair } from '@model/common';
+import { Plan } from '@model/plan';
+import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import winston from 'winston';
-import { moduleName } from './main';
+import { moduleName } from './module.info';
 
 @Injectable()
 export class PlanSvc {

@@ -1,8 +1,8 @@
 import { ports, setModuleName } from '@app/core';
 import { NestFactory } from '@nestjs/core';
 import { DiscordModule } from './discord.module';
+import { moduleName } from './module.info';
 
-export const moduleName = 'discord';
 setModuleName(moduleName);
 
 async function bootstrap() {

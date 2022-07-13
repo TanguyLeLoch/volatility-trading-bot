@@ -5,7 +5,7 @@ import { Injectable, OnApplicationBootstrap, OnModuleDestroy } from '@nestjs/com
 import { CronJob } from 'cron';
 import winston from 'winston';
 import { AsyncSvc } from './async.service';
-import { moduleName } from './main';
+import { moduleName } from './module.info';
 
 @Injectable()
 export class AsyncEngineSvc implements OnApplicationBootstrap, OnModuleDestroy {

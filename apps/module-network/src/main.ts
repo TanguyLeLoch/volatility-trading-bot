@@ -1,8 +1,8 @@
+import { ports, setModuleName } from '@app/core';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ports, setModuleName } from '@app/core';
+import { moduleName } from './module.info';
 
-export const moduleName = 'network';
 setModuleName(moduleName);
 
 async function bootstrap() {
