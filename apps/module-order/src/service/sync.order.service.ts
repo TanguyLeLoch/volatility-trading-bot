@@ -6,6 +6,7 @@ import { Injectable } from '@nestjs/common';
 import winston from 'winston';
 import { moduleName } from '../module.info';
 import { OrderSvc } from './order.service';
+import { SyncOrderCheckSvc } from './sync.order.check.service';
 
 @Injectable()
 export class SyncOrderSvc {
@@ -14,7 +15,7 @@ export class SyncOrderSvc {
   constructor(
     private readonly orderSvc: OrderSvc,
     private readonly moduleCallerSvc: ModuleCallerSvc,
-    private readonly syncOrderCheckSvc,
+    private readonly syncOrderCheckSvc: SyncOrderCheckSvc,
   ) {}
 
   async synchronize(planId: string): Promise<any> {

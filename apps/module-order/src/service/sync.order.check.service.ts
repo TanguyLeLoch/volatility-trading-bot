@@ -38,7 +38,7 @@ export class SyncOrderCheckSvc {
   }
   checkCexOrderExistsInDb(ordersCex: Order[], ordersDb: Order[]) {
     ordersCex.forEach((order: Order) => {
-      const orderDb = ordersDb.find((orderDb: Order) => orderDb._id === order._id);
+      const orderDb = ordersDb.find((orderDb: Order) => orderDb._id == order._id);
       if (!orderDb) {
         this.logger.error(`Order ${order._id} is not in database`);
         throw new Error(`UNKNOWN_ORDER_ON_CEX`);
