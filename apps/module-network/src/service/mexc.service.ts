@@ -59,7 +59,7 @@ export class MexcSvc {
   }
 
   private async sendOrder(order: Order): Promise<Exchange> {
-    const url = this.mexcBaseUrl + '/api/v3/order';
+    const url = this.getPostOrderUrl();
     const params: Map<string, string> = new Map();
     params.set('symbol', order.pair.token1 + order.pair.token2);
     params.set('side', order.side);
@@ -104,6 +104,15 @@ export class MexcSvc {
     createcexchange.content = content;
     createcexchange.status = ExchangeStatus.ACCEPTED;
     return await this.exchangeSvc.update(createcexchange);
+  }
+
+  private getPostOrderUrl(): string {
+    if (process.env.ENV === 'dev') {
+      return this.mexcBaseUrl + '/api/v3/order/test';
+    } else if (process.env.ENV === 'prod') {
+      return this.mexcBaseUrl + '/api/v3/order';
+    }
+    throw new Error('INVALID_ENV');
   }
 
   async waitMarketLimitOrderToBeTriggered(order: Order): Promise<Order> {

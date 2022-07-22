@@ -1,4 +1,4 @@
-import { createCustomLogger } from '@app/core';
+import { createCustomLogger, FunctionalException } from '@app/core';
 import { Order, OrderStatus } from '@model/order';
 import { Injectable } from '@nestjs/common';
 import winston from 'winston';
@@ -21,7 +21,7 @@ export class SyncOrderCheckSvc {
     ordersCex.forEach((order: Order) => {
       if (!OPEN_ORDER_STATUS.includes(order.status)) {
         this.logger.error(`Order ${order._id} is not open`);
-        throw new Error(`ORDER_NOT_OPEN_ON_CEX`);
+        throw new FunctionalException(`Order ${order._id} is not open`, `ORDER_NOT_OPEN_ON_CEX`);
       }
     });
   }
@@ -41,7 +41,7 @@ export class SyncOrderCheckSvc {
       const orderDb = ordersDb.find((orderDb: Order) => orderDb._id == order._id);
       if (!orderDb) {
         this.logger.error(`Order ${order._id} is not in database`);
-        throw new Error(`UNKNOWN_ORDER_ON_CEX`);
+        throw new FunctionalException(`Order ${order._id} is not in database`, `UNKNOWN_ORDER_ON_CEX`);
       }
     });
   }

@@ -1,10 +1,10 @@
-import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
-import { Method } from '../method';
-import { getModuleName, ports } from '../module.ports';
+import { Injectable } from '@nestjs/common';
 import winston from 'winston';
 import { createCustomLogger } from '../logger';
+import { Method } from '../method';
 import { apiKeyMiddlewareheader } from '../middleware/api.middleware';
+import { getModuleName, ports } from '../module.ports';
 
 @Injectable()
 export class ModuleCallerSvc {

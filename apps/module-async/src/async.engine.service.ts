@@ -1,4 +1,4 @@
-import { createCustomLogger, ModuleCallerSvc } from '@app/core';
+import { createCustomLogger, Method, ModuleCallerSvc } from '@app/core';
 import { AsyncCall, AsyncFilter, AsyncStatus } from '@model/async';
 import { Utils } from '@model/common';
 import { Injectable, OnApplicationBootstrap, OnModuleDestroy } from '@nestjs/common';
@@ -61,9 +61,19 @@ export class AsyncEngineSvc implements OnApplicationBootstrap, OnModuleDestroy {
     asyncCall.status = AsyncStatus.IN_PROGRESS;
     asyncCall = await this.asyncSvc.modify(asyncCall);
     // make call
-    await this.moduleCallerSvc.callModule(asyncCall.module, asyncCall.method, asyncCall.url, asyncCall.body);
+    try {
+      await this.moduleCallerSvc.callModule(asyncCall.module, asyncCall.method, asyncCall.url, asyncCall.body);
+      await this.asyncSvc.delete(asyncCall._id);
+    } catch (error) {
+      this.logger.error(`Error calling module: ${JSON.stringify(error)}`);
+      this.postMessageOnDiscord(`@here\nAsync call failed: ${JSON.stringify(error)}`);
+    }
     // delete async
-    await this.asyncSvc.delete(asyncCall._id);
     return asyncCall;
+  }
+  private postMessageOnDiscord(message: string) {
+    this.moduleCallerSvc.callModule('discord', Method.POST, '', { content: message }).catch((err) => {
+      this.logger.error(`Error posting message on discord: ${err}`);
+    });
   }
 }
