@@ -7,6 +7,7 @@ import winston from 'winston';
 import { AsyncSvc } from './async.service';
 import { moduleName } from './module.info';
 
+const ONE_HOUR = 60 * 60;
 @Injectable()
 export class AsyncEngineSvc implements OnApplicationBootstrap, OnModuleDestroy {
   private readonly logger: winston.Logger = createCustomLogger(moduleName, AsyncEngineSvc.name);
@@ -42,7 +43,7 @@ export class AsyncEngineSvc implements OnApplicationBootstrap, OnModuleDestroy {
   }
   private async findAsyncCallToExecute() {
     const filter: AsyncFilter = {
-      status: AsyncStatus.OPEN,
+      status: AsyncStatus.NEW,
       dateToCallLessThan: new Date(),
     };
     const asyncCalls = await this.asyncSvc.findWithFilter(filter);
@@ -63,14 +64,29 @@ export class AsyncEngineSvc implements OnApplicationBootstrap, OnModuleDestroy {
     // make call
     try {
       await this.moduleCallerSvc.callModule(asyncCall.module, asyncCall.method, asyncCall.url, asyncCall.body);
+      // delete async
       await this.asyncSvc.delete(asyncCall._id);
     } catch (error) {
-      this.logger.error(`Error calling module: ${JSON.stringify(error)}`);
-      this.postMessageOnDiscord(`@here\nAsync call failed: ${JSON.stringify(error)}`);
+      this.handleAsyncError(error);
+      await this.retryAsyncCall(asyncCall, ONE_HOUR);
     }
-    // delete async
     return asyncCall;
   }
+  async retryAsyncCall(asyncCall: AsyncCall, delay: number) {
+    this.logger.warn(`Retrying async call in one hour...`);
+    asyncCall.status = AsyncStatus.NEW;
+    const dateToCall = new Date();
+    dateToCall.setSeconds(dateToCall.getSeconds() + delay);
+    asyncCall.dateToCall = dateToCall;
+    await this.asyncSvc.modify(asyncCall);
+  }
+  private handleAsyncError(error: any) {
+    this.logger.error(`Error calling module: ${JSON.stringify(error)}`);
+    const reason = error.response ? error.response.data.code : error.message;
+    const datTime = error.response ? error.response.data.timestamp : new Date().toISOString();
+    this.postMessageOnDiscord(`@here\nAsync call failed: ${reason} at ${datTime}`);
+  }
+
   private postMessageOnDiscord(message: string) {
     this.moduleCallerSvc.callModule('discord', Method.POST, '', { content: message }).catch((err) => {
       this.logger.error(`Error posting message on discord: ${err}`);

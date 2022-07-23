@@ -54,7 +54,7 @@ export class AsyncSvc {
     return Promise.all(asyncs.map(async (asyncCall) => this.triggerAsync(asyncCall)));
   }
   private async triggerAsync(asyncCall: AsyncCall): Promise<AsyncCall> {
-    asyncCall.status = AsyncStatus.OPEN;
+    asyncCall.status = AsyncStatus.NEW;
     asyncCall.dateToCall = new Date();
     return await this.modify(asyncCall);
   }

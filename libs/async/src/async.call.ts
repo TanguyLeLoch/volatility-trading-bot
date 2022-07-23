@@ -23,8 +23,8 @@ export class AsyncCall {
 export const AsyncCallSchema = SchemaFactory.createForClass(AsyncCall);
 
 export enum AsyncStatus {
-  OPEN = 'OPEN',
+  NEW = 'NEW',
   IN_PROGRESS = 'IN_PROGRESS',
-  DONE = 'DONE',
+  // DONE = 'DONE', we delete done async calls
   CANCELLED = 'CANCELLED',
 }

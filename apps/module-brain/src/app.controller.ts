@@ -1,5 +1,5 @@
-import { createCustomLogger } from '@app/core';
-import { Controller, Param, Post } from '@nestjs/common';
+import { AxiosExceptionFilter, createCustomLogger } from '@app/core';
+import { Controller, Param, Post, UseFilters } from '@nestjs/common';
 import winston from 'winston';
 import { moduleName } from './module.info';
 import { BrainSvc } from './service/brain.service';
@@ -16,6 +16,7 @@ export class AppController {
   }
 
   @Post('synchronize/:planId')
+  @UseFilters(AxiosExceptionFilter)
   synchronize(@Param() { planId }: { planId: string }): Promise<any> {
     this.logger.info(`synchronize for plan id ${planId}`);
     return this.brainSvc.synchronize(planId);

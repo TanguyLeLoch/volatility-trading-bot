@@ -36,7 +36,7 @@ export class BrainSvc {
     const dateToCall = new Date();
     dateToCall.setSeconds(dateToCall.getSeconds() + TIME_BETWEEN_CALL);
     asyncCall.dateToCall = dateToCall;
-    asyncCall.status = AsyncStatus.OPEN;
+    asyncCall.status = AsyncStatus.NEW;
     asyncCall.method = Method.POST;
     asyncCall.module = 'brain';
     asyncCall.url = `synchronize/${planId}`;
