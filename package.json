@@ -10,8 +10,8 @@
     "build": "nest build module-brain && nest build module-discord && nest build module-network && nest build module-order && nest build module-plan && nest build module-async",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
     "start": "nest start",
-    "start:all": "concurrently \"nest start module-brain\" \"nest start module-discord\" \"nest start module-network\" \"nest start module-order\" \"nest start module-plan\" \"nest start module-async\"",
-    "start:all:watch": "concurrently \"nest start module-brain --watch\" \"nest start module-discord --watch\" \"nest start module-network --watch\" \"nest start module-order --watch\" \"nest start module-plan --watch\" \"nest start module-async --watch\"",
+    "start:all": "concurrently \"nest start module-brain\" \"nest start module-discord\" \"nest start module-network\" \"nest start module-order\" \"nest start module-plan\" \"nest start module-async\" \"nest start stub --watch\"",
+    "start:all:watch": "concurrently \"nest start module-brain --watch\" \"nest start module-discord --watch\" \"nest start module-network --watch\" \"nest start module-order --watch\" \"nest start module-plan --watch\" \"nest start module-async --watch\" \"nest start stub --watch\"",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
@@ -92,7 +92,8 @@
       "^@model/network(|/.*)$": "<rootDir>/libs/network/src/$1",
       "^@model/order(|/.*)$": "<rootDir>/libs/order/src/$1",
       "^@model/plan(|/.*)$": "<rootDir>/libs/plan/src/$1",
-      "^@model/async(|/.*)$": "<rootDir>/libs/async/src/$1"
+      "^@model/async(|/.*)$": "<rootDir>/libs/async/src/$1",
+      "^@model/discord(|/.*)$": "<rootDir>/libs/discord/src/$1"
     }
   }
 }

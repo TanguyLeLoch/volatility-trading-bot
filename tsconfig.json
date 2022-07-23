@@ -59,6 +59,12 @@
       ],
       "@model/async/*": [
         "libs/async/src/*"
+      ],
+      "@model/discord": [
+        "libs/discord/src"
+      ],
+      "@model/discord/*": [
+        "libs/discord/src/*"
       ]
     }
   }

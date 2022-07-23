@@ -143,6 +143,24 @@
       "compilerOptions": {
         "tsConfigPath": "apps/module-discord/tsconfig.app.json"
       }
+    },
+    "discord": {
+      "type": "library",
+      "root": "libs/discord",
+      "entryFile": "index",
+      "sourceRoot": "libs/discord/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/discord/tsconfig.lib.json"
+      }
+    },
+    "stub": {
+      "type": "application",
+      "root": "apps/stub",
+      "entryFile": "main",
+      "sourceRoot": "apps/stub/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/stub/tsconfig.app.json"
+      }
     }
   }
 }

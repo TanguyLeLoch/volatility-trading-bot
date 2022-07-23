@@ -11,7 +11,7 @@ import { ExchangeSvc } from './exchange.service';
 @Injectable()
 export class MexcSvc {
   private readonly logger: winston.Logger = createCustomLogger(moduleName, MexcSvc.name);
-  private readonly mexcBaseUrl = 'https://api.mexc.com';
+  private readonly mexcBaseUrl = process.env.ENV === 'prod' ? 'https://api.mexc.com' : 'http://localhost:43000';
   constructor(private readonly externalCallerSvc: ExternalCallerSvc, private readonly exchangeSvc: ExchangeSvc) {}
 
   async getActiveOrders(pair: Pair): Promise<Array<Order>> {

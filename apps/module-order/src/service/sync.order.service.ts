@@ -1,4 +1,5 @@
 import { createCustomLogger, Method, ModuleCallerSvc } from '@app/core';
+import { DiscordMessage, DiscordMessageType } from '@model/discord';
 import { Exchange, GetOrderRequest } from '@model/network';
 import { Order, OrderStatus, PriceType, Side } from '@model/order';
 import { Plan } from '@model/plan';
@@ -43,11 +44,18 @@ export class SyncOrderSvc {
       }
     } else {
       this.logger.info(`DB and cex orders are synced`);
-      this.postMessageOnDiscord(
-        `Pair ${plan.pair.token1 + '-' + plan.pair.token2} is synced at ${new Date().toLocaleTimeString()}`,
-      );
+      this.postDiscordSyncMessage(plan);
     }
     return exchanges;
+  }
+
+  private postDiscordSyncMessage(plan: Plan) {
+    const syncMessage: DiscordMessage = new DiscordMessage();
+    syncMessage.type = DiscordMessageType.SYNC;
+    syncMessage.params = {};
+    syncMessage.params.pair = plan.pair.token1 + '-' + plan.pair.token2;
+    syncMessage.params.time = new Date().toLocaleTimeString();
+    this.postMessageWithParamsOnDiscord(syncMessage);
   }
 
   async createOrderAfterTrigger(order: Order, plan: Plan): Promise<Exchange> {
@@ -81,8 +89,19 @@ export class SyncOrderSvc {
     );
     return ordersCex[0];
   }
+
+  /**
+   * @deprecated
+   * @param message
+   */
   private postMessageOnDiscord(message: string) {
     this.moduleCallerSvc.callModule('discord', Method.POST, '', { content: message }).catch((err) => {
+      this.logger.error(`Error posting message on discord: ${err}`);
+    });
+  }
+
+  private postMessageWithParamsOnDiscord(discordMessage: DiscordMessage) {
+    this.moduleCallerSvc.callModule('discord', Method.POST, 'message', discordMessage).catch((err) => {
       this.logger.error(`Error posting message on discord: ${err}`);
     });
   }

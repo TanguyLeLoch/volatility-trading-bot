@@ -19,10 +19,10 @@ export function createCustomLogger(moduleName: string, name: string) {
         level: 'debug',
       }),
       new transports.File({
-        filename: 'global.log',
+        filename: 'log/global.log',
         level: 'debug',
         format: getFormatFile(moduleName, name),
-        maxsize: 1000000,
+        maxsize: 10000000,
       }),
     ],
   });

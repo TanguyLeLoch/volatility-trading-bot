@@ -1,10 +1,10 @@
-import { createCustomLogger, Method, ModuleCallerSvc, ports } from '@app/core';
+import { createCustomLogger, FunctionalException, Method, ModuleCallerSvc, ports } from '@app/core';
+import { DiscordMessage, DiscordMessageType } from '@model/discord';
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import * as Discord from 'discord.js'; //import discord.js
 import { Message } from 'discord.js';
 import winston from 'winston';
 import { moduleName } from './module.info';
-// const { TextChannel } = Discord;
 
 @Injectable()
 export class DiscordService implements OnApplicationBootstrap {
@@ -26,6 +26,31 @@ export class DiscordService implements OnApplicationBootstrap {
     const gridTradingChannel = this.getChannel('grid-trading-bot');
     return await gridTradingChannel.send(content);
   }
+  async postMessageWithParams(discordMessage: DiscordMessage): Promise<Message<boolean>> {
+    switch (discordMessage.type) {
+      case DiscordMessageType.SYNC:
+        return await this.postSyncMessage(discordMessage.params);
+      default:
+        throw new FunctionalException(`Unknown message type: ${discordMessage.type}`, 'MESSAGE_TYPE_UNKNOWN');
+    }
+  }
+
+  async postSyncMessage(params: Record<string, string>): Promise<Message<boolean>> {
+    const gridTradingChannel = this.getChannel('grid-trading-bot');
+    const message = `Pair ${params.pair} is synced at ${params.time}`;
+    await this.deleteLastMessageContaining(gridTradingChannel, `Pair ${params.pair} is synced at`);
+    return await gridTradingChannel.send(message);
+  }
+  async deleteLastMessageContaining(gridTradingChannel: Discord.TextChannel, messageSubstring: string) {
+    const messages = await gridTradingChannel.messages.fetch({ limit: 100 });
+
+    const messagesToDelete = messages.filter((message) => {
+      const content = message.content;
+      return content.includes(messageSubstring);
+    });
+    await this.deleteMessages(messagesToDelete);
+  }
+
   async manageMessageCreate(message: Discord.Message) {
     if (message.author.bot) return;
     this.logger.info(`Message from ${message.author.username}: ${message.content}`);
@@ -41,16 +66,19 @@ export class DiscordService implements OnApplicationBootstrap {
   async deletePreviousChannelMessage(channelName: string) {
     const channel = this.getChannel(channelName);
     const messages = await channel.messages.fetch({ limit: 100 });
+    await this.deleteMessages(messages);
+  }
+  private async deleteMessages(messages: Discord.Collection<string, Discord.Message<boolean>>) {
     const deletedMessage: Array<Promise<Discord.Message<boolean>>> = messages.map(async (message) => {
       try {
         return await message.delete();
       } catch (error) {
         this.logger.error(error);
       }
-      return null;
     });
     await Promise.all(deletedMessage);
   }
+
   getChannel(channelName: string): Discord.TextChannel {
     return this.client.channels.cache.find(
       (channel: Discord.TextChannel) => channel.name === channelName,

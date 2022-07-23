@@ -1,3 +1,4 @@
+import { DiscordMessage } from '@model/discord';
 import { Body, Controller, Post } from '@nestjs/common';
 import { Message } from 'discord.js';
 import { DiscordService } from './discord.service';
@@ -18,5 +19,9 @@ export class DiscordController {
   @Post()
   postMessage(@Body() { content }: DiscordPostMessageRequest): Promise<Message<boolean>> {
     return this.discordService.postMessage(content);
+  }
+  @Post('message')
+  postMessageWithParams(@Body() discordMessage: DiscordMessage): Promise<Message<boolean>> {
+    return this.discordService.postMessageWithParams(discordMessage);
   }
 }
