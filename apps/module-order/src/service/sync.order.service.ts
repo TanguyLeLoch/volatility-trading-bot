@@ -54,7 +54,7 @@ export class SyncOrderSvc {
     syncMessage.type = DiscordMessageType.SYNC;
     syncMessage.params = {};
     syncMessage.params.pair = plan.pair.token1 + '-' + plan.pair.token2;
-    syncMessage.params.time = new Date().toLocaleTimeString();
+    syncMessage.params.time = new Date().toLocaleTimeString('fr-FR');
     this.postMessageWithParamsOnDiscord(syncMessage);
   }
 

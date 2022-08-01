@@ -4,10 +4,10 @@ import { Request, Response } from 'express';
 @Catch()
 export class AxiosExceptionFilter implements ExceptionFilter {
   catch(exception: any, host: ArgumentsHost) {
+    const ctx = host.switchToHttp();
+    const response = ctx.getResponse<Response>();
+    const request = ctx.getRequest<Request>();
     if (exception.constructor.name === 'AxiosError') {
-      const ctx = host.switchToHttp();
-      const response = ctx.getResponse<Response>();
-      const request = ctx.getRequest<Request>();
       const status = exception.response.data.statusCode;
       const content = JSON.parse(exception.response.data.message);
       const resp = {
@@ -19,7 +19,12 @@ export class AxiosExceptionFilter implements ExceptionFilter {
       response.statusCode = resp.code;
       response.status(status).json(resp);
     } else {
-      throw exception;
+      response.status(400).json({
+        statusCode: 400,
+        code: 'UNKNOWN_ERROR',
+        timestamp: new Date().toISOString(),
+        path: request.url,
+      });
     }
   }
 }
