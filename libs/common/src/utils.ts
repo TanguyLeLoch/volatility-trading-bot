@@ -5,4 +5,5 @@ export const Utils = {
   sleep: (ms: number): Promise<void> => {
     return new Promise((resolve) => setTimeout(resolve, ms));
   },
+  timeZone: 'Europe/Paris',
 };

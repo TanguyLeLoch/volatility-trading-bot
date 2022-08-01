@@ -1,4 +1,5 @@
 import { createCustomLogger, Method, ModuleCallerSvc } from '@app/core';
+import { Utils } from '@model/common';
 import { DiscordMessage, DiscordMessageType } from '@model/discord';
 import { Exchange, GetOrderRequest } from '@model/network';
 import { Order, OrderStatus, PriceType, Side } from '@model/order';
@@ -54,7 +55,7 @@ export class SyncOrderSvc {
     syncMessage.type = DiscordMessageType.SYNC;
     syncMessage.params = {};
     syncMessage.params.pair = plan.pair.token1 + '-' + plan.pair.token2;
-    syncMessage.params.time = new Date().toLocaleTimeString('fr-FR');
+    syncMessage.params.time = new Date().toLocaleTimeString('fr-FR', { timeZone: Utils.timeZone });
     this.postMessageWithParamsOnDiscord(syncMessage);
   }
 
