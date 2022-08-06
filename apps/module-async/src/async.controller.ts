@@ -1,15 +1,10 @@
 import { AsyncCall } from '@model/async';
 import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
 import { AsyncSvc } from './async.service';
 
 @Controller('asyncs')
 export class AsyncController {
-  constructor(
-    @InjectModel('Async') private readonly asyncModel: Model<AsyncCall>,
-    private readonly asyncSvc: AsyncSvc,
-  ) {}
+  constructor(private readonly asyncSvc: AsyncSvc) {}
 
   @Get('all')
   async getAllAsync(): Promise<Array<AsyncCall>> {
