@@ -1,44 +1,35 @@
 import { createCustomLogger, Method, ModuleCallerSvc } from '@app/core';
 import { AsyncCall, AsyncFilter, AsyncStatus } from '@model/async';
-import { Utils } from '@model/common';
-import { Injectable, OnApplicationBootstrap, OnModuleDestroy } from '@nestjs/common';
-import { CronJob } from 'cron';
+import { Injectable } from '@nestjs/common';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import winston from 'winston';
 import { AsyncSvc } from './async.service';
 import { moduleName } from './module.info';
 
 const ONE_HOUR = 60 * 60;
+const NB_CYCLE_BYPASS = 3; // wait 15 sec before start
+const TIME_BETWEEN_CYCLE = 5; // sec
 @Injectable()
-export class AsyncEngineSvc implements OnApplicationBootstrap, OnModuleDestroy {
+export class AsyncEngineSvc {
   private readonly logger: winston.Logger = createCustomLogger(moduleName, AsyncEngineSvc.name);
-  private cronJob: CronJob;
+  private nbCycle = 0;
+
   constructor(private readonly asyncSvc: AsyncSvc, private readonly moduleCallerSvc: ModuleCallerSvc) {}
-  onApplicationBootstrap() {
-    this.logger.warn(`Initialization of async engine ...`);
-    this.cronJob = this.createCronJob();
-    this.logger.warn(`start cron job in 10 seconds ...`);
-    Utils.sleep(10000).then(() => this.startCronJob(this.cronJob));
-  }
 
-  onModuleDestroy() {
-    this.logger.warn(`Shutdown of async engine ...`);
-    this.cronJob.stop();
-  }
-
-  private createCronJob(): CronJob {
-    // run every 5 seconds
-    const cronJob = new CronJob('*/5 * * * * *', () => this.processAsyncCall());
-    return cronJob;
-  }
-  private startCronJob(cronJob: CronJob): void {
-    cronJob.start();
-  }
-  private async processAsyncCall(): Promise<void> {
-    // get all async calls at OPEN status ready for exec
-    const asyncCalls = await this.findAsyncCallToExecute();
-    if (asyncCalls.length > 0) {
-      this.logger.warn(`Found ${asyncCalls.length} async calls to process ...`);
-      await this.executeAsyncCalls(asyncCalls);
+  @Cron(CronExpression.EVERY_5_SECONDS)
+  async processAsyncCall(): Promise<void> {
+    if (this.nbCycle >= NB_CYCLE_BYPASS) {
+      // get all async calls at OPEN status ready for exec
+      const asyncCalls = await this.findAsyncCallToExecute();
+      if (asyncCalls.length > 0) {
+        this.logger.warn(`Found ${asyncCalls.length} async calls to process ...`);
+        await this.executeAsyncCalls(asyncCalls);
+      }
+    } else {
+      this.logger.info(
+        `Waiting ${(NB_CYCLE_BYPASS - this.nbCycle) * TIME_BETWEEN_CYCLE} sec before the start of async triggering`,
+      );
+      this.nbCycle++;
     }
   }
   private async findAsyncCallToExecute() {

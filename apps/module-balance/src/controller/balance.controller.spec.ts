@@ -1,34 +1,43 @@
+import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
-import { BalanceController } from './balance.controller';
 import { BalanceSvc } from '../service/balance.service';
+import { BalanceController } from './balance.controller';
 
-const mockBalanceSvc = {
-  findAll: jest.fn(),
+const balanceMockRepository = {
+  find: jest.fn(() => {
+    return {
+      exec: jest.fn(),
+    };
+  }),
 };
 
 describe('AppController', () => {
   let balanceController: BalanceController;
+  let balanceSvc: BalanceSvc;
 
   beforeEach(async () => {
-    const app: TestingModule = await Test.createTestingModule({
+    const module: TestingModule = await Test.createTestingModule({
       controllers: [BalanceController],
       providers: [
+        BalanceSvc,
         {
-          provide: BalanceSvc,
-          useValue: mockBalanceSvc,
+          provide: getModelToken('Balance'),
+          useValue: balanceMockRepository,
         },
       ],
     }).compile();
 
-    balanceController = app.get<BalanceController>(BalanceController);
+    balanceController = module.get<BalanceController>(BalanceController);
+    balanceSvc = module.get<BalanceSvc>(BalanceSvc);
   });
   it('should be defined', () => {
     expect(balanceController).toBeDefined();
+    expect(balanceSvc).toBeDefined();
   });
   describe('get balances', () => {
     it('should return a list of balance', () => {
       balanceController.getBalances();
-      expect(mockBalanceSvc.findAll).toHaveBeenCalled();
+      expect(balanceMockRepository.find).toHaveBeenCalled();
     });
   });
 });

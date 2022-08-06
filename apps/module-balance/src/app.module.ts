@@ -1,10 +1,10 @@
-import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
-import { PingController } from './ping.controller';
-import { BalanceController } from './controller/balance.controller';
-import { MongooseModule } from '@nestjs/mongoose';
-import { BalanceSvc } from './service/balance.service';
-import { BalanceSchema } from '@model/balance';
 import { ApiMiddleware } from '@app/core';
+import { BalanceSchema } from '@model/balance';
+import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
+import { MongooseModule } from '@nestjs/mongoose';
+import { BalanceController } from './controller/balance.controller';
+import { PingController } from './ping.controller';
+import { BalanceSvc } from './service/balance.service';
 
 @Module({
   imports: [
