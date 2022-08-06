@@ -1,10 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Utils } from '@model/common';
 import { HttpService } from '@nestjs/axios';
-import { Method } from '../method';
+import { Injectable } from '@nestjs/common';
 import winston from 'winston';
 import { createCustomLogger } from '../logger';
+import { Method } from '../method';
 import { getModuleName } from '../module.ports';
-import { Utils } from '@model/common';
 
 const statusToRetry = [408, 429, 500, 502, 503, 504];
 
@@ -26,7 +26,7 @@ export class ExternalCallerSvc {
         this.logger.error(`error: ${JSON.stringify(error)}`);
         if (nbRetry === 0) {
           throw new Error(`NO_MORE_RETRY`);
-        } else if (statusToRetry.includes(error.status)) {
+        } else if (!error.status || statusToRetry.includes(error.status)) {
           this.logger.error(`Error code ${error.status} is retryable, retry in 10 seconds`);
           nbRetry--;
           await Utils.sleep(10000);
