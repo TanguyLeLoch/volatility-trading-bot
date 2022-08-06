@@ -88,6 +88,12 @@
     "setupFiles": [
       "<rootDir>/jest-set-up/index.ts"
     ],
+    "collectCoverage": true,
+    "coverageThreshold": {
+      "global": {
+        "lines": 36
+      }
+    },
     "moduleNameMapper": {
       "^@app/core(|/.*)$": "<rootDir>/libs/core/src/$1",
       "^@model/balance(|/.*)$": "<rootDir>/libs/balance/src/$1",
