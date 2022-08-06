@@ -6,13 +6,11 @@ import { AsyncSvc } from './async.service';
 export class AsyncController {
   constructor(private readonly asyncSvc: AsyncSvc) {}
 
-  @Get('all')
-  async getAllAsync(): Promise<Array<AsyncCall>> {
-    return this.asyncSvc.findAll();
-  }
-
   @Get(':id')
-  async getAsyncById(@Param() { id }: { id: string }): Promise<AsyncCall> {
+  async getAsyncById(@Param() { id }: { id: string }): Promise<AsyncCall | AsyncCall[]> {
+    if (id === 'all') {
+      return this.asyncSvc.findAll();
+    }
     return this.asyncSvc.findById(id);
   }
 
@@ -22,7 +20,7 @@ export class AsyncController {
   }
   @Post('trigger/:id')
   async triggerAsync(@Param() { id }: { id: string }): Promise<AsyncCall | AsyncCall[]> {
-    if (id == 'all') {
+    if (id === 'all') {
       return await this.asyncSvc.triggerAll();
     }
     return await this.asyncSvc.triggerById(id);

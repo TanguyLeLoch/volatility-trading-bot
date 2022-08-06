@@ -17,6 +17,11 @@ describe('ModuleAsyncController', () => {
         }),
       };
     }),
+    find: jest.fn(() => {
+      return {
+        exec: jest.fn(),
+      };
+    }),
   };
 
   beforeEach(async () => {
@@ -41,9 +46,13 @@ describe('ModuleAsyncController', () => {
       expect(asyncSvc).toBeDefined();
     });
     it('should verify the call of find by id', async () => {
-      const asyncFound: AsyncCall = await asyncController.getAsyncById({ id: '1234' });
+      const asyncFound: AsyncCall = (await asyncController.getAsyncById({ id: '1234' })) as AsyncCall;
       expect(asyncFound._id).toBe('1234');
       expect(asyncCallMockRepository.findById).toBeCalledWith('1234');
+    });
+    it('should verify the call of find ALL', async () => {
+      await asyncController.getAsyncById({ id: 'all' });
+      expect(asyncCallMockRepository.find).toBeCalled();
     });
   });
 });
