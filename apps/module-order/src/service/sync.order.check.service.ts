@@ -27,13 +27,22 @@ export class SyncOrderCheckSvc {
   }
   checkNotEmpty(ordersCex: Order[]) {
     if (ordersCex.length === 0) {
-      throw new Error(`NO_ORDERS_ON_CEX`);
+      throw new FunctionalException('No order on CEX', `NO_ORDERS_ON_CEX`);
     }
   }
   checkCoherentNumber(ordersCex: Order[], ordersDb: Order[]) {
     this.logger.info(`Found ${ordersCex.length} orders on cex`);
     if (ordersDb.length < ordersCex.length) {
-      throw new Error(`MORE_ORDER_ON_CEX`);
+      throw new FunctionalException('There is more order on CEX', `MORE_ORDER_ON_CEX`);
+    }
+    if (ordersCex.length <= ordersDb.length - 5) {
+      this.logger.error(
+        `${ordersCex.length} orders on CEX and ${ordersDb.length} orders in DB : too many CEX order triggered`,
+      );
+      throw new FunctionalException(
+        `${ordersCex.length} orders on CEX and ${ordersDb.length} orders in DB : too many CEX order triggered`,
+        `TOO_MANY_ORDER_TRIGGERED`,
+      );
     }
   }
   checkCexOrderExistsInDb(ordersCex: Order[], ordersDb: Order[]) {

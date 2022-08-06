@@ -112,6 +112,12 @@ describe('SyncOrderSvc', () => {
       ordersDb.pop();
       expect(() => syncOrderCheckSvc.checkOrders(ordersCex, ordersDb)).toThrowError('MORE_ORDER_ON_CEX');
     });
+    it('should throw TOO_MANY_ORDER_TRIGGERED exception', () => {
+      while (ordersDb.length < 5 + ordersCex.length) {
+        ordersDb = ordersDb.concat(ordersDb);
+      }
+      expect(() => syncOrderCheckSvc.checkOrders(ordersCex, ordersDb)).toThrowError('TOO_MANY_ORDER_TRIGGERED');
+    });
 
     it('should throw UNKNOWN_ORDER_ON_CEX exception', () => {
       ordersCex[0]._id = 'fakeid';

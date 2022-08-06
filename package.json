@@ -12,6 +12,7 @@
     "start": "nest start",
     "start:all": "concurrently \"nest start module-brain\" \"nest start module-discord\" \"nest start module-network\" \"nest start module-order\" \"nest start module-plan\" \"nest start module-async\" \"nest start stub --watch\"",
     "start:all:watch": "concurrently \"nest start module-brain --watch\" \"nest start module-discord --watch\" \"nest start module-network --watch\" \"nest start module-order --watch\" \"nest start module-plan --watch\" \"nest start module-async --watch\" \"nest start stub --watch\"",
+    "start:all:watch:noDiscord": "concurrently \"nest start module-brain --watch\" \"nest start module-network --watch\" \"nest start module-order --watch\" \"nest start module-plan --watch\" \"nest start module-async --watch\" \"nest start stub --watch\"",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
@@ -72,7 +73,7 @@
       "ts"
     ],
     "rootDir": ".",
-    "testRegex": ".*\\.spec\\.ts$",
+    "testRegex": ".*\\.(e2e-)?spec\\.ts$",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },
@@ -91,7 +92,7 @@
     "collectCoverage": true,
     "coverageThreshold": {
       "global": {
-        "lines": 36
+        "lines": 54
       }
     },
     "moduleNameMapper": {
