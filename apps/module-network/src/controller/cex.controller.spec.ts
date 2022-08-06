@@ -1,8 +1,6 @@
 import { CallerModule } from '@app/core';
-import { ExchangeSchema } from '@model/network';
-import { MongooseModule } from '@nestjs/mongoose';
+import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
-import { ExchangeModule } from '../module/exchange.module';
 import { CexSvc } from '../service/cex.service';
 import { ExchangeSvc } from '../service/exchange.service';
 import { MexcSvc } from '../service/mexc.service';
@@ -10,17 +8,26 @@ import { CexController } from './cex.controller';
 
 describe('CexController', () => {
   let cexController: CexController;
-
+  const exchangeMockRepository = {
+    findById: jest.fn().mockImplementation(() => {
+      return {
+        exec: jest.fn(() => this),
+      };
+    }),
+  };
   beforeEach(async () => {
     const app: TestingModule = await Test.createTestingModule({
-      imports: [
-        CallerModule,
-        ExchangeModule,
-        MongooseModule.forRoot('mongodb://localhost/test-module-network'),
-        MongooseModule.forFeature([{ name: 'Exchange', schema: ExchangeSchema }]),
-      ],
+      imports: [CallerModule],
       controllers: [CexController],
-      providers: [CexSvc, MexcSvc, ExchangeSvc],
+      providers: [
+        CexSvc,
+        MexcSvc,
+        ExchangeSvc,
+        {
+          provide: getModelToken('Exchange'),
+          useValue: exchangeMockRepository,
+        },
+      ],
     }).compile();
 
     cexController = app.get<CexController>(CexController);

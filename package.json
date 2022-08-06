@@ -85,6 +85,9 @@
       "<rootDir>/apps/",
       "<rootDir>/libs/"
     ],
+    "setupFiles": [
+      "<rootDir>/jest-set-up/index.ts"
+    ],
     "moduleNameMapper": {
       "^@app/core(|/.*)$": "<rootDir>/libs/core/src/$1",
       "^@model/balance(|/.*)$": "<rootDir>/libs/balance/src/$1",

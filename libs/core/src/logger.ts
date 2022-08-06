@@ -1,5 +1,7 @@
 import { createLogger, format, transports } from 'winston';
 const { combine, timestamp, printf, colorize } = format;
+// set silent true in test to avoid log
+const _isSilent: boolean = process.env.SILENT_LOG && process.env.SILENT_LOG === 'true';
 
 function getFormatFile(moduleName: string, name: string) {
   return combine(
@@ -13,6 +15,7 @@ function getFormatFile(moduleName: string, name: string) {
 export function createCustomLogger(moduleName: string, name: string) {
   const logger = createLogger({
     level: 'debug',
+    silent: _isSilent,
     transports: [
       new transports.Console({
         format: format.combine(getFormatFile(moduleName, name), colorize({ all: true })),

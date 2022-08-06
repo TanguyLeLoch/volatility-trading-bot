@@ -1,16 +1,5 @@
-import '@app/core/';
 import { Order, OrderStatus, PriceType, Side } from '@model/order';
 import { SyncOrderCheckSvc } from './sync.order.check.service';
-
-jest.mock('@app/core', () => {
-  const originalModule = jest.requireActual('@app/core');
-
-  return {
-    __esModule: true,
-    ...originalModule,
-    createCustomLogger: jest.fn().mockReturnValue({ debug: jest.fn(), info: jest.fn(), error: jest.fn() }),
-  };
-});
 
 describe('SyncOrderSvc', () => {
   let syncOrderCheckSvc: SyncOrderCheckSvc;

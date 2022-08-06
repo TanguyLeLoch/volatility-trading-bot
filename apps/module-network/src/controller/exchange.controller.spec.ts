@@ -1,20 +1,29 @@
-import { ExchangeSchema } from '@model/network';
-import { MongooseModule } from '@nestjs/mongoose';
+import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ExchangeSvc } from '../service/exchange.service';
 import { ExchangeController } from './exchange.controller';
 
 describe('ExchangeController', () => {
   let exchangeController: ExchangeController;
+  const exchangeMockRepository = {
+    findById: jest.fn().mockImplementation(() => {
+      return {
+        exec: jest.fn(() => this),
+      };
+    }),
+  };
 
   beforeEach(async () => {
     const app: TestingModule = await Test.createTestingModule({
-      imports: [
-        MongooseModule.forRoot('mongodb://localhost/test-module-network'),
-        MongooseModule.forFeature([{ name: 'Exchange', schema: ExchangeSchema }]),
-      ],
+      imports: [],
       controllers: [ExchangeController],
-      providers: [ExchangeSvc],
+      providers: [
+        ExchangeSvc,
+        {
+          provide: getModelToken('Exchange'),
+          useValue: exchangeMockRepository,
+        },
+      ],
     }).compile();
 
     exchangeController = app.get<ExchangeController>(ExchangeController);

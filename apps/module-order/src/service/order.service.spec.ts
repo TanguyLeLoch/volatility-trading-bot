@@ -4,16 +4,6 @@ import { Plan } from '@model/plan';
 import { orderToCreate } from '../../test/mock/mock.order.service';
 import { OrderSvc } from './order.service';
 
-jest.mock('@app/core', () => {
-  const originalModule = jest.requireActual('@app/core');
-
-  return {
-    __esModule: true,
-    ...originalModule,
-    createCustomLogger: jest.fn().mockReturnValue({ debug: jest.fn(), info: jest.fn(), error: jest.fn() }),
-  };
-});
-
 describe('OrderSvc', () => {
   const moduleCallerSvcMock: ModuleCallerSvc = {} as any;
   const orderModelMock = {} as any;
