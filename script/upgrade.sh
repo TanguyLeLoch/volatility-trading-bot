@@ -2,9 +2,7 @@
 # read module list from file
 scriptFolder=$(dirname -- $0)
 
-
-moduleList < ${scriptFolder}/moduleList
-echo $moduleList
+moduleList=( $(cat ${scriptFolder}/module-list) )
 
 # get the script folder
 # run stop script
