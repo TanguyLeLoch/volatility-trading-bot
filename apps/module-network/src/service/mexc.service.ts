@@ -1,18 +1,22 @@
 import { createCustomLogger, ExternalCallerSvc, Method } from '@app/core';
+import { Balance, MexcBalance, mexcBalanceToBalance } from '@model/balance';
 import { Pair, Price, Utils } from '@model/common';
-import { Exchange, ExchangeStatus, SymbolInfoResponse } from '@model/network';
+import { AccountInformation, Exchange, ExchangeStatus, SymbolInfoResponse } from '@model/network';
 import { MexcOrder, mexcOrderToOrder, Order, OrderStatus, PriceType } from '@model/order';
 import { Injectable } from '@nestjs/common';
 import * as CryptoJS from 'crypto-js';
 import winston from 'winston';
 import { moduleName } from '../module.info';
+import { AbstractExchangeSvc } from './AbstractExchangeSvc';
 import { ExchangeSvc } from './exchange.service';
 
 @Injectable()
-export class MexcSvc {
+export class MexcSvc extends AbstractExchangeSvc {
   private readonly logger: winston.Logger = createCustomLogger(moduleName, MexcSvc.name);
   private readonly mexcBaseUrl = process.env.ENV === 'prod' ? 'https://api.mexc.com' : 'http://localhost:43000';
-  constructor(private readonly externalCallerSvc: ExternalCallerSvc, private readonly exchangeSvc: ExchangeSvc) {}
+  constructor(private readonly externalCallerSvc: ExternalCallerSvc, private readonly exchangeSvc: ExchangeSvc) {
+    super();
+  }
 
   async getActiveOrders(pair: Pair): Promise<Array<Order>> {
     const url = this.mexcBaseUrl + '/api/v3/openOrders';
@@ -49,6 +53,18 @@ export class MexcSvc {
     params.set('symbol', pair.token1 + pair.token2);
     return await this.send(Method.GET, this.addParameters(url, params));
   }
+  async getBalances(): Promise<Balance[]> {
+    const url = this.mexcBaseUrl + '/api/v3/account';
+    const params: Map<string, string> = new Map();
+    params.set('timestamp', String(Date.now()));
+    const fullUrl = this.signUrl(url, params);
+    this.logger.debug(`Sending request to ${fullUrl}`);
+    const accountInfos: AccountInformation = await this.send(Method.GET, fullUrl);
+    if (accountInfos) {
+      return accountInfos.balances.map((balance: MexcBalance) => mexcBalanceToBalance(balance));
+    }
+    return [];
+  }
   async postOrders(orders: Order[]): Promise<Exchange[]> {
     const createdOrderExchanges: Exchange[] = [];
     for (const order of orders) {
@@ -75,6 +91,9 @@ export class MexcSvc {
         params.set('type', PriceType.LIMIT);
         const { price: currentprice } = await this.getPrice(order.pair);
         this.setPriceForLimitOrder(params, currentprice * 1.01, order.amount);
+        if (process.env.ENV !== 'prod') {
+          params.set('isMarket', 'true');
+        }
       }
     } else {
       params.set('type', order.price.type);

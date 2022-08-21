@@ -1,11 +1,17 @@
+import { MexcBalanceSchema } from '@model/balance';
+import { MexcOrderSchema } from '@model/order';
 import { Module } from '@nestjs/common';
-import { StubController } from './stub.controller';
+import { MongooseModule } from '@nestjs/mongoose';
 import { StubMexcController } from './stub.mexc.controller';
-import { StubService } from './stub.service';
+import { StubMexcSvc } from './stub.mexc.svc';
 
 @Module({
-  imports: [],
-  controllers: [StubController, StubMexcController],
-  providers: [StubService],
+  imports: [
+    MongooseModule.forRoot('mongodb://localhost/grid-trading-bot-stub'),
+    MongooseModule.forFeature([{ name: 'MexcOrder', schema: MexcOrderSchema }]),
+    MongooseModule.forFeature([{ name: 'MexcBalance', schema: MexcBalanceSchema }]),
+  ],
+  controllers: [StubMexcController],
+  providers: [StubMexcSvc],
 })
 export class StubModule {}

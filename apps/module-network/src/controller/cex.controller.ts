@@ -1,11 +1,12 @@
-import { Body, Controller, Post } from '@nestjs/common';
-import { CexSvc } from '../service/cex.service';
-import { Order } from '@model/order';
-import { Price } from '@model/common';
-import { Exchange, GetOrderRequest, GetPriceRequest } from '@model/network';
-import winston from 'winston';
 import { createCustomLogger } from '@app/core';
+import { Balance } from '@model/balance';
+import { Price } from '@model/common';
+import { Exchange, GetBalancesRequest, GetOrderRequest, GetPriceRequest, PostOrderRequest } from '@model/network';
+import { Order } from '@model/order';
+import { Body, Controller, Post } from '@nestjs/common';
+import winston from 'winston';
 import { moduleName } from '../module.info';
+import { CexSvc } from '../service/cex.service';
 
 @Controller('cex')
 export class CexController {
@@ -16,12 +17,16 @@ export class CexController {
   getOrder(@Body() getRequest: GetOrderRequest): Promise<Order[]> {
     return this.cexSvc.getCexOrder(getRequest);
   }
+  @Post('balances')
+  getBalance(@Body() request: GetBalancesRequest): Promise<Balance> {
+    return this.cexSvc.getCexBalance(request);
+  }
   @Post('price')
   getPrice(@Body() getRequest: GetPriceRequest): Promise<Price> {
-    return this.cexSvc.getPrice(getRequest.pair, getRequest.platform);
+    return this.cexSvc.getPrice(getRequest);
   }
   @Post('postOrders')
-  postOrders(@Body() orders: Array<Order>): Promise<Exchange[]> {
-    return this.cexSvc.postOrders(orders);
+  postOrders(@Body() postRequest: PostOrderRequest): Promise<Exchange[]> {
+    return this.cexSvc.postOrders(postRequest);
   }
 }

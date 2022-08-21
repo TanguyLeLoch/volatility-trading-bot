@@ -1,9 +1,7 @@
 import { Pair } from '@model/common';
-import { Prop, Schema as NestShema, SchemaFactory } from '@nestjs/mongoose';
-// import { Schema } from 'mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
-// const orderSchema = new Schema({ timestamps: true });
-@NestShema({ timestamps: true })
+@Schema({ timestamps: true })
 export class Order {
   public _id?: string;
   public __v?: string;

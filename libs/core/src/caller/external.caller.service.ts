@@ -22,7 +22,7 @@ export class ExternalCallerSvc {
       try {
         response = await this.callOnce(method, url, body, headers);
       } catch (error) {
-        this.logger.error(`Error while calling ${url} with body: ${JSON.stringify(body)}`);
+        this.logger.error(`Error while calling ${method} on ${url} with body: ${JSON.stringify(body)}`);
         this.logger.error(`error: ${JSON.stringify(error)}`);
         if (nbRetry === 0) {
           throw new Error(`NO_MORE_RETRY`);

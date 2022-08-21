@@ -1,10 +1,11 @@
-import { Model } from 'mongoose';
-import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Order, OrderStatus, OrderPrice, PriceType, Side } from '@model/order';
-import { Plan } from '@model/plan';
 import { createCustomLogger, Method, ModuleCallerSvc } from '@app/core';
 import { Pair, Utils } from '@model/common';
+import { PostOrderRequest } from '@model/network';
+import { Order, OrderPrice, OrderStatus, PriceType, Side } from '@model/order';
+import { Plan } from '@model/plan';
+import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import winston from 'winston';
 import { moduleName } from '../module.info';
 
@@ -59,7 +60,13 @@ export class OrderSvc {
     this.logger.info(`Saving ${orders.length} orders`);
     const createdOrders = await Promise.all(orders.map((order) => this.create(order)));
     // send orders to CEX
-    const sentOrders = await this.moduleCallerSvc.callModule('network', Method.POST, 'cex/postOrders', createdOrders);
+    const postordersRequest: PostOrderRequest = { platform: plan.platform, orders: createdOrders };
+    const sentOrders = await this.moduleCallerSvc.callModule(
+      'network',
+      Method.POST,
+      'cex/postOrders',
+      postordersRequest,
+    );
 
     await this.markMarketOrdersAsFilled(createdOrders);
 

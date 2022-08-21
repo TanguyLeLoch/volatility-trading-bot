@@ -1,5 +1,6 @@
 import { createCustomLogger, Method, ModuleCallerSvc } from '@app/core';
 import { AsyncCall, AsyncStatus } from '@model/async';
+import { featureFlag } from '@model/common';
 import { Exchange } from '@model/network';
 import { Plan } from '@model/plan';
 import { Injectable } from '@nestjs/common';
@@ -50,6 +51,13 @@ export class BrainSvc {
       `orders/synchronize/${planId}`,
       null,
     );
+    if (featureFlag.increaseBalance) {
+      if (true || (exchanges && exchanges.length > 0)) {
+        this.logger.error('increaseBalance is enabled or there are exchanges to process');
+        await this.moduleCallerSvc.callModule('balance', Method.POST, `synchronize/planId/${planId}`, null);
+      }
+    }
+
     const asyncToCreate: AsyncCall = this.createAsyncSynchronise(planId);
     await this.sendAsync(asyncToCreate);
     this.logger.info(`Next async at: ${asyncToCreate.dateToCall}`);

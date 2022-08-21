@@ -7,7 +7,7 @@ import { AsyncSvc } from './async.service';
 import { moduleName } from './module.info';
 
 const ONE_HOUR = 60 * 60;
-const NB_CYCLE_BYPASS = 3; // wait 15 sec before start
+const NB_CYCLE_BYPASS = 2; // wait 10 sec before start
 const TIME_BETWEEN_CYCLE = 5; // sec
 @Injectable()
 export class AsyncEngineSvc {
