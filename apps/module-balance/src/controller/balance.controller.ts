@@ -1,5 +1,5 @@
-import { Controller, Get, Post, Put, Body, Param, Delete } from '@nestjs/common';
 import { Balance } from '@model/balance';
+import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
 import { BalanceSvc } from '../service/balance.service';
 
 @Controller('balances')
@@ -9,6 +9,10 @@ export class BalanceController {
   @Get(':id')
   getBalanceById(@Param() { id }: { id: string }): Promise<Balance> {
     return this.balanceSvc.findById(id);
+  }
+  @Get('/token/:token/platform/:platform')
+  getBalance(@Param('token') token: string, @Param('platform') platform: string): Promise<Balance> {
+    return this.balanceSvc.findByTokenAndPlatform(token, platform);
   }
 
   @Get()

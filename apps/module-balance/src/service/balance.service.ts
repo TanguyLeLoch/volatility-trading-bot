@@ -1,5 +1,4 @@
 import { Balance } from '@model/balance';
-import { Exchange } from '@model/network';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -27,5 +26,18 @@ export class BalanceSvc {
 
   async delete(id: string): Promise<Balance> {
     return this.balanceModel.findByIdAndDelete(id).exec();
+  }
+
+  async createOrUpdate(balance: Balance): Promise<Balance> {
+    const foundBalance = await this.balanceModel.findOne({ token: balance.token, platform: balance.platform }).exec();
+    if (foundBalance) {
+      return this.modify(balance);
+    } else {
+      return this.create(balance);
+    }
+  }
+
+  async findByTokenAndPlatform(token: string, platform: string): Promise<Balance> {
+    return this.balanceModel.findOne({ token: token, platform: platform }).exec();
   }
 }

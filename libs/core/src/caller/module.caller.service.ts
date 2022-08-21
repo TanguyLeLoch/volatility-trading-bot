@@ -1,3 +1,4 @@
+import { GridRequest } from '@model/common';
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import winston from 'winston';
@@ -41,6 +42,11 @@ export class ModuleCallerSvc {
       headers,
     });
   }
+
+  async postRequest(request: GridRequest): Promise<any> {
+    return await this.callModule(request.module, Method.POST, 'request', request);
+  }
+
   private createFullUrl(module: string, path: string): string {
     const baseUrl = process.env.BASE_URL_DEV;
     const port: number = ports[module];

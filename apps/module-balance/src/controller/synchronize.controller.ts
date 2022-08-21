@@ -1,9 +1,9 @@
 import { createCustomLogger } from '@app/core';
-import { Exchange } from '@model/network';
+import { Balance } from '@model/balance';
 import { Controller, Get, Param, Post } from '@nestjs/common';
 import winston from 'winston';
 import { moduleName } from '../module.info';
-import { SynchronizeSvc } from '../service/synchronise.service';
+import { SynchronizeSvc } from '../service/synchronize.service';
 
 @Controller('synchronize')
 export class SynchronizeController {
@@ -16,7 +16,7 @@ export class SynchronizeController {
   }
 
   @Post('planId/:planId')
-  synchronize(@Param('planId') planId: string): Promise<Exchange[]> {
+  synchronize(@Param('planId') planId: string): Promise<Balance[]> {
     this.logger.info(`synchronize balances with for plan id ${planId}`);
     return this.synchronizeSvc.synchronize(planId);
   }

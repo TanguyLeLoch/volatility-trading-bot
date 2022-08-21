@@ -41,9 +41,7 @@ export class CexSvc {
     return await this.getCexService(request).getPrice(request.pair);
   }
 
-  async getCexBalance(request: GetBalancesRequest): Promise<Balance> {
-    const balances: Balance[] = await this.getCexService(request).getBalances();
-
-    return null;
+  async getCexBalance(request: GetBalancesRequest): Promise<Balance[]> {
+    return await this.getCexService(request).getBalances();
   }
 }

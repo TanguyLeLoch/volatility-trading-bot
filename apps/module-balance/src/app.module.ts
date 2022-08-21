@@ -6,7 +6,7 @@ import { BalanceController } from './controller/balance.controller';
 import { SynchronizeController } from './controller/synchronize.controller';
 import { PingController } from './ping.controller';
 import { BalanceSvc } from './service/balance.service';
-import { SynchronizeSvc } from './service/synchronise.service';
+import { SynchronizeSvc } from './service/synchronize.service';
 
 @Module({
   imports: [

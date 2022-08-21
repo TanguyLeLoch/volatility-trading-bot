@@ -1,32 +1,39 @@
-import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
+import { GridRequest } from '@model/common';
 import { Plan } from '@model/plan';
+import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { PlanSvc } from './plan.service';
 
 @Controller('plans')
 export class PlanController {
-  constructor(private planrSvc: PlanSvc) {}
+  constructor(private planSvc: PlanSvc) {}
 
   @Get('all')
   getAllPlan(): Promise<Plan[]> {
-    return this.planrSvc.findAll();
+    return this.planSvc.findAll();
   }
 
   @Get(':id')
   getPlanById(@Param() { id }: { id: string }): Promise<Plan> {
-    return this.planrSvc.findById(id);
+    return this.planSvc.findById(id);
   }
 
   @Post()
   postPlan(@Body() plan: Plan): Promise<Plan> {
-    return this.planrSvc.create(plan);
+    return this.planSvc.create(plan);
+  }
+
+  @Delete('all')
+  deleteAllPlan(): Promise<void> {
+    return this.planSvc.deleteAll();
   }
 
   @Post('computeStep/:id')
   computeStep(@Param() { id }: { id: string }): Promise<Plan> {
-    return this.planrSvc.computeStep(id);
+    return this.planSvc.computeStep(id);
   }
-  @Delete('all')
-  deleteAllPlan(): Promise<void> {
-    return this.planrSvc.deleteAll();
+
+  @Post('request')
+  request(@Body() request: GridRequest): Promise<any> {
+    return this.planSvc.processRequest(request);
   }
 }

@@ -14,19 +14,19 @@ export class CexController {
   constructor(private readonly cexSvc: CexSvc) {}
 
   @Post('orders')
-  getOrder(@Body() getRequest: GetOrderRequest): Promise<Order[]> {
-    return this.cexSvc.getCexOrder(getRequest);
+  getOrder(@Body() request: GetOrderRequest): Promise<Order[]> {
+    return this.cexSvc.getCexOrder(request);
   }
   @Post('balances')
-  getBalance(@Body() request: GetBalancesRequest): Promise<Balance> {
+  getBalance(@Body() request: GetBalancesRequest): Promise<Balance[]> {
     return this.cexSvc.getCexBalance(request);
   }
   @Post('price')
-  getPrice(@Body() getRequest: GetPriceRequest): Promise<Price> {
-    return this.cexSvc.getPrice(getRequest);
+  getPrice(@Body() request: GetPriceRequest): Promise<Price> {
+    return this.cexSvc.getPrice(request);
   }
   @Post('postOrders')
-  postOrders(@Body() postRequest: PostOrderRequest): Promise<Exchange[]> {
-    return this.cexSvc.postOrders(postRequest);
+  postOrders(@Body() request: PostOrderRequest): Promise<Exchange[]> {
+    return this.cexSvc.postOrders(request);
   }
 }

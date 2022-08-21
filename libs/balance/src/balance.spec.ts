@@ -1,13 +1,22 @@
-import { Balance, BalanceSchema } from './balance';
+import { BalanceBuilder, BalanceSchema } from './balance';
 
 describe('Balance object', () => {
-  it('should create a balance object', () => {
-    const balance = new Balance('tokenName', 'mexc', 1, 2, 3);
-    expect(balance).toBeDefined();
-    expect(balance.token).toBe('tokenName');
-    expect(balance.balance).toBe(1);
-    expect(balance.inOrder).toBe(2);
-    expect(balance.available).toBe(3);
+  it('should create a balance object with builder', () => {
+    const balanceBuilder = new BalanceBuilder();
+    const balanceBuilt = balanceBuilder
+      .withId('123')
+      .withToken('token')
+      .withPlatform('platform')
+      .withInOrder(1)
+      .withAvailable(2)
+      .build();
+
+    expect(balanceBuilt).toBeDefined();
+    expect(balanceBuilt._id).toEqual('123');
+    expect(balanceBuilt.token).toEqual('token');
+    expect(balanceBuilt.platform).toEqual('platform');
+    expect(balanceBuilt.inOrder).toEqual(1);
+    expect(balanceBuilt.available).toEqual(2);
   });
 });
 
