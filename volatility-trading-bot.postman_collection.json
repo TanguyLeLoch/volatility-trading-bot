@@ -1,0 +1,1076 @@
+{
+	"info": {
+		"_postman_id": "acdb7afa-a461-402f-97d7-266bf42487d2",
+		"name": "volatility-trading-bot",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "11430629"
+	},
+	"item": [
+		{
+			"name": "Module balance",
+			"item": [
+				{
+					"name": "Get all balance",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{env}}/balances",
+							"host": [
+								"{{env}}"
+							],
+							"path": [
+								"balances"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create balance",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"token\": \"DOGE2\",\n    \"platform\": \"MEXC2\",\n    \"balance\": 0,\n    \"inOrder\": 0,\n    \"available\": 0\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{env}}/balances",
+							"host": [
+								"{{env}}"
+							],
+							"path": [
+								"balances"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get balance by id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{env}}/balances/629e6f88ab302af6cf816017",
+							"host": [
+								"{{env}}"
+							],
+							"path": [
+								"balances",
+								"629e6f88ab302af6cf816017"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Put balance",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"token\": \"DOGE2\",\n    \"platform\": \"MEXC2\",\n    \"balance\": 100,\n    \"inOrder\": 11,\n    \"available\": 0,\n    \"_id\": \"629fc7c4460ff6d75cf36e48\",\n    \"__v\": 0\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{env}}/balances",
+							"host": [
+								"{{env}}"
+							],
+							"path": [
+								"balances"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete balance",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"token\": \"DOGE2\",\n    \"platform\": \"MEXC2\",\n    \"balance\": 100,\n    \"inOrder\": 11,\n    \"available\": 0,\n    \"_id\": \"629e6f88ab302af6cf816017\",\n    \"__v\": 0\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{env}}/balances/629d267331d02ea28654de6b",
+							"host": [
+								"{{env}}"
+							],
+							"path": [
+								"balances",
+								"629d267331d02ea28654de6b"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Module async",
+			"item": [
+				{
+					"name": "Get all async",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{env-async}}/asyncs/all",
+							"host": [
+								"{{env-async}}"
+							],
+							"path": [
+								"asyncs",
+								"all"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete async",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{env-async}}/asyncs/all",
+							"host": [
+								"{{env-async}}"
+							],
+							"path": [
+								"asyncs",
+								"all"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "modify",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "api-key-middleware",
+								"value": "ABCD1234",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"_id\": \"62db2ea83bd2577f761164e0\",\n    \"dateToCall\": \"2022-06-30T22:06:33.060Z\",\n    \"status\": \"NEW\",\n    \"method\": \"post\",\n    \"module\": \"brain\",\n    \"url\": \"synchronize/62c9d8350403cc6a82ca8aaa\",\n    \"createdAt\": \"2022-06-30T22:05:33.101Z\",\n    \"updatedAt\": \"2022-07-02T17:25:05.024Z\",\n    \"__v\": 0\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{env-async}}/asyncs",
+							"host": [
+								"{{env-async}}"
+							],
+							"path": [
+								"asyncs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "    {\n        \"dateToCall\": \"2022-07-30T22:06:33.060Z\",\n        \"status\": \"OPEN\",\n        \"method\": \"post\",\n        \"module\": \"brain\",\n        \"url\": \"synchronize/62c9d8350403cc6a82ca8aaa\",\n        \"createdAt\": \"2022-06-30T22:05:33.101Z\",\n        \"updatedAt\": \"2022-07-02T17:25:05.024Z\",\n        \"__v\": 0\n    }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{env-async}}/asyncs",
+							"host": [
+								"{{env-async}}"
+							],
+							"path": [
+								"asyncs"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Module order",
+			"item": [
+				{
+					"name": "Get all orders",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "api-key-middleware",
+								"value": "ABCD1234",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{prod}}:{{order}}/orders",
+							"host": [
+								"{{prod}}"
+							],
+							"port": "{{order}}",
+							"path": [
+								"orders"
+							],
+							"query": [
+								{
+									"key": "",
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create order",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"side\": \"SELL\",\n    \"price\": {\n        \"value\": 1.039,\n        \"type\": \"LIMIT\"\n    },\n    \"amount\": 150,\n    \"planId\": \"62c9d8350403cc6a82ca8aaa\",\n    \"pair\": {\n        \"token1\": \"AZERO\",\n        \"token2\": \"USDT\"\n    },\n    \"status\": \"NEW\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{prod}}:{{order}}/orders",
+							"host": [
+								"{{prod}}"
+							],
+							"port": "{{order}}",
+							"path": [
+								"orders"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get order by id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "api-key-middleware",
+								"value": "ABCD1234",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{prod}}:{{order}}/orders/62c9d83b6f5716a6af2abdeb?api-key-middleware=ABCD1234",
+							"host": [
+								"{{prod}}"
+							],
+							"port": "{{order}}",
+							"path": [
+								"orders",
+								"62c9d83b6f5716a6af2abdeb"
+							],
+							"query": [
+								{
+									"key": "api-key-middleware",
+									"value": "ABCD1234"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Put order",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "api-key-middleware",
+								"value": "ABCD1234",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "    {\n        \"_id\": \"62c9d83b6f5716a6af2abe09\",\n        \"planId\": \"62c9d8350403cc6a82ca8aaa\",\n        \"pair\": {\n            \"token1\": \"AZERO\",\n            \"token2\": \"USDT\"\n        },\n        \"amount\": 150,\n        \"status\": \"CANCELLED\",\n        \"price\": {\n            \"type\": \"LIMIT\",\n            \"value\": 1.203\n        },\n        \"side\": \"SELL\",\n        \"createdAt\": \"2022-07-09T19:34:19.254Z\",\n        \"updatedAt\": \"2022-08-04T09:44:51.941Z\",\n        \"__v\": 0\n    }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{prod}}:{{order}}/orders",
+							"host": [
+								"{{prod}}"
+							],
+							"port": "{{order}}",
+							"path": [
+								"orders"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete order",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"token\": \"DOGE2\",\n    \"platform\": \"MEXC2\",\n    \"balance\": 100,\n    \"inOrder\": 11,\n    \"available\": 0,\n    \"_id\": \"629e6f88ab302af6cf816017\",\n    \"__v\": 0\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{env-order}}/orders/all",
+							"host": [
+								"{{env-order}}"
+							],
+							"path": [
+								"orders",
+								"all"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Module network",
+			"item": [
+				{
+					"name": "exchange",
+					"item": [
+						{
+							"name": "Get all exchanges",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "api-key-middleware",
+										"value": "ABCD1234",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{prod}}:{{network}}/exchanges/all",
+									"host": [
+										"{{prod}}"
+									],
+									"port": "{{network}}",
+									"path": [
+										"exchanges",
+										"all"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "create exchanges",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"token1\": \"DOGE\",\n    \"token2\": \"USDT\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{env-network}}/exchanges",
+									"host": [
+										"{{env-network}}"
+									],
+									"path": [
+										"exchanges"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "modify",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"_id\": \"62a267e4d621825877bac338\",\n    \"token1\": \"DOGE\",\n    \"token2\": \"USDT\",\n    \"status\": \"FILLED\",\n    \"__v\": 0\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{env-network}}/exchanges",
+									"host": [
+										"{{env-network}}"
+									],
+									"path": [
+										"exchanges"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get by id",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{env-network}}/exchanges",
+									"host": [
+										"{{env-network}}"
+									],
+									"path": [
+										"exchanges"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"token\": \"DOGE2\",\n    \"platform\": \"MEXC2\",\n    \"balance\": 100,\n    \"inOrder\": 11,\n    \"available\": 0,\n    \"_id\": \"629e6f88ab302af6cf816017\",\n    \"__v\": 0\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{env-network}}/exchanges/all",
+									"host": [
+										"{{env-network}}"
+									],
+									"path": [
+										"exchanges",
+										"all"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "dex",
+					"item": [
+						{
+							"name": "Post get order",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"pair\": {\n        \"token1\": \"BTC\",\n        \"token2\": \"USDT\"\n    },\n    \"platform\": \"MEXC\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{env-network}}/cex/orders",
+									"host": [
+										"{{env-network}}"
+									],
+									"path": [
+										"cex",
+										"orders"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Post get pric",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"pair\": {\n        \"token1\": \"AZERO\",\n        \"token2\": \"USDT\"\n    },\n    \"platform\": \"MEXC\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{env-network}}/dex/price",
+									"host": [
+										"{{env-network}}"
+									],
+									"path": [
+										"dex",
+										"price"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get orders",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "api-key-middleware",
+										"value": "ABCD1234",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"platform\": \"MEXC\",\n    \"planId\": \"{{planId}}\",\n    \"pair\": {\n        \"token1\": \"AZERO\",\n        \"token2\": \"USDT\"\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{env-network}}/cex/orders",
+									"host": [
+										"{{env-network}}"
+									],
+									"path": [
+										"cex",
+										"orders"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Module plan",
+			"item": [
+				{
+					"name": "create plan",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"pair\": {\n        \"token1\": \"AZERO\",\n        \"token2\": \"USDT\"\n    },\n    \"platform\": \"MEXC\",\n    \"priceMin\": 0.5,\n    \"step\": 10,\n    \"startAmount\": 2000,\n    \"amountPerStep\": 200\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{env-plan}}/plans",
+							"host": [
+								"{{env-plan}}"
+							],
+							"path": [
+								"plans"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "New Request",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{env-plan}}/plans/computeStep/62c5ff7775be519d64de47b5",
+							"host": [
+								"{{env-plan}}"
+							],
+							"path": [
+								"plans",
+								"computeStep",
+								"62c5ff7775be519d64de47b5"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "find all plans",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "api-key-middleware",
+								"value": "ABCD1234",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{env-plan}}/plans/all",
+							"host": [
+								"{{env-plan}}"
+							],
+							"path": [
+								"plans",
+								"all"
+							],
+							"query": [
+								{
+									"key": "",
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete all plan",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{env-plan}}/plans/all",
+							"host": [
+								"{{env-plan}}"
+							],
+							"path": [
+								"plans",
+								"all"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Module brain",
+			"item": [
+				{
+					"name": "init",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{env-brain}}/init/62b0e1bef6c11f7fdd9c2833",
+							"host": [
+								"{{env-brain}}"
+							],
+							"path": [
+								"init",
+								"62b0e1bef6c11f7fdd9c2833"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Module Discord",
+			"item": [
+				{
+					"name": "post message",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"content\": \"coucou\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{env-discord}}",
+							"host": [
+								"{{env-discord}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Init",
+			"item": [
+				{
+					"name": "delete all",
+					"item": [
+						{
+							"name": "delete exchange",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"token\": \"DOGE2\",\n    \"platform\": \"MEXC2\",\n    \"balance\": 100,\n    \"inOrder\": 11,\n    \"available\": 0,\n    \"_id\": \"629e6f88ab302af6cf816017\",\n    \"__v\": 0\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{local}}:{{network}}/exchanges/all",
+									"host": [
+										"{{local}}"
+									],
+									"port": "{{network}}",
+									"path": [
+										"exchanges",
+										"all"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete all plan",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{local}}:{{plan}}/plans/all",
+									"host": [
+										"{{local}}"
+									],
+									"port": "{{plan}}",
+									"path": [
+										"plans",
+										"all"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete order",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"token\": \"DOGE2\",\n    \"platform\": \"MEXC2\",\n    \"balance\": 100,\n    \"inOrder\": 11,\n    \"available\": 0,\n    \"_id\": \"629e6f88ab302af6cf816017\",\n    \"__v\": 0\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{local}}:{{order}}/orders/all",
+									"host": [
+										"{{local}}"
+									],
+									"port": "{{order}}",
+									"path": [
+										"orders",
+										"all"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete stub order",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"token\": \"DOGE2\",\n    \"platform\": \"MEXC2\",\n    \"balance\": 100,\n    \"inOrder\": 11,\n    \"available\": 0,\n    \"_id\": \"629e6f88ab302af6cf816017\",\n    \"__v\": 0\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{local}}:{{stub}}/orders/all",
+									"host": [
+										"{{local}}"
+									],
+									"port": "{{stub}}",
+									"path": [
+										"orders",
+										"all"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete stub balance",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"token\": \"DOGE2\",\n    \"platform\": \"MEXC2\",\n    \"balance\": 100,\n    \"inOrder\": 11,\n    \"available\": 0,\n    \"_id\": \"629e6f88ab302af6cf816017\",\n    \"__v\": 0\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{local}}:{{stub}}/balances/all",
+									"host": [
+										"{{local}}"
+									],
+									"port": "{{stub}}",
+									"path": [
+										"balances",
+										"all"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete async",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{local}}:{{async}}/asyncs/all",
+									"host": [
+										"{{local}}"
+									],
+									"port": "{{async}}",
+									"path": [
+										"asyncs",
+										"all"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "put balance",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:43000/balances?asset=AZERO&quantity=0",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "43000",
+							"path": [
+								"balances"
+							],
+							"query": [
+								{
+									"key": "asset",
+									"value": "AZERO"
+								},
+								{
+									"key": "quantity",
+									"value": "0"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "put balance base",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:43000/balances?asset=USDT&quantity=1000",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "43000",
+							"path": [
+								"balances"
+							],
+							"query": [
+								{
+									"key": "asset",
+									"value": "USDT"
+								},
+								{
+									"key": "quantity",
+									"value": "1000"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create plan",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const { _id :planId} = JSON.parse(responseBody)",
+									"pm.collectionVariables.set(\"planId\", planId);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"pair\": {\n        \"token1\": \"AZERO\",\n        \"token2\": \"USDT\"\n    },\n    \"platform\": \"MEXC\",\n    \"priceMin\": 1,\n    \"step\": 10,\n    \"startAmount\": 1000,\n    \"amountPerStep\": 100\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{local}}:{{plan}}/plans",
+							"host": [
+								"{{local}}"
+							],
+							"port": "{{plan}}",
+							"path": [
+								"plans"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "init",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{local}}:{{brain}}/init/{{planId}}",
+							"host": [
+								"{{local}}"
+							],
+							"port": "{{brain}}",
+							"path": [
+								"init",
+								"{{planId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "synchronise",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{local}}:{{brain}}/synchronize/{{planId}}",
+							"host": [
+								"{{local}}"
+							],
+							"port": "{{brain}}",
+							"path": [
+								"synchronize",
+								"{{planId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"pm.request.headers.add({key: 'api-key-middleware', value: 'devapikey' });"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "planId",
+			"value": ""
+		}
+	]
+}
