@@ -13,6 +13,28 @@ export class ModuleCallerSvc {
 
   constructor(private httpService: HttpService) {}
 
+  async callOrderModule(method: Method, path: string, body?: any): Promise<any> {
+    return await this.callModule('order', method, path, body);
+  }
+  async callPlanModule(method: Method, path: string, body?: any): Promise<any> {
+    return await this.callModule('plan', method, path, body);
+  }
+  async callNetworkModule(method: Method, path: string, body?: any): Promise<any> {
+    return await this.callModule('network', method, path, body);
+  }
+  async callBrainModule(method: Method, path: string, body?: any): Promise<any> {
+    return await this.callModule('brain', method, path, body);
+  }
+  async callAsyncModule(method: Method, path: string, body?: any): Promise<any> {
+    return await this.callModule('async', method, path, body);
+  }
+  async callDiscordModule(method: Method, path: string, body?: any): Promise<any> {
+    return await this.callModule('discord', method, path, body);
+  }
+  async callBalanceModule(method: Method, path: string, body?: any): Promise<any> {
+    return await this.callModule('balance', method, path, body);
+  }
+
   async callModule(module: string, method: Method, path: string, body?: any): Promise<any> {
     const url = this.createFullUrl(module, path);
     this.logger.verbose(`${method} on module ${module} on url ${url} with body: ${JSON.stringify(body)}`);
@@ -53,7 +75,7 @@ export class ModuleCallerSvc {
     return `${baseUrl}:${port}/${path}`;
   }
   private pingDiscord() {
-    this.callModule('discord', Method.POST, 'ping', null).catch((err) => {
+    this.callDiscordModule(Method.POST, 'ping', null).catch((err) => {
       this.logger.error(`launch ping to discord`);
       this.logger.error(`Error pinging message on discord: ${err}`);
     });

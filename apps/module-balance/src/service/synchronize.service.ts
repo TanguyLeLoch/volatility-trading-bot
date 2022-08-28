@@ -13,13 +13,13 @@ export class SynchronizeSvc {
   constructor(private balanceSvc: BalanceSvc, private readonly moduleCallerSvc: ModuleCallerSvc) {}
 
   async synchronize(planId: string): Promise<Balance[]> {
-    const plan: Plan = await this.moduleCallerSvc.callModule('plan', Method.GET, `plans/${planId}`, null);
+    const plan: Plan = await this.moduleCallerSvc.callPlanModule(Method.GET, `plans/${planId}`, null);
     const request: GetBalancesRequest = {
       pair: plan.pair,
       platform: plan.platform,
     };
 
-    const balances: Balance[] = await this.moduleCallerSvc.callModule('network', Method.POST, `cex/balances`, request);
+    const balances: Balance[] = await this.moduleCallerSvc.callNetworkModule(Method.POST, `cex/balances`, request);
     this.logger.info(`balances: ${JSON.stringify(balances)}`);
     const balancesPromise: Promise<Balance>[] = balances.map(async (balance: Balance) => {
       return await this.balanceSvc.createOrUpdate(balance);

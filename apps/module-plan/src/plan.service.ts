@@ -69,8 +69,7 @@ export class PlanSvc {
   }
   async recomputeStep(request: RecomputeStepRequest): Promise<Plan> {
     const plan: Plan = await this.findById(request.planId);
-    const balance: Balance = await this.moduleCallerSvc.callModule(
-      'balance',
+    const balance: Balance = await this.moduleCallerSvc.callBalanceModule(
       Method.GET,
       `balances/token/${request.pair.token1}/platform/${plan.platform}`,
     );

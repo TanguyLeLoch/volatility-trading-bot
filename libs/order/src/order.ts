@@ -39,3 +39,59 @@ export enum OrderStatus {
   PARTIALLY_FILLED = 'PARTIALLY_FILLED',
   CANCELLED = 'CANCELLED',
 }
+
+export class OrderBuilder {
+  private _id?: string;
+  private __v?: string;
+  private planId: string;
+  private pair: Pair;
+  private amount: number;
+  private status: OrderStatus;
+  private price: OrderPrice;
+  private side: Side;
+
+  withId(id: string): OrderBuilder {
+    this._id = id;
+    return this;
+  }
+  withVersion(v: string): OrderBuilder {
+    this.__v = v;
+    return this;
+  }
+  withPlanId(planId: string): OrderBuilder {
+    this.planId = planId;
+    return this;
+  }
+  withPair(pair: Pair): OrderBuilder {
+    this.pair = pair;
+    return this;
+  }
+  withAmount(amount: number): OrderBuilder {
+    this.amount = amount;
+    return this;
+  }
+  withStatus(status: OrderStatus): OrderBuilder {
+    this.status = status;
+    return this;
+  }
+  withPrice(price: OrderPrice): OrderBuilder {
+    this.price = price;
+    return this;
+  }
+  withSide(side: Side): OrderBuilder {
+    this.side = side;
+    return this;
+  }
+  build(): Order {
+    const order = new Order();
+    order._id = this._id;
+    order.__v = this.__v;
+    order.planId = this.planId;
+    order.pair = this.pair;
+    order.amount = this.amount;
+    order.status = this.status;
+    order.price = this.price;
+    order.side = this.side;
+    return order;
+  }
+}

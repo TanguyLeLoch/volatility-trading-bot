@@ -1,7 +1,7 @@
 import { createCustomLogger, Method, ModuleCallerSvc } from '@app/core';
-import { Pair, Utils } from '@model/common';
-import { PostOrderRequest } from '@model/network';
-import { Order, OrderPrice, OrderStatus, PriceType, Side } from '@model/order';
+import { GridRequest, IncreaseCeilingRequest, Pair, Utils } from '@model/common';
+import { Exchange, PostOrderRequest } from '@model/network';
+import { Order, OrderBuilder, OrderPrice, OrderStatus, PriceType, Side } from '@model/order';
 import { Plan } from '@model/plan';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -29,7 +29,7 @@ export class OrderSvc {
     this.logger.info(`Creating orders for plan ${plan._id}`);
     plan.pair = new Pair(plan.pair);
 
-    const { price: currentpriceStr } = await this.moduleCallerSvc.callModule('network', Method.POST, 'cex/price', {
+    const { price: currentpriceStr } = await this.moduleCallerSvc.callNetworkModule(Method.POST, 'cex/price', {
       pair: plan.pair,
       platform: plan.platform,
     });
@@ -61,12 +61,7 @@ export class OrderSvc {
     const createdOrders = await Promise.all(orders.map((order) => this.create(order)));
     // send orders to CEX
     const postordersRequest: PostOrderRequest = { platform: plan.platform, orders: createdOrders };
-    const sentOrders = await this.moduleCallerSvc.callModule(
-      'network',
-      Method.POST,
-      'cex/postOrders',
-      postordersRequest,
-    );
+    const sentOrders = await this.moduleCallerSvc.callNetworkModule(Method.POST, 'cex/postOrders', postordersRequest);
 
     await this.markMarketOrdersAsFilled(createdOrders);
 
@@ -116,6 +111,45 @@ export class OrderSvc {
   }
   async deleteAll(): Promise<void> {
     await this.orderModel.deleteMany({}).exec();
+  }
+
+  async processRequest(request: GridRequest): Promise<any> {
+    switch (request.name) {
+      case 'increaseCeiling':
+        return this.increaseCeiling(request as IncreaseCeilingRequest);
+      default:
+        throw new Error(`Unknown request name ${request.name}`);
+    }
+  }
+  async increaseCeiling(request: IncreaseCeilingRequest): Promise<Exchange[]> {
+    const exchanges: Exchange[] = [];
+    const plan: Plan = await this.moduleCallerSvc.callPlanModule(Method.GET, `plans/${request.planId}`);
+    const orders: Order[] = await this.findByPlanId(request.planId);
+    const activeOrders: Order[] = orders.sort((a, b) => a.price.value - b.price.value);
+    const biggestOrderPrice = activeOrders[activeOrders.length - 1].price.value;
+    const newlevels = plan.stepLevels.filter((stepLevel) => stepLevel > biggestOrderPrice);
+    for (const level of newlevels) {
+      const order = new OrderBuilder()
+        .withPrice({ type: PriceType.LIMIT, value: level })
+        .withPair(plan.pair)
+        .withSide(Side.SELL)
+        .withAmount(plan.amountPerStep)
+        .withPlanId(plan._id)
+        .withStatus(OrderStatus.NEW)
+        .build();
+      // save orders in db
+      const orderDb: Order = await this.create(order);
+      this.logger.info(`Order saved in database : ${JSON.stringify(orderDb)}`);
+      // send orders to CEX
+      const postordersRequest: PostOrderRequest = { platform: plan.platform, orders: [orderDb] };
+      const cexOrderExchange = await this.moduleCallerSvc.callNetworkModule(
+        Method.POST,
+        'cex/postOrders',
+        postordersRequest,
+      );
+      exchanges.push(cexOrderExchange);
+    }
+    return exchanges;
   }
 }
 

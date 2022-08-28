@@ -100,6 +100,6 @@ export class DiscordService implements OnApplicationBootstrap {
     return await this.postMessage(message);
   }
   private async triggerAllAsync() {
-    await this.moduleCallerSvc.callModule('async', Method.POST, 'asyncs/trigger/all', null);
+    await this.moduleCallerSvc.callAsyncModule(Method.POST, 'asyncs/trigger/all', null);
   }
 }

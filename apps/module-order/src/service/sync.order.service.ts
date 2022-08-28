@@ -26,7 +26,7 @@ export class SyncOrderSvc {
     const plan: Plan = await this.getPlan(planId);
     // get all orders for plan from cex
     const request: GetOrderRequest = this.createOrderRequestByPlan(planId, plan);
-    const ordersCex = await this.moduleCallerSvc.callModule('network', Method.POST, 'cex/orders', request);
+    const ordersCex = await this.moduleCallerSvc.callNetworkModule(Method.POST, 'cex/orders', request);
     this.logger.verbose(`ordersCex: ${JSON.stringify(ordersCex)}`);
     this.syncOrderCheckSvc.checkOrders(ordersCex, ordersDb);
     const exchanges: Exchange[] = [];
@@ -79,7 +79,7 @@ export class SyncOrderSvc {
     const orderDb = await this.orderSvc.create(newOrder);
     this.logger.info(`Order ${orderDb._id} created in database`);
     // create order in cex
-    const ordersCex: Exchange[] = await this.moduleCallerSvc.callModule('network', Method.POST, 'cex/postOrders', [
+    const ordersCex: Exchange[] = await this.moduleCallerSvc.callNetworkModule(Method.POST, 'cex/postOrders', [
       orderDb,
     ]);
     this.logger.info(`Order ${ordersCex[0]._id} created on cex`);
@@ -96,13 +96,13 @@ export class SyncOrderSvc {
    * @param message
    */
   private postMessageOnDiscord(message: string) {
-    this.moduleCallerSvc.callModule('discord', Method.POST, '', { content: message }).catch((err) => {
+    this.moduleCallerSvc.callDiscordModule(Method.POST, '', { content: message }).catch((err) => {
       this.logger.error(`Error posting message on discord: ${err}`);
     });
   }
 
   private postMessageWithParamsOnDiscord(discordMessage: DiscordMessage) {
-    this.moduleCallerSvc.callModule('discord', Method.POST, 'message', discordMessage).catch((err) => {
+    this.moduleCallerSvc.callDiscordModule(Method.POST, 'message', discordMessage).catch((err) => {
       this.logger.error(`Error posting message on discord: ${err}`);
     });
   }
@@ -116,7 +116,7 @@ export class SyncOrderSvc {
   }
 
   private async getPlan(planId: string) {
-    return await this.moduleCallerSvc.callModule('plan', Method.GET, `plans/${planId}`, null);
+    return await this.moduleCallerSvc.callPlanModule(Method.GET, `plans/${planId}`, null);
   }
 }
 function findClosestNumberIdx(steps: Array<number>, valueToFound: number): number {

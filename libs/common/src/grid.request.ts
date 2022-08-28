@@ -8,3 +8,7 @@ export interface RecomputeStepRequest extends GridRequest {
   planId: string;
   pair: Pair;
 }
+
+export interface IncreaseCeilingRequest extends GridRequest {
+  planId: string;
+}

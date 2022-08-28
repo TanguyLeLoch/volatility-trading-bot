@@ -1,54 +1,60 @@
-import { Controller, Get, Post, Put, Body, Param, Delete } from '@nestjs/common';
-import { Order } from '@model/order';
-import { OrderSvc } from '../service/order.service';
-import { Plan } from '@model/plan';
-import { SyncOrderSvc } from '../service/sync.order.service';
-import { Exchange } from '@model/network';
-import winston from 'winston';
 import { createCustomLogger } from '@app/core';
+import { GridRequest } from '@model/common';
+import { Exchange } from '@model/network';
+import { Order } from '@model/order';
+import { Plan } from '@model/plan';
+import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import winston from 'winston';
 import { moduleName } from '../module.info';
+import { OrderSvc } from '../service/order.service';
+import { SyncOrderSvc } from '../service/sync.order.service';
 
-@Controller('orders')
+@Controller()
 export class OrderController {
   private readonly logger: winston.Logger = createCustomLogger(moduleName, OrderController.name);
   constructor(private readonly orderSvc: OrderSvc, private readonly syncOrderSvc: SyncOrderSvc) {}
 
-  @Get(':id')
+  @Get('orders/:id')
   getOrderById(@Param() { id }: { id: string }): Promise<Order> {
     return this.orderSvc.findById(id);
   }
 
-  @Post('/plan')
+  @Post('orders/plan')
   postOrdersWithPlan(@Body() plan: Plan): Promise<Array<Order>> {
     return this.orderSvc.createByPlan(plan);
   }
-  @Post('synchronize/:planId')
+  @Post('orders/synchronize/:planId')
   synchronize(@Param() { planId }: { planId: string }): Promise<Exchange[]> {
     this.logger.info(`synchronize with for plan id ${planId}`);
     return this.syncOrderSvc.synchronize(planId);
   }
 
-  @Get()
+  @Get('orders')
   getOrders(): Promise<Array<Order>> {
     return this.orderSvc.findAll();
   }
 
-  @Put()
+  @Put('orders')
   putOrder(@Body() order: Order): Promise<Order> {
     return this.orderSvc.modify(order);
   }
 
-  @Post()
+  @Post('orders')
   postOrder(@Body() order: Order): Promise<Order> {
     return this.orderSvc.create(order);
   }
-  @Delete('all')
+  @Delete('orders/all')
   deleteAllOrders(): Promise<void> {
     return this.orderSvc.deleteAll();
   }
 
-  @Delete(':id')
+  @Delete('orders/:id')
   deleteOrder(@Param() { id }: { id: string }): Promise<Order> {
     return this.orderSvc.delete(id);
+  }
+
+  @Post('request')
+  request(@Body() request: GridRequest): Promise<any> {
+    return this.orderSvc.processRequest(request);
   }
 }

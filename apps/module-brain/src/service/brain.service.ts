@@ -1,6 +1,6 @@
 import { createCustomLogger, Method, ModuleCallerSvc } from '@app/core';
 import { AsyncCall, AsyncStatus } from '@model/async';
-import { featureFlag, RecomputeStepRequest } from '@model/common';
+import { featureFlag, IncreaseCeilingRequest, RecomputeStepRequest } from '@model/common';
 import { Exchange } from '@model/network';
 import { Plan } from '@model/plan';
 import { Injectable } from '@nestjs/common';
@@ -15,21 +15,20 @@ export class BrainSvc {
   constructor(private readonly moduleCallerSvc: ModuleCallerSvc) {}
 
   async init(planId: string): Promise<any> {
-    const planWithStep: Plan = await this.moduleCallerSvc.callModule(
-      'plan',
+    const planWithStep: Plan = await this.moduleCallerSvc.callPlanModule(
       Method.POST,
       `plans/computeStep/${planId}`,
       null,
     );
     //create initial orders
-    const orders = await this.moduleCallerSvc.callModule('order', Method.POST, 'orders/plan', planWithStep);
+    const orders = await this.moduleCallerSvc.callOrderModule(Method.POST, 'orders/plan', planWithStep);
 
     const asyncCall: AsyncCall = this.createAsyncSynchronize(planId);
     await this.sendAsync(asyncCall);
     return orders;
   }
   private async sendAsync(asyncCall: AsyncCall): Promise<AsyncCall> {
-    return await this.moduleCallerSvc.callModule('async', Method.POST, 'asyncs', asyncCall);
+    return await this.moduleCallerSvc.callAsyncModule(Method.POST, 'asyncs', asyncCall);
   }
 
   private createAsyncSynchronize(planId: string) {
@@ -45,28 +44,43 @@ export class BrainSvc {
   }
 
   async synchronize(planId: string): Promise<Exchange[]> {
-    const exchanges: Exchange[] = await this.moduleCallerSvc.callModule(
-      'order',
+    const exchanges: Exchange[] = await this.moduleCallerSvc.callOrderModule(
       Method.POST,
       `orders/synchronize/${planId}`,
       null,
     );
-    if (featureFlag.increaseBalance) {
-      this.logger.error('increaseBalance is enabled');
+    if (featureFlag.increaseCeiling) {
+      this.logger.error('increaseCeiling is enabled');
+
       if (true || (exchanges && exchanges.length > 0)) {
-        await this.moduleCallerSvc.callModule('balance', Method.POST, `synchronize/planId/${planId}`, null);
-        const plan: Plan = await this.moduleCallerSvc.callModule('plan', Method.GET, `plans/${planId}`, null);
-        const levels = plan.stepLevels;
+        await this.moduleCallerSvc.callBalanceModule(Method.POST, `synchronize/planId/${planId}`, null);
+        const plan: Plan = await this.moduleCallerSvc.callPlanModule(Method.GET, `plans/${planId}`, null);
         const request: RecomputeStepRequest = {
           module: 'plan',
           planId: planId,
           pair: plan.pair,
           name: 'recomputeStep',
         };
-        const planModified = await this.moduleCallerSvc.callModule('plan', Method.POST, `request`, request);
+        const planModified = await this.moduleCallerSvc.callPlanModule(Method.POST, `request`, request);
+        if (plan.stepLevels.length !== planModified.stepLevels.length) {
+          const request: IncreaseCeilingRequest = {
+            module: 'order',
+            planId: planId,
+            name: 'increaseCeiling',
+          };
+          const increaseCeilingExchanges: Exchange[] = await this.moduleCallerSvc.callOrderModule(
+            Method.POST,
+            'request',
+            request,
+          );
+        } else {
+          this.logger.info('There is no need to increaseCeiling because not enough token');
+        }
+      } else {
+        this.logger.info('There is no need to increaseCeiling because pair are synced');
       }
     } else {
-      this.logger.error('increaseBalance is disabled');
+      this.logger.error('increaseCeiling is disabled');
     }
 
     const asyncToCreate: AsyncCall = this.createAsyncSynchronize(planId);

@@ -79,7 +79,7 @@ export class AsyncEngineSvc {
   }
 
   private postMessageOnDiscord(message: string) {
-    this.moduleCallerSvc.callModule('discord', Method.POST, '', { content: message }).catch((err) => {
+    this.moduleCallerSvc.callDiscordModule(Method.POST, '', { content: message }).catch((err) => {
       this.logger.error(`Error posting message on discord: ${err}`);
     });
   }
