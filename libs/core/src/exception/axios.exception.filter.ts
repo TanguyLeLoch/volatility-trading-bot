@@ -12,7 +12,7 @@ export class AxiosExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
     if (exception.constructor.name === 'AxiosError') {
-      const status = exception.response.data.statusCode;
+      const status = exception.response?.data?.statusCode;
       const content = exception.response.data.message;
       this.logger.error(`${request.method} ${request.url} ${status} ${content}`);
       const resp = {

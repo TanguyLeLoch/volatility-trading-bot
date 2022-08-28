@@ -10,7 +10,7 @@ import { moduleName } from './module.info';
 
 @Injectable()
 export class PlanSvc {
-  private readonly logger: winston.Logger = createCustomLogger(moduleName, PlanSvc.name);
+  private static readonly logger: winston.Logger = createCustomLogger(moduleName, PlanSvc.name);
   constructor(
     @InjectModel('Plan') private readonly planModel: Model<Plan>,
     private readonly moduleCallerSvc: ModuleCallerSvc,
@@ -21,7 +21,7 @@ export class PlanSvc {
   }
 
   async create(plan: Plan): Promise<Plan> {
-    this.logger.info(`Creating plan ${new Pair(plan.pair).toString()}`);
+    PlanSvc.logger.info(`Creating plan ${new Pair(plan.pair).toString()}`);
 
     if (plan.stepLevels === undefined) {
       plan.stepLevels = [];
@@ -43,8 +43,7 @@ export class PlanSvc {
       plan.stepLevels.push(lastStep * (1 + plan.step / 100));
       moneyLeft -= plan.amountPerStep;
     }
-    // round prices to 3 decimals
-    plan.stepLevels = plan.stepLevels.map((step) => Math.round(step * 1000) / 1000);
+    plan.stepLevels = PlanSvc.roundPrice(plan.stepLevels, 3);
     //save updated plan
     const updatedPlan = await this.planModel.findByIdAndUpdate(id, plan, { new: true }).exec();
 
@@ -62,24 +61,40 @@ export class PlanSvc {
   async processRequest(request: GridRequest): Promise<any> {
     switch (request.name) {
       case 'recomputeStep':
-        return this.recomputeStep(request as RecomputeStepRequest);
+        return this.processRecomputeStepRequest(request as RecomputeStepRequest);
       default:
         throw new Error(`Unknown request name ${request.name}`);
     }
   }
-  async recomputeStep(request: RecomputeStepRequest): Promise<Plan> {
+  async processRecomputeStepRequest(request: RecomputeStepRequest): Promise<Plan> {
     const plan: Plan = await this.findById(request.planId);
     const balance: Balance = await this.moduleCallerSvc.callBalanceModule(
       Method.GET,
       `balances/token/${request.pair.token1}/platform/${plan.platform}`,
     );
-    let tokensLeft = balance.available;
+
+    const newStepLevels: Array<number> = PlanSvc.recomputeStep(balance.available, plan);
+    if (plan.stepLevels.length === newStepLevels.length) {
+      return plan;
+    }
+    plan.stepLevels = newStepLevels;
+    return await this.modify(plan);
+  }
+
+  public static isClose(nextStep: number, step: number) {
+    return Math.abs(step - nextStep) <= 0.001;
+  }
+
+  public static recomputeStep(tokensLeft: number, plan: Plan): Array<number> {
+    this.logger.error(`Tokens left ${tokensLeft}`);
     const newStepLevels = [];
     newStepLevels.push(plan.priceMin);
-    while (true) {
+    let cpt = 0;
+    while (cpt < 20) {
+      cpt++;
       const lastStep = newStepLevels.at(-1);
       const nextStep = lastStep * (1 + plan.step / 100);
-      if (isCloseToExistingStep(nextStep, plan.stepLevels)) {
+      if (PlanSvc.isClose(nextStep, plan.stepLevels[newStepLevels.length])) {
         newStepLevels.push(nextStep);
         continue;
       }
@@ -91,14 +106,10 @@ export class PlanSvc {
         break;
       }
     }
-    if (plan.stepLevels.length === newStepLevels.length) {
-      return plan;
-    }
-    // round prices to 3 decimals
-    plan.stepLevels = newStepLevels.map((step) => Math.round(step * 1000) / 1000);
-    return await this.modify(plan);
+    return PlanSvc.roundPrice(newStepLevels, 3);
   }
-}
-export function isCloseToExistingStep(nextStep: number, stepLevels: number[]) {
-  return stepLevels.some((step) => Math.abs(step - nextStep) <= 0.001);
+
+  public static roundPrice(steps: number[], nbDecimal: number): number[] {
+    return steps.map((step) => Math.round(step * Math.pow(10, nbDecimal)) / Math.pow(10, nbDecimal));
+  }
 }

@@ -51,34 +51,7 @@ export class BrainSvc {
     );
     if (featureFlag.increaseCeiling) {
       this.logger.error('increaseCeiling is enabled');
-
-      if (true || (exchanges && exchanges.length > 0)) {
-        await this.moduleCallerSvc.callBalanceModule(Method.POST, `synchronize/planId/${planId}`, null);
-        const plan: Plan = await this.moduleCallerSvc.callPlanModule(Method.GET, `plans/${planId}`, null);
-        const request: RecomputeStepRequest = {
-          module: 'plan',
-          planId: planId,
-          pair: plan.pair,
-          name: 'recomputeStep',
-        };
-        const planModified = await this.moduleCallerSvc.callPlanModule(Method.POST, `request`, request);
-        if (plan.stepLevels.length !== planModified.stepLevels.length) {
-          const request: IncreaseCeilingRequest = {
-            module: 'order',
-            planId: planId,
-            name: 'increaseCeiling',
-          };
-          const increaseCeilingExchanges: Exchange[] = await this.moduleCallerSvc.callOrderModule(
-            Method.POST,
-            'request',
-            request,
-          );
-        } else {
-          this.logger.info('There is no need to increaseCeiling because not enough token');
-        }
-      } else {
-        this.logger.info('There is no need to increaseCeiling because pair are synced');
-      }
+      await this.increaseCeiling(exchanges, planId);
     } else {
       this.logger.error('increaseCeiling is disabled');
     }
@@ -88,5 +61,32 @@ export class BrainSvc {
     this.logger.info(`Next async at: ${asyncToCreate.dateToCall}`);
 
     return exchanges;
+  }
+
+  private async increaseCeiling(exchanges: Exchange[], planId: string) {
+    //FIXME remove true
+    if (true || (exchanges && exchanges.length > 0)) {
+      await this.moduleCallerSvc.callBalanceModule(Method.POST, `synchronize/planId/${planId}`, null);
+      const plan: Plan = await this.moduleCallerSvc.callPlanModule(Method.GET, `plans/${planId}`, null);
+      const request: RecomputeStepRequest = {
+        module: 'plan',
+        planId: planId,
+        pair: plan.pair,
+        name: 'recomputeStep',
+      };
+      const planModified = await this.moduleCallerSvc.callPlanModule(Method.POST, `request`, request);
+      if (plan.stepLevels.length !== planModified.stepLevels.length) {
+        const request: IncreaseCeilingRequest = {
+          module: 'order',
+          planId: planId,
+          name: 'increaseCeiling',
+        };
+        await this.moduleCallerSvc.callOrderModule(Method.POST, 'request', request);
+      } else {
+        this.logger.info('There is no need to increaseCeiling because not enough token');
+      }
+    } else {
+      this.logger.info('There is no need to increaseCeiling because pair are synced');
+    }
   }
 }

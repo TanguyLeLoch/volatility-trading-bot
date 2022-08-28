@@ -13,28 +13,28 @@ import { ExchangeSvc } from './exchange.service';
 @Injectable()
 export class MexcSvc extends AbstractExchangeSvc {
   private readonly logger: winston.Logger = createCustomLogger(moduleName, MexcSvc.name);
-  private readonly mexcBaseUrl = process.env.ENV === 'prod' ? 'https://api.mexc.com' : 'http://localhost:43000';
   constructor(private readonly externalCallerSvc: ExternalCallerSvc, private readonly exchangeSvc: ExchangeSvc) {
     super();
+    AbstractExchangeSvc.baseUrl = process.env.ENV === 'prod' ? 'https://api.mexc.com' : 'http://localhost:43000';
   }
 
   async getActiveOrders(pair: Pair): Promise<Array<Order>> {
-    const url = this.mexcBaseUrl + '/api/v3/openOrders';
+    const url = AbstractExchangeSvc.baseUrl + '/api/v3/openOrders';
     const params: Map<string, string> = new Map();
     params.set('symbol', pair.token1 + pair.token2);
     params.set('timestamp', String(Date.now()));
-    const fullUrl = this.signUrl(url, params);
+    const fullUrl = MexcSvc.signUrl(url, params);
     this.logger.debug(`Sending request to ${fullUrl}`);
     const mexcOrders: MexcOrder[] = await this.send(Method.GET, fullUrl);
     return mexcOrders.map((mexcOrder) => mexcOrderToOrder(mexcOrder, pair));
   }
   async getOrderById(orderDb: Order): Promise<Order> {
-    const url = this.mexcBaseUrl + '/api/v3/order';
+    const url = AbstractExchangeSvc.baseUrl + '/api/v3/order';
     const params: Map<string, string> = new Map();
     params.set('symbol', orderDb.pair.token1 + orderDb.pair.token2);
     params.set('timestamp', String(Date.now()));
     params.set('origClientOrderId', orderDb._id);
-    const fullUrl = this.signUrl(url, params);
+    const fullUrl = MexcSvc.signUrl(url, params);
     this.logger.debug(`Sending request to ${fullUrl}`);
     let orderCex: Order;
 
@@ -48,16 +48,16 @@ export class MexcSvc extends AbstractExchangeSvc {
   }
 
   async getPrice(pair: Pair): Promise<Price> {
-    const url = this.mexcBaseUrl + '/api/v3/ticker/price';
+    const url = AbstractExchangeSvc.baseUrl + '/api/v3/ticker/price';
     const params: Map<string, string> = new Map();
     params.set('symbol', pair.token1 + pair.token2);
-    return await this.send(Method.GET, this.addParameters(url, params));
+    return await this.send(Method.GET, MexcSvc.addParameters(url, params));
   }
   async getBalances(): Promise<Balance[]> {
-    const url = this.mexcBaseUrl + '/api/v3/account';
+    const url = AbstractExchangeSvc.baseUrl + '/api/v3/account';
     const params: Map<string, string> = new Map();
     params.set('timestamp', String(Date.now()));
-    const fullUrl = this.signUrl(url, params);
+    const fullUrl = MexcSvc.signUrl(url, params);
     this.logger.debug(`Sending request to ${fullUrl}`);
     const accountInfos: AccountInformation = await this.send(Method.GET, fullUrl);
     if (accountInfos) {
@@ -90,7 +90,7 @@ export class MexcSvc extends AbstractExchangeSvc {
         needToWait = true;
         params.set('type', PriceType.LIMIT);
         const { price: currentprice } = await this.getPrice(order.pair);
-        this.setPriceForLimitOrder(params, currentprice * 1.01, order.amount);
+        MexcSvc.setPriceForLimitOrder(params, currentprice * 1.01, order.amount);
         if (process.env.ENV !== 'prod') {
           params.set('isMarket', 'true');
         }
@@ -99,11 +99,11 @@ export class MexcSvc extends AbstractExchangeSvc {
       params.set('type', order.price.type);
       params.set('price', String(order.price.value));
       params.set('quantity', String(Math.round((1000000 * order.amount) / order.price.value) / 1000000));
-      this.setPriceForLimitOrder(params, order.price.value, order.amount);
+      MexcSvc.setPriceForLimitOrder(params, order.price.value, order.amount);
     }
     params.set('newClientOrderId', order._id);
     params.set('timestamp', String(Date.now()));
-    const fullUrl = this.signUrl(url, params);
+    const fullUrl = MexcSvc.signUrl(url, params);
     const exchange = new Exchange();
     exchange.status = ExchangeStatus.PENDING;
     exchange.date = new Date();
@@ -111,7 +111,7 @@ export class MexcSvc extends AbstractExchangeSvc {
     // save exchange before sending order
     const createcexchange = await this.exchangeSvc.create(exchange);
     this.logger.warn(
-      `Send Order ${params.get('side')} ${order.amount} ${order.pair.token1} ${
+      `Send Order ${params.get('side')} ${order.pair.token1} for ${order.amount} ${order.pair.token2} at ${
         params.get('price') ? params.get('price') + ' ' : ''
       }at ${params.get('type')}}`,
     );
@@ -127,9 +127,9 @@ export class MexcSvc extends AbstractExchangeSvc {
 
   private getPostOrderUrl(): string {
     if (process.env.ENV === 'dev') {
-      return this.mexcBaseUrl + '/api/v3/order/test';
+      return AbstractExchangeSvc.baseUrl + '/api/v3/order/test';
     } else if (process.env.ENV === 'prod') {
-      return this.mexcBaseUrl + '/api/v3/order';
+      return AbstractExchangeSvc.baseUrl + '/api/v3/order';
     }
     throw new Error('INVALID_ENV');
   }
@@ -155,15 +155,15 @@ export class MexcSvc extends AbstractExchangeSvc {
   }
 
   async isTokenAvailableToMarketOrder(pair: Pair) {
-    const url = this.mexcBaseUrl + '/api/v3/exchangeInfo';
+    const url = AbstractExchangeSvc.baseUrl + '/api/v3/exchangeInfo';
     const params: Map<string, string> = new Map();
     params.set('symbol', pair.token1 + pair.token2);
-    const symbolInfo: SymbolInfoResponse = await this.send(Method.GET, this.addParameters(url, params));
+    const symbolInfo: SymbolInfoResponse = await this.send(Method.GET, MexcSvc.addParameters(url, params));
     const symbol = symbolInfo.symbols.find((symb) => symb.symbol === pair.token1 + pair.token2);
     return undefined !== symbol.orderTypes.find((orderType) => orderType === PriceType.MARKET);
   }
 
-  getParamsAsString(params: Map<string, string>): string {
+  static getParamsAsString(params: Map<string, string>): string {
     let paramsString = '';
     params.forEach((value, key) => {
       paramsString += key + '=' + value + '&';
@@ -171,7 +171,7 @@ export class MexcSvc extends AbstractExchangeSvc {
     return paramsString.slice(0, -1);
   }
 
-  signUrl(url: string, params: Map<string, string>): string {
+  static signUrl(url: string, params: Map<string, string>): string {
     const paramsAsString = this.getParamsAsString(params);
     const signature = this.getSignature(paramsAsString);
     params.set('signature', signature);
@@ -184,7 +184,7 @@ export class MexcSvc extends AbstractExchangeSvc {
     this.logger.verbose(`Response data: ${JSON.stringify(data)}`);
     return data;
   }
-  private addParameters(url: string, params: Map<string, string>): string {
+  private static addParameters(url: string, params: Map<string, string>): string {
     for (const [key, value] of params) {
       if (url.includes(key)) {
         continue;
@@ -198,11 +198,11 @@ export class MexcSvc extends AbstractExchangeSvc {
     return url;
   }
 
-  private getSignature(paramsAsString: string): string {
+  private static getSignature(paramsAsString: string): string {
     const signature = CryptoJS.HmacSHA256(paramsAsString, process.env.SECRET_KEY);
     return signature.toString();
   }
-  private setPriceForLimitOrder(params: Map<string, string>, price: number, amount: number): void {
+  private static setPriceForLimitOrder(params: Map<string, string>, price: number, amount: number): void {
     params.set('price', String(price));
     params.set('quantity', String(Utils.roundAmount(amount / price, 5)));
   }

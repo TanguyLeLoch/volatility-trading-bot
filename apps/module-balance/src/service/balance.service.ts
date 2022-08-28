@@ -1,10 +1,15 @@
+import { createCustomLogger } from '@app/core';
 import { Balance } from '@model/balance';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import winston from 'winston';
+import { moduleName } from '../module.info';
 
 @Injectable()
 export class BalanceSvc {
+  private readonly logger: winston.Logger = createCustomLogger(moduleName, BalanceSvc.name);
+
   constructor(@InjectModel('Balance') private readonly balanceModel: Model<Balance>) {}
 
   async findById(id: string): Promise<Balance> {
@@ -31,6 +36,8 @@ export class BalanceSvc {
   async createOrUpdate(balance: Balance): Promise<Balance> {
     const foundBalance = await this.balanceModel.findOne({ token: balance.token, platform: balance.platform }).exec();
     if (foundBalance) {
+      this.logger.info(`found balance with id ${foundBalance._id}`);
+      balance._id = foundBalance._id;
       return this.modify(balance);
     } else {
       return this.create(balance);

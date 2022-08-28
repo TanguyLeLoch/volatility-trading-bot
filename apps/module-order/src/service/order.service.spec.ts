@@ -18,10 +18,6 @@ describe('OrderSvc', () => {
     }) as any;
     orderSvc.create = createMock;
     orderSvc.modify = jest.fn().mockImplementation((order) => order);
-    // orderModelMock.findByIdAndUpdate = jest.fn((id, order, params) => {
-    //   order.exec = exec;
-    //   return order;
-    // });
     const plan: Plan = {
       _id: 'id123',
       pair: { token1: 'BTC', token2: 'USDT' },
@@ -34,7 +30,7 @@ describe('OrderSvc', () => {
       __v: 0,
     };
 
-    moduleCallerSvcMock.callModule = jest.fn().mockReturnValue(Promise.resolve({ price: 19200 }));
+    moduleCallerSvcMock.callNetworkModule = jest.fn().mockReturnValue(Promise.resolve({ price: 19200 }));
     await orderSvc.createByPlan(plan);
     expect(createMock.mock.calls.map((arr: Order) => arr[0])).toEqual(orderToCreate);
   });

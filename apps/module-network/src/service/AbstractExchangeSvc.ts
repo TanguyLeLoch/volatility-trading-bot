@@ -8,4 +8,5 @@ export abstract class AbstractExchangeSvc {
   abstract getPrice(pair: Pair): Promise<Price>;
   abstract postOrders(orders: Order[]): Promise<Exchange[]>;
   abstract getBalances(): Promise<Balance[]>;
+  static baseUrl: string;
 }
