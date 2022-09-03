@@ -72,9 +72,12 @@ export class PlanSvc {
       Method.GET,
       `balances/token/${request.pair.token1}/platform/${plan.platform}`,
     );
+    const tokensLeft = balance.available;
+    PlanSvc.logger.debug(`Tokens left ${tokensLeft}`);
 
-    const newStepLevels: Array<number> = PlanSvc.recomputeStep(balance.available, plan);
+    const newStepLevels: Array<number> = PlanSvc.recomputeStep(tokensLeft, plan);
     if (plan.stepLevels.length === newStepLevels.length) {
+      PlanSvc.logger.info(`Cannot increse ceiling because there is not enough token`);
       return plan;
     }
     plan.stepLevels = newStepLevels;
@@ -86,12 +89,9 @@ export class PlanSvc {
   }
 
   public static recomputeStep(tokensLeft: number, plan: Plan): Array<number> {
-    this.logger.error(`Tokens left ${tokensLeft}`);
     const newStepLevels = [];
     newStepLevels.push(plan.priceMin);
-    let cpt = 0;
-    while (cpt < 20) {
-      cpt++;
+    while (true) {
       const lastStep = newStepLevels.at(-1);
       const nextStep = lastStep * (1 + plan.step / 100);
       if (PlanSvc.isClose(nextStep, plan.stepLevels[newStepLevels.length])) {

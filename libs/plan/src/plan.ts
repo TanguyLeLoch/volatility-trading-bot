@@ -27,13 +27,13 @@ export const PlanSchema = SchemaFactory.createForClass(Plan);
 export class PlanBuilder {
   _id: string;
   __v: number;
-  public pair: Pair;
-  public platform: string;
-  public priceMin: number;
-  public step: number;
-  public startAmount: number;
-  public amountPerStep: number;
-  public stepLevels: Array<number> = [];
+  private pair: Pair;
+  private platform: string;
+  private priceMin: number;
+  private step: number;
+  private startAmount: number;
+  private amountPerStep: number;
+  private stepLevels: Array<number> = [];
 
   withId(id: string): PlanBuilder {
     this._id = id;

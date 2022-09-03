@@ -10,14 +10,14 @@ export class AppController {
   constructor(private brainSvc: BrainSvc) {}
 
   @Post('init/:planId')
-  init(@Param() { planId }: { planId: string }): Promise<any> {
+  init(@Param('planId') planId: string): Promise<any> {
     this.logger.info(`init for plan id ${planId}`);
     return this.brainSvc.init(planId);
   }
 
   @Post('synchronize/:planId')
   @UseFilters(AxiosExceptionFilter)
-  synchronize(@Param() { planId }: { planId: string }): Promise<any> {
+  synchronize(@Param('planId') planId: string): Promise<any> {
     this.logger.info(`synchronize for plan id ${planId}`);
     return this.brainSvc.synchronize(planId);
   }

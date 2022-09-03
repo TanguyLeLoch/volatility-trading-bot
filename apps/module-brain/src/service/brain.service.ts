@@ -82,8 +82,6 @@ export class BrainSvc {
           name: 'increaseCeiling',
         };
         await this.moduleCallerSvc.callOrderModule(Method.POST, 'request', request);
-      } else {
-        this.logger.info('There is no need to increaseCeiling because not enough token');
       }
     } else {
       this.logger.info('There is no need to increaseCeiling because pair are synced');
