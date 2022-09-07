@@ -17,7 +17,7 @@
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
-    "start:prod:all": "concurrently \"node dist/apps/module-brain/main\" \"node dist/apps/module-discord/main\" \"node dist/apps/module-network/main\" \"node dist/apps/module-order/main\" \"node dist/apps/module-plan/main\" \"node dist/apps/module-async/main\"",
+    "start:prod:all": "concurrently \"node dist/apps/module-brain/main\" \"node dist/apps/module-discord/main\" \"node dist/apps/module-network/main\" \"node dist/apps/module-order/main\" \"node dist/apps/module-plan/main\" \"node dist/apps/module-async/main\" \"node dist/apps/module-balance/main\"",
     "start:memory": "concurrently     \"node --max-old-space-size=128 dist/apps/module-brain/main\"     \"node --max-old-space-size=128 dist/apps/module-network/main\"     \"node --max-old-space-size=128 dist/apps/module-order/main\"     \"node --max-old-space-size=128 dist/apps/module-plan/main\"     \"node --max-old-space-size=128 dist/apps/module-async/main\"     \"node --max-old-space-size=128 dist/apps/module-balance/main\"     \"node --max-old-space-size=128 dist/apps/stub/main\"",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
