@@ -9,7 +9,7 @@ export interface GetOrderRequest extends CexRequest {
   pair: Pair;
   status?: OrderStatus; // optional
 }
-export interface PostOrderRequest extends CexRequest {
+export interface PostOrderRequest {
   orders: Array<Order>;
 }
 

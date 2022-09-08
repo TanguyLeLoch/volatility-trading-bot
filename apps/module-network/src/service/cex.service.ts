@@ -34,8 +34,12 @@ export class CexSvc {
     this.logger.verbose(`Getting order for ${JSON.stringify(request.pair)}`);
     return this.getCexService(request).getActiveOrders(request.pair);
   }
-  async postOrders(request: PostOrderRequest): Promise<Exchange[]> {
-    return this.getCexService(request).postOrders(request.orders);
+  /**
+   * @deprecated
+   * change to request format
+   */
+  async postOrders(orders: Order[]): Promise<Exchange[]> {
+    return this.mexcSvc.postOrders(orders);
   }
   async getPrice(request: GetPriceRequest): Promise<Price> {
     return await this.getCexService(request).getPrice(request.pair);
