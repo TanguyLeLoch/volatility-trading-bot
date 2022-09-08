@@ -1,6 +1,6 @@
 import { createCustomLogger, Method, ModuleCallerSvc } from '@app/core';
 import { GridRequest, IncreaseCeilingRequest, Pair, Utils } from '@model/common';
-import { Exchange, PostOrderRequest } from '@model/network';
+import { Exchange } from '@model/network';
 import { Order, OrderBuilder, OrderPrice, OrderStatus, PriceType, Side } from '@model/order';
 import { Plan } from '@model/plan';
 import { Injectable } from '@nestjs/common';
@@ -60,7 +60,7 @@ export class OrderSvc {
     this.logger.info(`Saving ${orders.length} orders`);
     const createdOrders = await Promise.all(orders.map((order) => this.create(order)));
     // send orders to CEX
-    const postordersRequest: PostOrderRequest = { platform: plan.platform, orders: createdOrders };
+    const postordersRequest: Order[] = createdOrders;
     const sentOrders = await this.moduleCallerSvc.callNetworkModule(Method.POST, 'cex/postOrders', postordersRequest);
 
     await this.markMarketOrdersAsFilled(createdOrders);
@@ -141,7 +141,7 @@ export class OrderSvc {
       const orderDb: Order = await this.create(order);
       this.logger.info(`Order saved in database : ${JSON.stringify(orderDb)}`);
       // send orders to CEX
-      const postordersRequest: PostOrderRequest = { platform: plan.platform, orders: [orderDb] };
+      const postordersRequest: Order[] = [orderDb];
       const cexOrderExchange = await this.moduleCallerSvc.callNetworkModule(
         Method.POST,
         'cex/postOrders',
