@@ -28,6 +28,7 @@ describe('OrderSvc', () => {
       amountPerStep: 200,
       stepLevels: [16000, 17600, 19360, 21296, 23425.6, 25768.16],
       __v: 0,
+      featureOverride: {},
     };
 
     moduleCallerSvcMock.callNetworkModule = jest.fn().mockReturnValue(Promise.resolve({ price: 19200 }));

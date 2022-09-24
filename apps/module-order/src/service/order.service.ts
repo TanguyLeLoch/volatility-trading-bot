@@ -1,6 +1,6 @@
 import { createCustomLogger, Method, ModuleCallerSvc } from '@app/core';
 import { GridRequest, IncreaseCeilingRequest, Pair, Utils } from '@model/common';
-import { Exchange } from '@model/network';
+import { Exchange, PostOrderRequest } from '@model/network';
 import { Order, OrderBuilder, OrderPrice, OrderStatus, PriceType, Side } from '@model/order';
 import { Plan } from '@model/plan';
 import { Injectable } from '@nestjs/common';
@@ -21,6 +21,7 @@ export class OrderSvc {
   async findById(id: string): Promise<Order> {
     return this.orderModel.findById(id).exec();
   }
+
   async findByPlanId(planId: string, filter?: any): Promise<Order[]> {
     return await this.orderModel.find({ planId, ...filter }).exec();
   }
@@ -29,18 +30,17 @@ export class OrderSvc {
     this.logger.info(`Creating orders for plan ${plan._id}`);
     plan.pair = new Pair(plan.pair);
 
-    const { price: currentpriceStr } = await this.moduleCallerSvc.callNetworkModule(Method.POST, 'cex/price', {
+    const { price: currentPriceStr } = await this.moduleCallerSvc.callNetworkModule(Method.POST, 'cex/price', {
       pair: plan.pair,
       platform: plan.platform,
     });
-    const currentprice = Number(currentpriceStr);
-    this.logger.info(`Current price for ${plan.pair.toString()} is ${currentprice}`);
-    this.logger.info(typeof currentprice);
+    const currentPrice = Number(currentPriceStr);
+    this.logger.info(`Current price for ${plan.pair.toString()} is ${currentPrice}`);
     const orders: Array<Order> = [];
     const firstMarketOrder = createFirstMarketOrder(plan);
     orders.push(firstMarketOrder);
     for (const stepLevel of plan.stepLevels) {
-      orders.push(createOrder(plan, stepLevel, currentprice, firstMarketOrder));
+      orders.push(createOrder(plan, stepLevel, currentPrice, firstMarketOrder));
     }
     if (firstMarketOrder.amount > 0) {
       let orderToRemove: Order;
@@ -60,8 +60,12 @@ export class OrderSvc {
     this.logger.info(`Saving ${orders.length} orders`);
     const createdOrders = await Promise.all(orders.map((order) => this.create(order)));
     // send orders to CEX
-    const postordersRequest: Order[] = createdOrders;
-    const sentOrders = await this.moduleCallerSvc.callNetworkModule(Method.POST, 'cex/postOrders', postordersRequest);
+    const postOrdersRequest: PostOrderRequest = {
+      platform: plan.platform,
+      orders: createdOrders,
+    };
+
+    const sentOrders = await this.moduleCallerSvc.callNetworkModule(Method.POST, 'cex/postOrders', postOrdersRequest);
 
     await this.markMarketOrdersAsFilled(createdOrders);
 
@@ -80,10 +84,12 @@ export class OrderSvc {
       createdOrders.splice(createdOrders.indexOf(order), 1);
     }
   }
+
   async markAsFilled(order: Order): Promise<Order> {
     order.status = OrderStatus.FILLED;
     return this.modify(order);
   }
+
   async modify(order: Order): Promise<Order> {
     return this.orderModel.findByIdAndUpdate(order._id, order, { new: true }).exec();
   }
@@ -109,6 +115,7 @@ export class OrderSvc {
   async delete(id: string): Promise<Order> {
     return this.orderModel.findByIdAndDelete(id).exec();
   }
+
   async deleteAll(): Promise<void> {
     await this.orderModel.deleteMany({}).exec();
   }
@@ -121,6 +128,7 @@ export class OrderSvc {
         throw new Error(`Unknown request name ${request.name}`);
     }
   }
+
   async increaseCeiling(request: IncreaseCeilingRequest): Promise<Exchange[]> {
     const exchanges: Exchange[] = [];
     const plan: Plan = await this.moduleCallerSvc.callPlanModule(Method.GET, `plans/${request.planId}`);
@@ -141,11 +149,14 @@ export class OrderSvc {
       const orderDb: Order = await this.create(order);
       this.logger.info(`Order saved in database : ${JSON.stringify(orderDb)}`);
       // send orders to CEX
-      const postordersRequest: Order[] = [orderDb];
+      const postOrdersRequest: PostOrderRequest = {
+        platform: plan.platform,
+        orders: [orderDb],
+      };
       const cexOrderExchange = await this.moduleCallerSvc.callNetworkModule(
         Method.POST,
         'cex/postOrders',
-        postordersRequest,
+        postOrdersRequest,
       );
       exchanges.push(cexOrderExchange);
     }

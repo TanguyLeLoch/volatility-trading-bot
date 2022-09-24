@@ -19,6 +19,7 @@ import { MexcSvc } from './mexc.service';
 @Injectable()
 export class CexSvc {
   private readonly logger: winston.Logger = createCustomLogger(moduleName, CexSvc.name);
+
   constructor(private readonly moduleCallerSvc: ModuleCallerSvc, private readonly mexcSvc: MexcSvc) {}
 
   getCexService(request: CexRequest): AbstractExchangeSvc {
@@ -34,13 +35,11 @@ export class CexSvc {
     this.logger.verbose(`Getting order for ${JSON.stringify(request.pair)}`);
     return this.getCexService(request).getActiveOrders(request.pair);
   }
-  /**
-   * @deprecated
-   * change to request format
-   */
-  async postOrders(orders: Order[]): Promise<Exchange[]> {
-    return this.mexcSvc.postOrders(orders);
+
+  async postOrders(request: PostOrderRequest): Promise<Exchange[]> {
+    return this.getCexService(request).postOrders(request.orders);
   }
+
   async getPrice(request: GetPriceRequest): Promise<Price> {
     return await this.getCexService(request).getPrice(request.pair);
   }

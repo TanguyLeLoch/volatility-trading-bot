@@ -12,6 +12,7 @@ const TIME_BETWEEN_CALL = 60 * 5; // 5 minutes
 @Injectable()
 export class BrainSvc {
   private readonly logger: winston.Logger = createCustomLogger(moduleName, BrainSvc.name);
+
   constructor(private readonly moduleCallerSvc: ModuleCallerSvc) {}
 
   async init(planId: string): Promise<any> {
@@ -27,6 +28,7 @@ export class BrainSvc {
     await this.sendAsync(asyncCall);
     return orders;
   }
+
   private async sendAsync(asyncCall: AsyncCall): Promise<AsyncCall> {
     return await this.moduleCallerSvc.callAsyncModule(Method.POST, 'asyncs', asyncCall);
   }
@@ -49,13 +51,13 @@ export class BrainSvc {
       `orders/synchronize/${planId}`,
       null,
     );
+
     if (featureFlag.increaseCeiling) {
-      this.logger.error('increaseCeiling is enabled');
+      this.logger.info('increaseCeiling is enabled');
       await this.increaseCeiling(exchanges, planId);
     } else {
-      this.logger.error('increaseCeiling is disabled');
+      this.logger.warn('increaseCeiling is disabled');
     }
-
     const asyncToCreate: AsyncCall = this.createAsyncSynchronize(planId);
     await this.sendAsync(asyncToCreate);
     this.logger.info(`Next async at: ${asyncToCreate.dateToCall}`);
@@ -63,28 +65,32 @@ export class BrainSvc {
     return exchanges;
   }
 
-  private async increaseCeiling(exchanges: Exchange[], planId: string) {
-    //FIXME remove true
-    if (true || (exchanges && exchanges.length > 0)) {
-      await this.moduleCallerSvc.callBalanceModule(Method.POST, `synchronize/planId/${planId}`, null);
-      const plan: Plan = await this.moduleCallerSvc.callPlanModule(Method.GET, `plans/${planId}`, null);
-      const request: RecomputeStepRequest = {
-        module: 'plan',
-        planId: planId,
-        pair: plan.pair,
-        name: 'recomputeStep',
-      };
-      const planModified = await this.moduleCallerSvc.callPlanModule(Method.POST, `request`, request);
-      if (plan.stepLevels.length !== planModified.stepLevels.length) {
-        const request: IncreaseCeilingRequest = {
-          module: 'order',
-          planId: planId,
-          name: 'increaseCeiling',
-        };
-        await this.moduleCallerSvc.callOrderModule(Method.POST, 'request', request);
-      }
-    } else {
+  private async increaseCeiling(exchanges: Exchange[], planId: string): Promise<void> {
+    if (exchanges && exchanges.length === 0) {
       this.logger.info('There is no need to increaseCeiling because pair are synced');
+      return;
+    }
+    const plan: Plan = await this.moduleCallerSvc.callPlanModule(Method.GET, `plans/${planId}`, null);
+    if (plan.featureOverride && plan.featureOverride.increaseCeiling === false) {
+      this.logger.info('increaseCeiling is disabled for this plan');
+      return;
+    }
+
+    await this.moduleCallerSvc.callBalanceModule(Method.POST, `synchronize/planId/${planId}`, null);
+    const request: RecomputeStepRequest = {
+      module: 'plan',
+      planId: planId,
+      pair: plan.pair,
+      name: 'recomputeStep',
+    };
+    const planModified = await this.moduleCallerSvc.callPlanModule(Method.POST, `request`, request);
+    if (plan.stepLevels.length !== planModified.stepLevels.length) {
+      const request: IncreaseCeilingRequest = {
+        module: 'order',
+        planId: planId,
+        name: 'increaseCeiling',
+      };
+      await this.moduleCallerSvc.callOrderModule(Method.POST, 'request', request);
     }
   }
 }

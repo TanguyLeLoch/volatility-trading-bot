@@ -1,7 +1,7 @@
 import { createCustomLogger, Method, ModuleCallerSvc } from '@app/core';
 import { Utils } from '@model/common';
 import { DiscordMessage, DiscordMessageType } from '@model/discord';
-import { Exchange, GetOrderRequest } from '@model/network';
+import { Exchange, GetOrderRequest, PostOrderRequest } from '@model/network';
 import { Order, OrderStatus, PriceType, Side } from '@model/order';
 import { Plan } from '@model/plan';
 import { Injectable } from '@nestjs/common';
@@ -76,12 +76,18 @@ export class SyncOrderSvc {
     newOrder.status = OrderStatus.NEW;
 
     this.logger.debug(`Creating order in database: ${JSON.stringify(newOrder)}`);
-    const orderDb = await this.orderSvc.create(newOrder);
+    const orderDb: Order = await this.orderSvc.create(newOrder);
     this.logger.info(`Order ${orderDb._id} created in database`);
     // create order in cex
-    const ordersCex: Exchange[] = await this.moduleCallerSvc.callNetworkModule(Method.POST, 'cex/postOrders', [
-      orderDb,
-    ]);
+    const postOrderRequest: PostOrderRequest = {
+      platform: plan.platform,
+      orders: [orderDb],
+    };
+    const ordersCex: Exchange[] = await this.moduleCallerSvc.callNetworkModule(
+      Method.POST,
+      'cex/postOrders',
+      postOrderRequest,
+    );
     this.logger.info(`Order ${ordersCex[0]._id} created on cex`);
     this.postMessageOnDiscord(
       `${orderDb.side} at ${orderDb.price.value} for pair ${
@@ -119,6 +125,7 @@ export class SyncOrderSvc {
     return await this.moduleCallerSvc.callPlanModule(Method.GET, `plans/${planId}`, null);
   }
 }
+
 function findClosestNumberIdx(steps: Array<number>, valueToFound: number): number {
   let closest = steps[0];
   for (const step of steps) {
@@ -128,6 +135,7 @@ function findClosestNumberIdx(steps: Array<number>, valueToFound: number): numbe
   }
   return steps.indexOf(closest);
 }
+
 function getDesyncOrders(ordersDb: Order[], ordersCex: any): Order[] {
   const desyncOrders: Order[] = [];
   ordersDb.forEach((order: Order) => {
