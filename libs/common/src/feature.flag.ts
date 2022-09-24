@@ -1,3 +1,3 @@
 export const featureFlag = {
-  increaseCeiling: false,
+  increaseCeiling: true,
 };
