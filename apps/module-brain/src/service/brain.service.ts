@@ -66,7 +66,7 @@ export class BrainSvc {
   }
 
   private async increaseCeiling(exchanges: Exchange[], planId: string): Promise<void> {
-    if (exchanges && exchanges.length === 0) {
+    if (false && exchanges && exchanges.length === 0) {
       this.logger.info('There is no need to increaseCeiling because pair are synced');
       return;
     }

@@ -1,6 +1,6 @@
 import { GridRequest } from '@model/common';
 import { Plan } from '@model/plan';
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
 import { PlanSvc } from './plan.service';
 
 @Controller()
@@ -20,6 +20,11 @@ export class PlanController {
   @Post('plans')
   postPlan(@Body() plan: Plan): Promise<Plan> {
     return this.planSvc.create(plan);
+  }
+
+  @Put('plans')
+  putPlan(@Body() plan: Plan): Promise<Plan> {
+    return this.planSvc.modify(plan);
   }
 
   @Delete('plans/all')
