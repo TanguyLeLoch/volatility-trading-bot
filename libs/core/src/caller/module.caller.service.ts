@@ -6,6 +6,7 @@ import { createCustomLogger } from '../logger';
 import { Method } from '../method';
 import { apiKeyMiddlewareheader } from '../middleware/api.middleware';
 import { getModuleName, ports } from '../module.ports';
+import { DiscordMessage } from '@model/discord';
 
 @Injectable()
 export class ModuleCallerSvc {
@@ -16,21 +17,27 @@ export class ModuleCallerSvc {
   async callOrderModule(method: Method, path: string, body?: any): Promise<any> {
     return await this.callModule('order', method, path, body);
   }
+
   async callPlanModule(method: Method, path: string, body?: any): Promise<any> {
     return await this.callModule('plan', method, path, body);
   }
+
   async callNetworkModule(method: Method, path: string, body?: any): Promise<any> {
     return await this.callModule('network', method, path, body);
   }
+
   async callBrainModule(method: Method, path: string, body?: any): Promise<any> {
     return await this.callModule('brain', method, path, body);
   }
+
   async callAsyncModule(method: Method, path: string, body?: any): Promise<any> {
     return await this.callModule('async', method, path, body);
   }
+
   async callDiscordModule(method: Method, path: string, body?: any): Promise<any> {
     return await this.callModule('discord', method, path, body);
   }
+
   async callBalanceModule(method: Method, path: string, body?: any): Promise<any> {
     return await this.callModule('balance', method, path, body);
   }
@@ -54,10 +61,11 @@ export class ModuleCallerSvc {
     }
     return response.data;
   }
+
   async callOnce(method: Method, url: string, body?: any): Promise<any> {
     const headers = {} as any;
     headers[apiKeyMiddlewareheader] = process.env.API_KEY_GRID_TRADING;
-    return await this.httpService.axiosRef({
+    return this.httpService.axiosRef({
       method,
       url,
       data: body,
@@ -69,14 +77,20 @@ export class ModuleCallerSvc {
     return await this.callModule(request.module, Method.POST, 'request', request);
   }
 
+  postMessageWithParamsOnDiscord(discordMessage: DiscordMessage) {
+    this.callDiscordModule(Method.POST, 'message', discordMessage).catch((err) => {
+      this.logger.error(`Error posting message on discord: ${err}`);
+    });
+  }
+
   private createFullUrl(module: string, path: string): string {
     const baseUrl = process.env.BASE_URL_DEV;
     const port: number = ports[module];
     return `${baseUrl}:${port}/${path}`;
   }
+
   private pingDiscord() {
     this.callDiscordModule(Method.POST, 'ping', null).catch((err) => {
-      this.logger.error(`launch ping to discord`);
       this.logger.error(`Error pinging message on discord: ${err}`);
     });
   }

@@ -6,6 +6,7 @@ import { Plan } from '@model/plan';
 import { Injectable } from '@nestjs/common';
 import winston from 'winston';
 import { moduleName } from '../module.info';
+import { DiscordMessage, DiscordMessageType } from '@model/discord';
 
 const TIME_BETWEEN_CALL = 60 * 5; // 5 minutes
 
@@ -91,6 +92,14 @@ export class BrainSvc {
         name: 'increaseCeiling',
       };
       await this.moduleCallerSvc.callOrderModule(Method.POST, 'request', request);
+      const discordMessage: DiscordMessage = {
+        type: DiscordMessageType.INCREASE_CEILING,
+        params: {
+          newSteps: planModified.stepLevels.slice(plan.stepLevels.length),
+          pair: planModified.pair,
+        },
+      };
+      await this.moduleCallerSvc.postMessageWithParamsOnDiscord(discordMessage);
     }
   }
 }

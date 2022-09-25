@@ -56,7 +56,7 @@ export class SyncOrderSvc {
     syncMessage.params = {};
     syncMessage.params.pair = plan.pair.token1 + '-' + plan.pair.token2;
     syncMessage.params.time = new Date().toLocaleTimeString('fr-FR', { timeZone: Utils.getTimeZone() });
-    this.postMessageWithParamsOnDiscord(syncMessage);
+    this.moduleCallerSvc.postMessageWithParamsOnDiscord(syncMessage);
   }
 
   async createOrderAfterTrigger(order: Order, plan: Plan): Promise<Exchange> {
@@ -103,12 +103,6 @@ export class SyncOrderSvc {
    */
   private postMessageOnDiscord(message: string) {
     this.moduleCallerSvc.callDiscordModule(Method.POST, '', { content: message }).catch((err) => {
-      this.logger.error(`Error posting message on discord: ${err}`);
-    });
-  }
-
-  private postMessageWithParamsOnDiscord(discordMessage: DiscordMessage) {
-    this.moduleCallerSvc.callDiscordModule(Method.POST, 'message', discordMessage).catch((err) => {
       this.logger.error(`Error posting message on discord: ${err}`);
     });
   }

@@ -12,6 +12,7 @@ describe('AppController', () => {
     callBalanceModule: null,
     callPlanModule: null,
     callAsyncModule: null,
+    postMessageWithParamsOnDiscord: null,
   };
 
   beforeEach(async () => {
@@ -49,10 +50,17 @@ describe('AppController', () => {
       moduleCallerMock.callOrderModule = jest.fn().mockReturnValue([new Exchange()]);
       moduleCallerMock.callBalanceModule = jest.fn();
       moduleCallerMock.callAsyncModule = jest.fn();
+      moduleCallerMock.postMessageWithParamsOnDiscord = jest.fn();
 
       moduleCallerMock.callPlanModule = jest.fn().mockImplementation((method) => {
         if (method === Method.GET) {
-          return new PlanBuilder().withPair({ token1: 'AZERO', token2: 'USDT' }).withStepLevels([1, 1.1, 1.21]).build();
+          return new PlanBuilder()
+            .withPair({
+              token1: 'AZERO',
+              token2: 'USDT',
+            })
+            .withStepLevels([1, 1.1, 1.21])
+            .build();
         } else if (method === Method.POST) {
           return new PlanBuilder()
             .withPair({ token1: 'AZERO', token2: 'USDT' })
@@ -70,9 +78,21 @@ describe('AppController', () => {
 
       moduleCallerMock.callPlanModule = jest.fn().mockImplementation((method) => {
         if (method === Method.GET) {
-          return new PlanBuilder().withPair({ token1: 'AZERO', token2: 'USDT' }).withStepLevels([1, 1.1, 1.21]).build();
+          return new PlanBuilder()
+            .withPair({
+              token1: 'AZERO',
+              token2: 'USDT',
+            })
+            .withStepLevels([1, 1.1, 1.21])
+            .build();
         } else if (method === Method.POST) {
-          return new PlanBuilder().withPair({ token1: 'AZERO', token2: 'USDT' }).withStepLevels([1, 1.1, 1.21]).build();
+          return new PlanBuilder()
+            .withPair({
+              token1: 'AZERO',
+              token2: 'USDT',
+            })
+            .withStepLevels([1, 1.1, 1.21])
+            .build();
         }
       });
 
