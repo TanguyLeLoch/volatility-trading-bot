@@ -3,7 +3,7 @@ import { GridRequest } from '@model/common';
 import { Exchange } from '@model/network';
 import { Order } from '@model/order';
 import { Plan } from '@model/plan';
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
 import winston from 'winston';
 import { moduleName } from '../module.info';
 import { OrderSvc } from '../service/order.service';
@@ -12,6 +12,7 @@ import { SyncOrderSvc } from '../service/sync.order.service';
 @Controller()
 export class OrderController {
   private readonly logger: winston.Logger = createCustomLogger(moduleName, OrderController.name);
+
   constructor(private readonly orderSvc: OrderSvc, private readonly syncOrderSvc: SyncOrderSvc) {}
 
   @Get('orders/:id')
@@ -23,6 +24,7 @@ export class OrderController {
   postOrdersWithPlan(@Body() plan: Plan): Promise<Array<Order>> {
     return this.orderSvc.createByPlan(plan);
   }
+
   @Post('orders/synchronize/:planId')
   synchronize(@Param() { planId }: { planId: string }): Promise<Exchange[]> {
     this.logger.info(`synchronize with for plan id ${planId}`);
@@ -30,8 +32,9 @@ export class OrderController {
   }
 
   @Get('orders')
-  getOrders(): Promise<Array<Order>> {
-    return this.orderSvc.findAll();
+  getOrders(@Query('filters') filters: string): Promise<Array<Order>> {
+    const filtersObj = filters ? JSON.parse(filters) : {};
+    return this.orderSvc.findAllMatchingFilters(filtersObj);
   }
 
   @Put('orders')
@@ -43,6 +46,7 @@ export class OrderController {
   postOrder(@Body() order: Order): Promise<Order> {
     return this.orderSvc.create(order);
   }
+
   @Delete('orders/all')
   deleteAllOrders(): Promise<void> {
     return this.orderSvc.deleteAll();
