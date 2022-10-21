@@ -5,7 +5,7 @@ import { Order, OrderBuilder, OrderPrice, OrderStatus, PriceType, Side } from '@
 import { Plan } from '@model/plan';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { FilterQuery, Model } from 'mongoose';
 import winston from 'winston';
 import { moduleName } from '../module.info';
 
@@ -94,18 +94,26 @@ export class OrderSvc {
     return this.orderModel.findByIdAndUpdate(order._id, order, { new: true }).exec();
   }
 
-  async findAll(): Promise<Array<Order>> {
-    return this.orderModel.find().exec();
+  async findAllMatchingFilters(filtersObj: object): Promise<Array<Order>> {
+    const filterQuery: FilterQuery<any> = {};
+    if (filtersObj['status']) {
+      filterQuery['status'] = filtersObj['status'];
+    }
+    if (filtersObj['planId']) {
+      filterQuery['planId'] = filtersObj['planId'];
+    }
+    const res = await this.orderModel.find(filterQuery).exec();
+    return res.sort((a, b) => a.price.value - b.price.value);
   }
 
   async create(order: Order): Promise<Order> {
-    const existingsOrder: Order[] = await this.orderModel
+    const existingOrders: Order[] = await this.orderModel
       .find({ status: OrderStatus.NEW, price: order.price, pair: order.pair })
       .exec();
 
-    if (existingsOrder.length > 0) {
+    if (existingOrders.length > 0) {
       this.logger.info(`Order already exists for price ${order.price.value}`);
-      return existingsOrder[0];
+      return existingOrders[0];
     } else {
       const orderCreated = new this.orderModel(order);
       return orderCreated.save();
@@ -132,7 +140,7 @@ export class OrderSvc {
   async increaseCeiling(request: IncreaseCeilingRequest): Promise<Exchange[]> {
     const exchanges: Exchange[] = [];
     const plan: Plan = await this.moduleCallerSvc.callPlanModule(Method.GET, `plans/${request.planId}`);
-    const orders: Order[] = await this.findByPlanId(request.planId);
+    const orders: Order[] = await this.findByPlanId(request.planId, { status: OrderStatus.NEW });
     const activeOrders: Order[] = orders.sort((a, b) => a.price.value - b.price.value);
     const biggestOrderPrice = activeOrders[activeOrders.length - 1].price.value;
     const newlevels = plan.stepLevels.filter((stepLevel) => stepLevel > biggestOrderPrice);

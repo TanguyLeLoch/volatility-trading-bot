@@ -4,7 +4,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 @Schema({ timestamps: true })
 export class Order {
   public _id?: string;
-  public __v?: string;
+  public __v?: number;
   @Prop({ required: true })
   public planId?: string;
   @Prop({ type: Pair, required: true })
@@ -18,16 +18,19 @@ export class Order {
   @Prop({ required: true })
   public side: Side;
 }
+
 export const OrderSchema = SchemaFactory.createForClass(Order);
 
 export type OrderPrice = {
   type: PriceType;
   value?: number;
 };
+
 export enum PriceType {
   LIMIT = 'LIMIT',
   MARKET = 'MARKET',
 }
+
 export enum Side {
   BUY = 'BUY',
   SELL = 'SELL',
@@ -42,7 +45,7 @@ export enum OrderStatus {
 
 export class OrderBuilder {
   private _id?: string;
-  private __v?: string;
+  private __v?: number;
   private planId: string;
   private pair: Pair;
   private amount: number;
@@ -54,34 +57,42 @@ export class OrderBuilder {
     this._id = id;
     return this;
   }
-  withVersion(v: string): OrderBuilder {
+
+  withVersion(v: number): OrderBuilder {
     this.__v = v;
     return this;
   }
+
   withPlanId(planId: string): OrderBuilder {
     this.planId = planId;
     return this;
   }
+
   withPair(pair: Pair): OrderBuilder {
     this.pair = pair;
     return this;
   }
+
   withAmount(amount: number): OrderBuilder {
     this.amount = amount;
     return this;
   }
+
   withStatus(status: OrderStatus): OrderBuilder {
     this.status = status;
     return this;
   }
+
   withPrice(price: OrderPrice): OrderBuilder {
     this.price = price;
     return this;
   }
+
   withSide(side: Side): OrderBuilder {
     this.side = side;
     return this;
   }
+
   build(): Order {
     const order = new Order();
     order._id = this._id;

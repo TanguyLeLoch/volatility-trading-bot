@@ -3,6 +3,8 @@ import { Order } from '@model/order';
 import { Plan } from '@model/plan';
 import { orderToCreate } from '../../test/mock/mock.order.service';
 import { OrderSvc } from './order.service';
+import { increaseCeilingOrders, increaseCeilingPlan } from '../../test/mock/mockIncreaseCeiling';
+import { Exchange } from '@model/network';
 
 describe('OrderSvc', () => {
   const moduleCallerSvcMock: ModuleCallerSvc = {} as any;
@@ -35,9 +37,19 @@ describe('OrderSvc', () => {
     await orderSvc.createByPlan(plan);
     expect(createMock.mock.calls.map((arr: Order) => arr[0])).toEqual(orderToCreate);
   });
-  it('test test', async () => {
-    const mockFunction = jest.fn((x) => x * 2);
-    mockFunction(123);
-    expect(mockFunction.mock.calls[0][0]).toBe(123);
+  it('should create new order of increase ceiling', async () => {
+    const plan: Plan = increaseCeilingPlan;
+    moduleCallerSvcMock.callPlanModule = jest.fn().mockReturnValue(plan);
+    moduleCallerSvcMock.callNetworkModule = jest.fn().mockImplementation(() => {
+      new Exchange();
+    });
+    const execFind = jest.fn().mockReturnValue(increaseCeilingOrders);
+    orderModelMock.find = jest.fn().mockReturnValue({ exec: execFind });
+    const exchanges: Exchange[] = await orderSvc.increaseCeiling({
+      module: 'order',
+      name: 'increaseCeiling',
+      planId: plan._id,
+    });
+    expect(exchanges).toHaveLength(4);
   });
 });
