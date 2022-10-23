@@ -39,7 +39,7 @@ export abstract class AbstractExchangeSvc {
     params.set('symbol', pair.token1 + pair.token2);
     params.set('timestamp', String(Date.now()));
     const fullUrl = this.signUrl(url, params);
-    this.logger.debug(`Sending request to ${fullUrl}`);
+    this.logger.verbose(`Sending request to ${fullUrl}`);
     const cexOrders: CexOrder[] = await this.send(Method.GET, fullUrl);
     return cexOrders.map((cexOrder) => cexOrderToOrder(cexOrder, pair));
   }
@@ -225,6 +225,9 @@ export abstract class AbstractExchangeSvc {
 
   private getSignature(paramsAsString: string): string {
     const privateKey = this.getPrivateKey();
+    if (!privateKey) {
+      throw new Error('PRIVATE_KEY_NOT_FOUND');
+    }
     const signature = CryptoJS.HmacSHA256(paramsAsString, privateKey);
     return signature.toString();
   }
