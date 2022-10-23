@@ -32,7 +32,7 @@ export class OrderController {
   }
 
   @Get('orders')
-  getOrders(@Query('filters') filters: string): Promise<Array<Order>> {
+  getOrders(@Query('filters') filters?: string): Promise<Array<Order>> {
     const filtersObj = filters ? JSON.parse(filters) : {};
     return this.orderSvc.findAllMatchingFilters(filtersObj);
   }

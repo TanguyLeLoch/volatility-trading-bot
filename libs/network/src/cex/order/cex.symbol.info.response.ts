@@ -1,4 +1,4 @@
-export type SymbolInfo = {
+export type CexSymbolInfo = {
   symbol: string;
   status: string;
   baseAsset: string;
@@ -21,10 +21,10 @@ export type SymbolInfo = {
   takerCommission: string;
 };
 
-export type SymbolInfoResponse = {
+export type CexSymbolInfoResponse = {
   timezone: string;
   serverTime: number;
   rateLimits: any[];
   exchangeFilters: any[];
-  symbols: SymbolInfo[];
+  symbols: CexSymbolInfo[];
 };

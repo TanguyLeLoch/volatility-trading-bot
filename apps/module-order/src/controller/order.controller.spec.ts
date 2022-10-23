@@ -4,7 +4,7 @@ import { OrderSvc } from '../service/order.service';
 import { SyncOrderSvc } from '../service/sync.order.service';
 
 const mockOrderSvc = {
-  findAll: jest.fn(),
+  findAllMatchingFilters: jest.fn(),
 };
 const mockSyncOrderSvc = {};
 
@@ -34,7 +34,7 @@ describe('AppController', () => {
   describe('get orders', () => {
     it('should return a list of order', () => {
       orderController.getOrders();
-      expect(mockOrderSvc.findAll).toHaveBeenCalled();
+      expect(mockOrderSvc.findAllMatchingFilters).toHaveBeenCalled();
     });
   });
 });

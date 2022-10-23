@@ -1,6 +1,6 @@
-import { MexcBalance } from '@model/balance';
+import { CexBalance } from '@model/network/cex/balance/cex.balance';
 
-export interface AccountInformation {
+export interface CexAccountInformation {
   makerCommission: number;
   takerCommission: number;
   buyerCommission: number;
@@ -10,6 +10,6 @@ export interface AccountInformation {
   canDeposit: boolean;
   updateTime?: any;
   accountType: string;
-  balances: MexcBalance[];
+  balances: CexBalance[];
   permissions: string[];
 }

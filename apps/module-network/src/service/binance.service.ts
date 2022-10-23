@@ -6,17 +6,17 @@ import { AbstractExchangeSvc } from './AbstractExchangeSvc';
 import { ExchangeSvc } from './exchange.service';
 
 @Injectable()
-export class MexcSvc extends AbstractExchangeSvc {
-  private readonly mexcSvcLogger: winston.Logger = createCustomLogger(moduleName, MexcSvc.name);
+export class BinanceSvc extends AbstractExchangeSvc {
+  private readonly binanceLogger: winston.Logger = createCustomLogger(moduleName, BinanceSvc.name);
+  private static readonly secretKey: string = process.env.BINANCE_SECRET_KEY;
   private static readonly baseUrl: string =
-    process.env.ENV === 'prod' ? 'https://api.mexc.com' : 'http://localhost:43000';
-  private static readonly secretKey: string = process.env.MEXC_SECRET_KEY;
+    process.env.ENV === 'prod' ? 'https://api.binance.com' : 'http://localhost:43000';
   private static readonly headers =
     process.env.ENV === 'prod'
-      ? { 'X-MEXC-APIKEY': process.env.MEXC_ACCESS_KEY }
+      ? { 'X-MBX-APIKEY': process.env.BINANCE_ACCESS_KEY }
       : {
           'X-MBX-APIKEY': 'test',
-          platform: 'MEXC',
+          platform: 'BINANCE',
         };
   private static readonly platform: string = 'BINANCE';
 
@@ -28,18 +28,18 @@ export class MexcSvc extends AbstractExchangeSvc {
   }
 
   getHeaders(): object {
-    return MexcSvc.headers;
+    return BinanceSvc.headers;
   }
 
   getPrivateKey(): string {
-    return MexcSvc.secretKey;
+    return BinanceSvc.secretKey;
   }
 
   getBaseUrl(): string {
-    return MexcSvc.baseUrl;
+    return BinanceSvc.baseUrl;
   }
 
   getPlatform(): string {
-    return MexcSvc.platform;
+    return BinanceSvc.platform;
   }
 }

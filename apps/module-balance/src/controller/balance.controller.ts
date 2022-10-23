@@ -10,6 +10,7 @@ export class BalanceController {
   getBalanceById(@Param() { id }: { id: string }): Promise<Balance> {
     return this.balanceSvc.findById(id);
   }
+
   @Get('/token/:token/platform/:platform')
   getBalance(@Param('token') token: string, @Param('platform') platform: string): Promise<Balance> {
     return this.balanceSvc.findByTokenAndPlatform(token, platform);
@@ -31,7 +32,10 @@ export class BalanceController {
   }
 
   @Delete(':id')
-  deleteBalance(@Param() { id }: { id: string }): Promise<Balance> {
+  deleteBalance(@Param() { id }: { id: string }): Promise<Balance | void> {
+    if (id === 'all') {
+      return this.balanceSvc.deleteAll();
+    }
     return this.balanceSvc.delete(id);
   }
 }

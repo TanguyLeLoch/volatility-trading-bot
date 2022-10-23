@@ -5,6 +5,7 @@ import { CexSvc } from '../service/cex.service';
 import { ExchangeSvc } from '../service/exchange.service';
 import { MexcSvc } from '../service/mexc.service';
 import { CexController } from './cex.controller';
+import { BinanceSvc } from '../service/binance.service';
 
 describe('CexController', () => {
   let cexController: CexController;
@@ -22,6 +23,7 @@ describe('CexController', () => {
       providers: [
         CexSvc,
         MexcSvc,
+        BinanceSvc,
         ExchangeSvc,
         {
           provide: getModelToken('Exchange'),

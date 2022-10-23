@@ -1,12 +1,12 @@
 import { Pair } from '@model/common';
-import { MexcOrder } from './mexc.order';
-import { mexcOrderToOrder } from './mexc.order.mapper';
-import { Order, OrderBuilder, OrderPrice, OrderStatus, PriceType, Side } from './order';
+import { CexOrder } from './cex.order';
+import { Order, OrderBuilder, OrderPrice, OrderStatus, PriceType, Side } from '@model/order';
+import { cexOrderToOrder } from '@model/network';
 
-describe('mexcOrderToOrder', () => {
-  it('should map a mexcOrder to an Order', () => {
+describe('cexOrderToOrder', () => {
+  it('should map a cexOrder to an Order', () => {
     const pair: Pair = { token1: 'AZERO', token2: 'USDT' };
-    const mexcOrder: MexcOrder = {
+    const cexOrder: CexOrder = {
       symbol: 'AZEROUSDT',
       clientOrderId: '630bd6902ccbe95d601a3d50',
       price: '1',
@@ -23,7 +23,7 @@ describe('mexcOrderToOrder', () => {
       cummulativeQuoteQty: null,
     };
 
-    const result: Order = mexcOrderToOrder(mexcOrder, pair);
+    const result: Order = cexOrderToOrder(cexOrder, pair);
     const resultExpected: Order = new OrderBuilder()
       .withAmount(100)
       .withId('630bd6902ccbe95d601a3d50')

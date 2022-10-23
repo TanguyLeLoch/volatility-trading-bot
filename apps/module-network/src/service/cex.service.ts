@@ -15,18 +15,27 @@ import winston from 'winston';
 import { moduleName } from '../module.info';
 import { AbstractExchangeSvc } from './AbstractExchangeSvc';
 import { MexcSvc } from './mexc.service';
+import { BinanceSvc } from './binance.service';
 
 @Injectable()
 export class CexSvc {
   private readonly logger: winston.Logger = createCustomLogger(moduleName, CexSvc.name);
 
-  constructor(private readonly moduleCallerSvc: ModuleCallerSvc, private readonly mexcSvc: MexcSvc) {}
+  constructor(
+    private readonly moduleCallerSvc: ModuleCallerSvc,
+    private readonly mexcSvc: MexcSvc,
+    private readonly binanceSvc: BinanceSvc,
+  ) {}
 
   getCexService(request: CexRequest): AbstractExchangeSvc {
-    if (request.platform !== 'MEXC') {
-      throw new Error('Only mexc is supported');
+    switch (request.platform) {
+      case 'MEXC':
+        return this.mexcSvc;
+      case 'BINANCE':
+        return this.binanceSvc;
+      default:
+        throw new Error(`Unsupported platform: ${request.platform}`);
     }
-    return this.mexcSvc;
   }
 
   async getCexOrder(request: GetOrderRequest): Promise<Order[]> {

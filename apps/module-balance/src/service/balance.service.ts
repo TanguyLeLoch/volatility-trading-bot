@@ -47,4 +47,8 @@ export class BalanceSvc {
   async findByTokenAndPlatform(token: string, platform: string): Promise<Balance> {
     return this.balanceModel.findOne({ token: token, platform: platform }).exec();
   }
+
+  async deleteAll(): Promise<void> {
+    await this.balanceModel.deleteMany().exec();
+  }
 }

@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
 @Schema()
-export class MexcBalance {
+export class CexBalance {
   _id?: string;
   __v?: string;
   @Prop({ type: String })
@@ -10,5 +10,8 @@ export class MexcBalance {
   free: string;
   @Prop({ type: String })
   locked: string;
+  @Prop({ type: String })
+  platform: string; // used in stub only
 }
-export const MexcBalanceSchema = SchemaFactory.createForClass(MexcBalance);
+
+export const CexBalanceSchema = SchemaFactory.createForClass(CexBalance);

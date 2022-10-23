@@ -1,8 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { OrderStatus, PriceType, Side } from './order';
+import { OrderStatus, PriceType, Side } from '@model/order';
 
 @Schema()
-export class MexcOrder {
+export class CexOrder {
   public _id?: string;
   public __v?: string;
   @Prop()
@@ -42,4 +42,5 @@ export class MexcOrder {
   @Prop()
   origQuoteOrderQty: string;
 }
-export const MexcOrderSchema = SchemaFactory.createForClass(MexcOrder);
+
+export const CexOrderSchema = SchemaFactory.createForClass(CexOrder);

@@ -11,6 +11,7 @@ import { moduleName } from './module.info';
 @Injectable()
 export class PlanSvc {
   private static readonly logger: winston.Logger = createCustomLogger(moduleName, PlanSvc.name);
+
   constructor(
     @InjectModel('Plan') private readonly planModel: Model<Plan>,
     private readonly moduleCallerSvc: ModuleCallerSvc,
@@ -27,8 +28,7 @@ export class PlanSvc {
       plan.stepLevels = [];
     }
     const planToCreate = new this.planModel(plan);
-    const createdPlan = await planToCreate.save();
-    return createdPlan;
+    return await planToCreate.save();
   }
 
   async computeStep(id: string): Promise<Plan> {
@@ -45,19 +45,21 @@ export class PlanSvc {
     }
     plan.stepLevels = PlanSvc.roundPrice(plan.stepLevels, 3);
     //save updated plan
-    const updatedPlan = await this.planModel.findByIdAndUpdate(id, plan, { new: true }).exec();
-
-    return updatedPlan;
+    return await this.planModel.findByIdAndUpdate(id, plan, { new: true }).exec();
   }
+
   async findAll(): Promise<Plan[]> {
     return this.planModel.find().exec();
   }
+
   async modify(plan: Plan): Promise<Plan> {
     return this.planModel.findByIdAndUpdate(plan._id, plan, { new: true }).exec();
   }
+
   async deleteAll(): Promise<void> {
     await this.planModel.deleteMany({}).exec();
   }
+
   async processRequest(request: GridRequest): Promise<any> {
     switch (request.name) {
       case 'recomputeStep':
@@ -66,6 +68,7 @@ export class PlanSvc {
         throw new Error(`Unknown request name ${request.name}`);
     }
   }
+
   async processRecomputeStepRequest(request: RecomputeStepRequest): Promise<Plan> {
     const plan: Plan = await this.findById(request.planId);
     const balance: Balance = await this.moduleCallerSvc.callBalanceModule(
@@ -77,7 +80,7 @@ export class PlanSvc {
 
     const newStepLevels: Array<number> = PlanSvc.recomputeStep(tokensLeft, plan);
     if (plan.stepLevels.length === newStepLevels.length) {
-      PlanSvc.logger.info(`Cannot increse ceiling because there is not enough token`);
+      PlanSvc.logger.info(`Cannot increase ceiling because there is not enough token`);
       return plan;
     }
     plan.stepLevels = newStepLevels;
