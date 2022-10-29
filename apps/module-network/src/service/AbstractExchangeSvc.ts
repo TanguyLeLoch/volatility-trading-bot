@@ -16,6 +16,7 @@ import { ExchangeSvc } from './exchange.service';
 import winston from 'winston';
 import * as CryptoJS from 'crypto-js';
 import { moduleName } from '../module.info';
+import { ExternalCallback } from '@app/core/caller/external.callback';
 
 export abstract class AbstractExchangeSvc {
   private readonly logger: winston.Logger = createCustomLogger(moduleName, AbstractExchangeSvc.name);
@@ -34,13 +35,19 @@ export abstract class AbstractExchangeSvc {
   abstract getPlatform(): string;
 
   async getActiveOrders(pair: Pair): Promise<Array<Order>> {
+    const callbacks: ExternalCallback = new ExternalCallback(3);
+    callbacks.addCallback(400, () => this.getActiveOrdersWithCallBack(pair, callbacks));
+    return await this.getActiveOrdersWithCallBack(pair, callbacks);
+  }
+
+  async getActiveOrdersWithCallBack(pair: Pair, callbacks: ExternalCallback): Promise<Array<Order>> {
     const url = this.getBaseUrl() + '/api/v3/openOrders';
     const params: Map<string, string> = new Map();
     params.set('symbol', pair.token1 + pair.token2);
     params.set('timestamp', String(Date.now()));
     const fullUrl = this.signUrl(url, params);
     this.logger.verbose(`Sending request to ${fullUrl}`);
-    const cexOrders: CexOrder[] = await this.send(Method.GET, fullUrl);
+    const cexOrders: CexOrder[] = await this.send(Method.GET, fullUrl, callbacks);
     return cexOrders.map((cexOrder) => cexOrderToOrder(cexOrder, pair));
   }
 
@@ -49,15 +56,16 @@ export abstract class AbstractExchangeSvc {
     const params: Map<string, string> = new Map();
     params.set('symbol', orderDb.pair.token1 + orderDb.pair.token2);
     params.set('timestamp', String(Date.now()));
-    params.set('origClientOrderId', orderDb._id);
+    params.set('origClientOrderId', <string>orderDb._id);
     const fullUrl = this.signUrl(url, params);
     this.logger.debug(`Sending request to ${fullUrl}`);
     let orderCex: Order;
     try {
       const cexOrder: CexOrder = await this.send(Method.GET, fullUrl);
       orderCex = cexOrderToOrder(cexOrder, orderDb.pair);
-    } catch (e) {
-      this.logger.error(`Error getting order ${e}`);
+    } catch (error) {
+      this.logger.error(`Error getting order ${error}`);
+      throw error;
     }
     return orderCex;
   }
@@ -118,19 +126,24 @@ export abstract class AbstractExchangeSvc {
       }
     } else {
       params.set('type', order.price.type);
+      const orderPriceValue: number | undefined = order.price.value;
+      if (orderPriceValue === undefined) {
+        throw new Error('Price value is undefined');
+      }
       params.set('price', String(order.price.value));
-      params.set('quantity', String(Math.round((1000000 * order.amount) / order.price.value) / 1000000));
-      AbstractExchangeSvc.setPriceForLimitOrder(params, order.price.value, order.amount);
+      params.set('quantity', String(Math.round((1000000 * order.amount) / orderPriceValue) / 1000000));
+      AbstractExchangeSvc.setPriceForLimitOrder(params, orderPriceValue, order.amount);
     }
-    params.set('newClientOrderId', order._id);
+    params.set('newClientOrderId', <string>order._id);
     params.set('timestamp', String(Date.now()));
     const fullUrl = this.signUrl(url, params);
     const exchange = new Exchange();
     exchange.status = ExchangeStatus.PENDING;
     exchange.date = new Date();
     exchange.url = fullUrl;
+
     // save exchange before sending order
-    const createcexchange = await this.exchangeSvc.create(exchange);
+    const createdExchange = await this.exchangeSvc.create(exchange);
     this.logger.warn(
       `Send Order ${params.get('side')} ${order.pair.token1} for ${order.amount} ${order.pair.token2} at ${
         params.get('price') ? params.get('price') + ' ' : ''
@@ -141,9 +154,9 @@ export abstract class AbstractExchangeSvc {
       await this.waitMarketLimitOrderToBeTriggered(order);
     }
 
-    createcexchange.content = content;
-    createcexchange.status = ExchangeStatus.ACCEPTED;
-    return await this.exchangeSvc.update(createcexchange);
+    createdExchange.content = content;
+    createdExchange.status = ExchangeStatus.ACCEPTED;
+    return await this.exchangeSvc.update(createdExchange);
   }
 
   private getPostOrderUrl(): string {
@@ -175,7 +188,7 @@ export abstract class AbstractExchangeSvc {
     return orderCex;
   }
 
-  async isTokenAvailableToMarketOrder(pair: Pair) {
+  async isTokenAvailableToMarketOrder(pair: Pair): Promise<boolean> {
     const url = this.getBaseUrl() + '/api/v3/exchangeInfo';
     const params: Map<string, string> = new Map();
     params.set('symbol', pair.token1 + pair.token2);
@@ -184,6 +197,9 @@ export abstract class AbstractExchangeSvc {
       AbstractExchangeSvc.addParameters(url, params),
     );
     const symbol = symbolInfo.symbols.find((symb) => symb.symbol === pair.token1 + pair.token2);
+    if (symbol === undefined) {
+      throw new Error(`Symbol ${pair.token1 + pair.token2} not found`);
+    }
     return undefined !== symbol.orderTypes.find((orderType) => orderType === PriceType.MARKET);
   }
 
@@ -202,9 +218,9 @@ export abstract class AbstractExchangeSvc {
     return AbstractExchangeSvc.addParameters(url, params);
   }
 
-  async send(method: Method, url: string): Promise<any> {
+  async send(method: Method, url: string, callbacks?: ExternalCallback): Promise<any> {
     const headers = this.getHeaders();
-    const { data } = await this.externalCallerSvc.callExternal(method, url, null, headers);
+    const { data } = await this.externalCallerSvc.callExternal(method, url, undefined, headers, callbacks);
     this.logger.verbose(`Response data: ${JSON.stringify(data)}`);
     return data;
   }
