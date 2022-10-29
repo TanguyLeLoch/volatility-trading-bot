@@ -49,7 +49,7 @@ export class DiscordService implements OnApplicationBootstrap {
   }
 
   async deleteLastMessageContaining(gridTradingChannel: Discord.TextChannel, messageSubstring: string): Promise<void> {
-    const messages = await gridTradingChannel.messages.fetch({ limit: 100 });
+    const messages = await gridTradingChannel.messages.fetch({ limit: 10 });
 
     const messagesToDelete = messages.filter((message) => {
       const content = message.content;
