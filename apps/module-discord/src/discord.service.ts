@@ -13,7 +13,7 @@ export class DiscordService implements OnApplicationBootstrap {
 
   constructor(private readonly moduleCallerSvc: ModuleCallerSvc) {}
 
-  onApplicationBootstrap() {
+  onApplicationBootstrap(): void {
     this.client = new Discord.Client({ intents: ['GUILDS', 'GUILD_MESSAGES'] });
 
     this.client.on('ready', () => {
@@ -48,7 +48,7 @@ export class DiscordService implements OnApplicationBootstrap {
     return await gridTradingChannel.send(message);
   }
 
-  async deleteLastMessageContaining(gridTradingChannel: Discord.TextChannel, messageSubstring: string) {
+  async deleteLastMessageContaining(gridTradingChannel: Discord.TextChannel, messageSubstring: string): Promise<void> {
     const messages = await gridTradingChannel.messages.fetch({ limit: 100 });
 
     const messagesToDelete = messages.filter((message) => {
@@ -58,7 +58,7 @@ export class DiscordService implements OnApplicationBootstrap {
     await this.deleteMessages(messagesToDelete);
   }
 
-  async manageMessageCreate(message: Discord.Message) {
+  async manageMessageCreate(message: Discord.Message): Promise<void> {
     if (message.author.bot) return;
     this.logger.info(`Message from ${message.author.username}: ${message.content}`);
     if (message.content === '!ping') {
@@ -70,13 +70,13 @@ export class DiscordService implements OnApplicationBootstrap {
     }
   }
 
-  async deletePreviousChannelMessage(channelName: string) {
+  async deletePreviousChannelMessage(channelName: string): Promise<void> {
     const channel = this.getChannel(channelName);
     const messages = await channel.messages.fetch({ limit: 100 });
     await this.deleteMessages(messages);
   }
 
-  private async deleteMessages(messages: Discord.Collection<string, Discord.Message<boolean>>) {
+  private async deleteMessages(messages: Discord.Collection<string, Discord.Message<boolean>>): Promise<void> {
     const deletedMessage: Array<Promise<Discord.Message<boolean>>> = messages.map(async (message) => {
       try {
         return await message.delete();
@@ -88,9 +88,14 @@ export class DiscordService implements OnApplicationBootstrap {
   }
 
   getChannel(channelName: string): Discord.TextChannel {
-    return this.client.channels.cache.find(
-      (channel: Discord.TextChannel) => channel.name === channelName,
-    ) as Discord.TextChannel;
+    return this.client.channels.cache.find((channel: Discord.AnyChannel) => {
+      if (channel.isText) {
+        const textChannel = channel as Discord.TextChannel;
+        return textChannel.name === channelName;
+      } else {
+        return false;
+      }
+    }) as Discord.TextChannel;
   }
 
   async pingAllModules(): Promise<Message<boolean>> {
@@ -108,7 +113,7 @@ export class DiscordService implements OnApplicationBootstrap {
     return await this.postMessage(message);
   }
 
-  private async triggerAllAsync() {
+  private async triggerAllAsync(): Promise<void> {
     await this.moduleCallerSvc.callAsyncModule(Method.POST, 'asyncs/trigger/all', null);
   }
 

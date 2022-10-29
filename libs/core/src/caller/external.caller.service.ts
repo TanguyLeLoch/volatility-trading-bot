@@ -14,7 +14,7 @@ export class ExternalCallerSvc {
 
   constructor(private httpService: HttpService) {}
 
-  async callExternal(method: Method, url: string, body?: any, headers?: any): Promise<any> {
+  async callExternal(method: Method, url: string, body?: object, headers?: object): Promise<any> {
     this.logger.debug(`${method} on url ${url} with body: ${JSON.stringify(body)}`);
 
     let response: any;
@@ -22,7 +22,7 @@ export class ExternalCallerSvc {
     while (!response) {
       try {
         response = await this.callOnce(method, url, body, headers);
-      } catch (error) {
+      } catch (error: any) {
         this.logger.error(`Error while calling ${method} on ${url} with body: ${JSON.stringify(body)}`);
         this.logger.error(`error: ${JSON.stringify(error)}`);
         if (nbRetry === 0) {
@@ -40,12 +40,12 @@ export class ExternalCallerSvc {
     return response;
   }
 
-  async callOnce(method: Method, url: string, body?: any, headers?: any) {
+  async callOnce(method: Method, url: string, body?: object, headers?: object): Promise<any> {
     return this.httpService.axiosRef({
       method,
       url,
       data: body,
       headers,
-    });
+    } as any);
   }
 }

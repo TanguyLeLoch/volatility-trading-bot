@@ -1,6 +1,6 @@
 import { HttpModule } from '@nestjs/axios';
 import { Test, TestingModule } from '@nestjs/testing';
-import { ModuleCallerSvc } from './module.caller.service';
+import { ModuleCallerSvc } from '@app/core';
 
 describe('Caller service', () => {
   let service: ModuleCallerSvc;

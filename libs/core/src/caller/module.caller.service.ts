@@ -14,41 +14,41 @@ export class ModuleCallerSvc {
 
   constructor(private httpService: HttpService) {}
 
-  async callOrderModule(method: Method, path: string, body?: any): Promise<any> {
+  async callOrderModule(method: Method, path: string, body?: object): Promise<any> {
     return await this.callModule('order', method, path, body);
   }
 
-  async callPlanModule(method: Method, path: string, body?: any): Promise<any> {
+  async callPlanModule(method: Method, path: string, body?: object): Promise<any> {
     return await this.callModule('plan', method, path, body);
   }
 
-  async callNetworkModule(method: Method, path: string, body?: any): Promise<any> {
+  async callNetworkModule(method: Method, path: string, body?: object): Promise<any> {
     return await this.callModule('network', method, path, body);
   }
 
-  async callBrainModule(method: Method, path: string, body?: any): Promise<any> {
+  async callBrainModule(method: Method, path: string, body?: object): Promise<any> {
     return await this.callModule('brain', method, path, body);
   }
 
-  async callAsyncModule(method: Method, path: string, body?: any): Promise<any> {
+  async callAsyncModule(method: Method, path: string, body?: object): Promise<any> {
     return await this.callModule('async', method, path, body);
   }
 
-  async callDiscordModule(method: Method, path: string, body?: any): Promise<any> {
+  async callDiscordModule(method: Method, path: string, body?: object): Promise<any> {
     return await this.callModule('discord', method, path, body);
   }
 
-  async callBalanceModule(method: Method, path: string, body?: any): Promise<any> {
+  async callBalanceModule(method: Method, path: string, body?: object): Promise<any> {
     return await this.callModule('balance', method, path, body);
   }
 
-  async callModule(module: string, method: Method, path: string, body?: any): Promise<any> {
+  async callModule(module: string, method: Method, path: string, body?: object): Promise<any> {
     const url = this.createFullUrl(module, path);
     this.logger.verbose(`${method} on module ${module} on url ${url} with body: ${JSON.stringify(body)}`);
     let response;
     try {
       response = await this.callOnce(method, url, body);
-    } catch (error) {
+    } catch (error: any) {
       if (error.code !== 'ECONNREFUSED') {
         throw error;
       }
@@ -62,7 +62,7 @@ export class ModuleCallerSvc {
     return response.data;
   }
 
-  async callOnce(method: Method, url: string, body?: any): Promise<any> {
+  async callOnce(method: Method, url: string, body?: object): Promise<any> {
     const headers = {} as any;
     headers[apiKeyMiddlewareheader] = process.env.API_KEY_GRID_TRADING;
     return this.httpService.axiosRef({
@@ -77,7 +77,7 @@ export class ModuleCallerSvc {
     return await this.callModule(request.module, Method.POST, 'request', request);
   }
 
-  postMessageWithParamsOnDiscord(discordMessage: DiscordMessage) {
+  postMessageWithParamsOnDiscord(discordMessage: DiscordMessage): void {
     this.callDiscordModule(Method.POST, 'message', discordMessage).catch((err) => {
       this.logger.error(`Error posting message on discord: ${err}`);
     });
@@ -89,7 +89,7 @@ export class ModuleCallerSvc {
     return `${baseUrl}:${port}/${path}`;
   }
 
-  private pingDiscord() {
+  private pingDiscord(): void {
     this.callDiscordModule(Method.POST, 'ping', null).catch((err) => {
       this.logger.error(`Error pinging message on discord: ${err}`);
     });

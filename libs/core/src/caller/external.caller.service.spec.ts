@@ -2,7 +2,7 @@ import { Utils } from '@model/common';
 import { HttpModule } from '@nestjs/axios';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Method } from '../method';
-import { ExternalCallerSvc } from './external.caller.service';
+import { ExternalCallerSvc } from '@app/core';
 
 describe('ExternalCallerSvc', () => {
   let service: ExternalCallerSvc;
@@ -28,7 +28,7 @@ describe('ExternalCallerSvc', () => {
     expect(service).toBeDefined();
   });
   describe('callExternal', () => {
-    const throwErrorAtStatus = (status: number) => {
+    const throwErrorAtStatus = (status: number): never => {
       const error = new Error() as any;
       error.status = status;
       throw error;
@@ -45,15 +45,15 @@ describe('ExternalCallerSvc', () => {
     it('should throw error because of 400 status', async () => {
       service.callOnce = jest.fn().mockImplementationOnce(() => throwErrorAtStatus(400));
 
-      expect(async () => await service.callExternal(Method.GET, 'http://localhost:3000/callMexc')).rejects.toThrow(
-        '400_NOT_RETRYABLE',
-      );
+      await expect(
+        async () => await service.callExternal(Method.GET, 'http://localhost:3000/callMexc'),
+      ).rejects.toThrow('400_NOT_RETRYABLE');
     });
     it('should throw error be cause no more retry', async () => {
       service.callOnce = jest.fn(() => throwErrorAtStatus(504));
-      expect(async () => await service.callExternal(Method.GET, 'http://localhost:3000/callMexc')).rejects.toThrow(
-        Error('NO_MORE_RETRY'),
-      );
+      await expect(
+        async () => await service.callExternal(Method.GET, 'http://localhost:3000/callMexc'),
+      ).rejects.toThrow(Error('NO_MORE_RETRY'));
     });
   });
 });
