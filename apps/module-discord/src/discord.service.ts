@@ -21,7 +21,7 @@ export class DiscordService implements OnApplicationBootstrap {
     });
 
     this.client.on('messageCreate', (message) => this.manageMessageCreate(message));
-    this.client.login(process.env.DISCORD_TOKEN);
+    this.client.login(process.env.DISCORD_TOKEN).catch((error) => this.logger.error(error));
   }
 
   async postMessage(content: string): Promise<Message<boolean>> {
@@ -63,9 +63,9 @@ export class DiscordService implements OnApplicationBootstrap {
     this.logger.info(`Message from ${message.author.username}: ${message.content}`);
     if (message.content === '!ping') {
       await this.pingAllModules();
-    } else if (message.content === '!delete' && message.member.permissions.has('ADMINISTRATOR')) {
+    } else if (message.content === '/delete' && message.member.permissions.has('ADMINISTRATOR')) {
       await this.deletePreviousChannelMessage('grid-trading-bot');
-    } else if (message.content === '!triggerAllAsync' && message.member.permissions.has('ADMINISTRATOR')) {
+    } else if (message.content === '/triggerAllAsync' && message.member.permissions.has('ADMINISTRATOR')) {
       await this.triggerAllAsync();
     }
   }
