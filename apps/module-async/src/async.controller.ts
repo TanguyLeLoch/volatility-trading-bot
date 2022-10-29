@@ -18,12 +18,19 @@ export class AsyncController {
   async createAsync(@Body() asyncCall: AsyncCall): Promise<AsyncCall> {
     return this.asyncSvc.create(asyncCall);
   }
+
   @Post('trigger/:id')
   async triggerAsync(@Param() { id }: { id: string }): Promise<AsyncCall | AsyncCall[]> {
     if (id === 'all') {
       return await this.asyncSvc.triggerAll();
     }
     return await this.asyncSvc.triggerById(id);
+  }
+
+  @Post('trigger/url/:partUrl')
+  async triggerAsyncByUrl(@Param('partUrl') partUrl: string): Promise<AsyncCall> {
+    console.log('triggerAsyncByUrl', partUrl);
+    return await this.asyncSvc.triggerByUrl(partUrl);
   }
 
   @Put()
@@ -35,6 +42,7 @@ export class AsyncController {
   async deleteAllAsync(): Promise<void> {
     return this.asyncSvc.deleteAll();
   }
+
   @Delete(':id')
   async deleteAsync(@Param() { id }: { id: string }): Promise<AsyncCall> {
     return this.asyncSvc.delete(id);

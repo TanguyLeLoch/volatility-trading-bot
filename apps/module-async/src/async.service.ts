@@ -2,6 +2,7 @@ import { AsyncCall, AsyncFilter, AsyncStatus } from '@model/async';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { FunctionalException } from '@app/core';
 
 @Injectable()
 export class AsyncSvc {
@@ -18,6 +19,7 @@ export class AsyncSvc {
   async findAll(): Promise<Array<AsyncCall>> {
     return this.asyncModel.find().exec();
   }
+
   async findWithFilter(filter: AsyncFilter): Promise<Array<AsyncCall>> {
     const filterForMongoose = {} as any;
     if (filter.status) {
@@ -30,6 +32,7 @@ export class AsyncSvc {
 
     return this.asyncModel.find(filterForMongoose).exec();
   }
+
   async create(asyncCall: AsyncCall): Promise<AsyncCall> {
     const createdAsyncCall = new this.asyncModel(asyncCall);
     return createdAsyncCall.save();
@@ -38,6 +41,7 @@ export class AsyncSvc {
   async delete(id: string): Promise<AsyncCall> {
     return this.asyncModel.findByIdAndDelete(id).exec();
   }
+
   async deleteAll(): Promise<void> {
     await this.asyncModel.deleteMany({}).exec();
   }
@@ -49,13 +53,23 @@ export class AsyncSvc {
     }
     return await this.triggerAsync(async);
   }
+
   async triggerAll(): Promise<AsyncCall[]> {
     const asyncs = await this.findAll();
     return Promise.all(asyncs.map(async (asyncCall) => this.triggerAsync(asyncCall)));
   }
+
   private async triggerAsync(asyncCall: AsyncCall): Promise<AsyncCall> {
     asyncCall.status = AsyncStatus.NEW;
     asyncCall.dateToCall = new Date();
     return await this.modify(asyncCall);
+  }
+
+  async triggerByUrl(url: string): Promise<AsyncCall> {
+    const asyncCalls: AsyncCall[] = await this.asyncModel.find({ url: { $regex: url } }).exec();
+    if (asyncCalls.length !== 1) {
+      throw new FunctionalException(`${asyncCalls.length} async call found`, 'ASYNC_NOT_FOUND_');
+    }
+    return await this.triggerAsync(asyncCalls[0]);
   }
 }

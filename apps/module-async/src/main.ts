@@ -4,9 +4,11 @@ import { AsyncModule } from './async.module';
 import { moduleName } from './module.info';
 
 setModuleName(moduleName);
+
 async function bootstrap() {
-  const app = await NestFactory.create(AsyncModule);
+  const app = await NestFactory.create(AsyncModule, { cors: true });
   await app.listen(ports[moduleName]);
   console.log(`${moduleName} is running on port: ${ports[moduleName]}`);
 }
+
 bootstrap();
