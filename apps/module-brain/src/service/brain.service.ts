@@ -8,7 +8,7 @@ import winston from 'winston';
 import { moduleName } from '../module.info';
 import { DiscordMessage, DiscordMessageType } from '@model/discord';
 
-const TIME_BETWEEN_CALL = 60 * 5; // 5 minutes
+const TIME_BETWEEN_CALL = 60 * 2; // 2 minutes
 
 @Injectable()
 export class BrainSvc {
@@ -34,7 +34,7 @@ export class BrainSvc {
     return await this.moduleCallerSvc.callAsyncModule(Method.POST, 'asyncs', asyncCall);
   }
 
-  private createAsyncSynchronize(planId: string) {
+  private createAsyncSynchronize(planId: string): AsyncCall {
     const asyncCall: AsyncCall = new AsyncCall();
     const dateToCall = new Date();
     dateToCall.setSeconds(dateToCall.getSeconds() + TIME_BETWEEN_CALL);

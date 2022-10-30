@@ -88,7 +88,7 @@ export abstract class AbstractExchangeSvc {
       const balances: Balance[] = accountInfos.balances.map((balance: CexBalance) =>
         cexBalanceToBalance(balance, this.getPlatform()),
       );
-      this.logger.error(`Balances: ${JSON.stringify(balances)}`);
+      this.logger.verbose(`Balances: ${JSON.stringify(balances)}`);
       return balances;
     }
     return [];

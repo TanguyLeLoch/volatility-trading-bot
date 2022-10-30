@@ -11,7 +11,7 @@ import { PingController } from './ping.controller';
   providers: [DiscordService],
 })
 export class DiscordModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
+  configure(consumer: MiddlewareConsumer): void {
     consumer.apply(ApiMiddleware).forRoutes({
       path: '*',
       method: RequestMethod.ALL,

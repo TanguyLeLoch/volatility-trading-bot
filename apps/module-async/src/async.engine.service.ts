@@ -7,8 +7,8 @@ import { AsyncSvc } from './async.service';
 import { moduleName } from './module.info';
 
 const ONE_HOUR = 60 * 60;
-const NB_CYCLE_BYPASS = 2; // wait 10 sec before start
-const TIME_BETWEEN_CYCLE = 5; // sec
+const NB_CYCLE_BYPASS = 2; // wait 6 sec before start
+const TIME_BETWEEN_CYCLE = 3; // sec
 @Injectable()
 export class AsyncEngineSvc {
   private readonly logger: winston.Logger = createCustomLogger(moduleName, AsyncEngineSvc.name);
@@ -16,7 +16,7 @@ export class AsyncEngineSvc {
 
   constructor(private readonly asyncSvc: AsyncSvc, private readonly moduleCallerSvc: ModuleCallerSvc) {}
 
-  @Cron(CronExpression.EVERY_5_SECONDS)
+  @Cron(CronExpression.EVERY_SECOND)
   async processAsyncCall(): Promise<void> {
     if (this.nbCycle >= NB_CYCLE_BYPASS) {
       // get all async calls at OPEN status ready for exec
@@ -32,13 +32,13 @@ export class AsyncEngineSvc {
       this.nbCycle++;
     }
   }
-  private async findAsyncCallToExecute() {
+
+  private async findAsyncCallToExecute(): Promise<AsyncCall[]> {
     const filter: AsyncFilter = {
       status: AsyncStatus.NEW,
       dateToCallLessThan: new Date(),
     };
-    const asyncCalls = await this.asyncSvc.findWithFilter(filter);
-    return asyncCalls;
+    return await this.asyncSvc.findWithFilter(filter);
   }
 
   private async executeAsyncCalls(asyncCalls: AsyncCall[]): Promise<void> {
@@ -47,7 +47,7 @@ export class AsyncEngineSvc {
     }
   }
 
-  private async executeAsyncCall(asyncCall: AsyncCall) {
+  private async executeAsyncCall(asyncCall: AsyncCall): Promise<AsyncCall> {
     this.logger.debug(`Processing async call: ${JSON.stringify(asyncCall)}`);
     // update status to IN_PROGRESS
     asyncCall.status = AsyncStatus.IN_PROGRESS;
@@ -63,7 +63,8 @@ export class AsyncEngineSvc {
     }
     return asyncCall;
   }
-  async retryAsyncCall(asyncCall: AsyncCall, delay: number) {
+
+  async retryAsyncCall(asyncCall: AsyncCall, delay: number): Promise<void> {
     this.logger.warn(`Retrying async call in one hour...`);
     asyncCall.status = AsyncStatus.NEW;
     const dateToCall = new Date();
@@ -71,14 +72,15 @@ export class AsyncEngineSvc {
     asyncCall.dateToCall = dateToCall;
     await this.asyncSvc.modify(asyncCall);
   }
-  private handleAsyncError(error: any) {
+
+  private handleAsyncError(error: any): void {
     this.logger.error(`Error calling module: ${JSON.stringify(error)}`);
     const reason = error.response ? error.response.data.code : error.message;
     const datTime = error.response ? error.response.data.timestamp : new Date().toISOString();
     this.postMessageOnDiscord(`@here\nAsync call failed: ${reason} at ${datTime}`);
   }
 
-  private postMessageOnDiscord(message: string) {
+  private postMessageOnDiscord(message: string): void {
     this.moduleCallerSvc.callDiscordModule(Method.POST, '', { content: message }).catch((err) => {
       this.logger.error(`Error posting message on discord: ${err}`);
     });
