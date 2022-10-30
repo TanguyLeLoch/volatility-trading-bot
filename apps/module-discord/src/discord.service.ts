@@ -5,6 +5,7 @@ import * as Discord from 'discord.js'; //import discord.js
 import { Message } from 'discord.js';
 import winston from 'winston';
 import { moduleName } from './module.info';
+import { Order } from '@model/order';
 
 @Injectable()
 export class DiscordService implements OnApplicationBootstrap {
@@ -41,6 +42,16 @@ export class DiscordService implements OnApplicationBootstrap {
         break;
       case DiscordMessageType.INCREASE_CEILING:
         message = this.buildIncreaseCeilingMessage(discordMessage.params);
+        break;
+      case DiscordMessageType.TRIGGER:
+        message = discordMessage.params.orders.reduce((acc: string, order: Order) => {
+          return ` - ${acc}${order.side} at ${order.price.value}\n`;
+        }, 'Following orders has been triggered: \n');
+        break;
+      case DiscordMessageType.CREATE:
+        message = discordMessage.params.orders.reduce((acc: string, order: Order) => {
+          return ` - ${acc}${order.side} at ${order.price.value}\n`;
+        }, 'Following orders has been created on cex: \n');
         break;
       default:
         throw new FunctionalException(`Unknown message type: ${discordMessage.type}`, 'MESSAGE_TYPE_UNKNOWN');

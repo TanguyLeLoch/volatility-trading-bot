@@ -29,7 +29,6 @@ export class AsyncController {
 
   @Post('trigger/url/:partUrl')
   async triggerAsyncByUrl(@Param('partUrl') partUrl: string): Promise<AsyncCall> {
-    console.log('triggerAsyncByUrl', partUrl);
     return await this.asyncSvc.triggerByUrl(partUrl);
   }
 

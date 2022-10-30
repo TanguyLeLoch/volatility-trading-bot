@@ -17,6 +17,8 @@ export class Order {
   public price: OrderPrice;
   @Prop({ required: true })
   public side: Side;
+  public createdAt?: string;
+  public updatedAt?: string;
 }
 
 export const OrderSchema = SchemaFactory.createForClass(Order);
@@ -43,6 +45,10 @@ export enum OrderStatus {
   CANCELLED = 'CANCELLED',
 }
 
+export type FilterRequest = {
+  status?: OrderStatus | OrderStatus[];
+};
+
 export class OrderBuilder {
   private _id?: string;
   private __v?: number;
@@ -52,6 +58,7 @@ export class OrderBuilder {
   private status: OrderStatus;
   private price: OrderPrice;
   private side: Side;
+  public updatedAt?: string;
 
   withId(id: string): OrderBuilder {
     this._id = id;
@@ -93,6 +100,11 @@ export class OrderBuilder {
     return this;
   }
 
+  withUpdatedAt(updatedAt: string): OrderBuilder {
+    this.updatedAt = updatedAt;
+    return this;
+  }
+
   build(): Order {
     const order = new Order();
     order._id = this._id;
@@ -103,6 +115,7 @@ export class OrderBuilder {
     order.status = this.status;
     order.price = this.price;
     order.side = this.side;
+    order.updatedAt = this.updatedAt;
     return order;
   }
 }

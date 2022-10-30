@@ -21,6 +21,7 @@ describe('cexOrderToOrder', () => {
       isWorking: null,
       origQuoteOrderQty: null,
       cummulativeQuoteQty: null,
+      updateTime: 1661720208750,
     };
 
     const result: Order = cexOrderToOrder(cexOrder, pair);
@@ -31,7 +32,9 @@ describe('cexOrderToOrder', () => {
       .withPrice({ type: PriceType.LIMIT, value: 1 } as OrderPrice)
       .withSide(Side.BUY)
       .withStatus(OrderStatus.NEW)
+      .withUpdatedAt('2022-08-28T20:56:48.750Z')
       .build();
+
     expect(result).toEqual(resultExpected);
   });
 });

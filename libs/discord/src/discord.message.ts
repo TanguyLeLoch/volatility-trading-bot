@@ -4,8 +4,10 @@ export class DiscordMessage {
 }
 
 export enum DiscordMessageType {
-  SYNC = 'SYNC',
   BUY = 'BUY',
-  SELL = 'SELL',
+  CREATE = 'CREATE',
   INCREASE_CEILING = 'INCREASE_CEILING',
+  SELL = 'SELL',
+  SYNC = 'SYNC',
+  TRIGGER = 'TRIGGER',
 }

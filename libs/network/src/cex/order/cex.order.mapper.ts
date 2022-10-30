@@ -12,5 +12,6 @@ export function cexOrderToOrder(cexOrder: CexOrder, pair: Pair): Order {
   order.price.type = cexOrder.type;
   order.price.value = Number(cexOrder.price);
   order.status = cexOrder.status;
+  order.updatedAt = new Date(cexOrder.updateTime).toISOString();
   return order;
 }

@@ -5,10 +5,14 @@ export type CexRequest = {
   platform: string;
 };
 
-export interface GetOrderRequest extends CexRequest {
+export interface GetOrdersRequest extends CexRequest {
   planId: string;
   pair: Pair;
   status?: OrderStatus; // optional
+}
+
+export interface GetMatchingOrderRequest extends CexRequest {
+  order: Order;
 }
 
 export interface PostOrderRequest extends CexRequest {

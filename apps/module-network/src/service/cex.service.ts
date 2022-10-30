@@ -5,7 +5,8 @@ import {
   CexRequest,
   Exchange,
   GetBalancesRequest,
-  GetOrderRequest,
+  GetMatchingOrderRequest,
+  GetOrdersRequest,
   GetPriceRequest,
   PostOrderRequest,
 } from '@model/network';
@@ -38,11 +39,14 @@ export class CexSvc {
     }
   }
 
-  async getCexOrder(request: GetOrderRequest): Promise<Order[]> {
-    this.logger.verbose(`request: ${JSON.stringify(request)}`);
-
+  async getCexOpenOrder(request: GetOrdersRequest): Promise<Order[]> {
     this.logger.verbose(`Getting order for ${JSON.stringify(request.pair)}`);
     return this.getCexService(request).getActiveOrders(request.pair);
+  }
+
+  async getCexOrder(request: GetMatchingOrderRequest): Promise<Order> {
+    this.logger.verbose(`Getting order with id : ${JSON.stringify(request.order._id)}`);
+    return this.getCexService(request).getOrderById(request.order);
   }
 
   async postOrders(request: PostOrderRequest): Promise<Exchange[]> {

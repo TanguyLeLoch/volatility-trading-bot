@@ -65,6 +65,7 @@ export class StubCexSvc {
     order.clientOrderId = newClientOrderId;
     order.time = Number(timestamp);
     order.status = OrderStatus.NEW;
+    order.updateTime = Date.now();
     const qty = Number(quantity);
     const priceNumber = Number(price);
     const [balanceToken, balanceBase] = await this.getBalancesBySymbol(symbol, platform);
@@ -98,6 +99,7 @@ export class StubCexSvc {
   async fillOrder(clientOrderId: string): Promise<CexOrder> {
     const orderToFill: CexOrder = await this.cexOrderModel.findOne({ clientOrderId }).exec();
     orderToFill.status = OrderStatus.FILLED;
+    orderToFill.updateTime = Date.now();
     const orderFilled = await this.cexOrderModel.findOneAndUpdate({ clientOrderId }, orderToFill, { new: true }).exec();
     const qty = Number(orderToFill.origQty);
     const price = Number(orderToFill.price);
@@ -116,7 +118,7 @@ export class StubCexSvc {
     return orderFilled;
   }
 
-  private async findPlatform(cexOrder: CexOrder) {
+  private async findPlatform(cexOrder: CexOrder): Promise<string> {
     const order: Order = await this.moduleCallerSvc.callOrderModule(
       Method.GET,
       `orders/${cexOrder.clientOrderId}`,
@@ -194,7 +196,7 @@ export class StubCexSvc {
   }
 }
 
-function checkPositivity(cexBalances: CexBalance[]) {
+function checkPositivity(cexBalances: CexBalance[]): void {
   cexBalances.forEach((balance) => {
     if (Number(balance.free) < 0 || Number(balance.locked) < 0) {
       throw new Error(`Balance ${balance.asset} has negative value`);

@@ -1,7 +1,14 @@
 import { createCustomLogger } from '@app/core';
 import { Balance } from '@model/balance';
 import { Price } from '@model/common';
-import { Exchange, GetBalancesRequest, GetOrderRequest, GetPriceRequest, PostOrderRequest } from '@model/network';
+import {
+  Exchange,
+  GetBalancesRequest,
+  GetMatchingOrderRequest,
+  GetOrdersRequest,
+  GetPriceRequest,
+  PostOrderRequest,
+} from '@model/network';
 import { Order } from '@model/order';
 import { Body, Controller, Post } from '@nestjs/common';
 import winston from 'winston';
@@ -15,7 +22,12 @@ export class CexController {
   constructor(private readonly cexSvc: CexSvc) {}
 
   @Post('orders')
-  getOrder(@Body() request: GetOrderRequest): Promise<Order[]> {
+  getOrders(@Body() request: GetOrdersRequest): Promise<Order[]> {
+    return this.cexSvc.getCexOpenOrder(request);
+  }
+
+  @Post('order')
+  getOrder(@Body() request: GetMatchingOrderRequest): Promise<Order> {
     return this.cexSvc.getCexOrder(request);
   }
 

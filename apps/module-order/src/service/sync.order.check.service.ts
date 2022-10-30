@@ -10,14 +10,14 @@ const OPEN_ORDER_STATUS = [OrderStatus.NEW, OrderStatus.PARTIALLY_FILLED];
 export class SyncOrderCheckSvc {
   private readonly logger: winston.Logger = createCustomLogger(moduleName, SyncOrderCheckSvc.name);
 
-  checkOrders(ordersCex: any, ordersDb: Order[]): void {
+  checkOrders(ordersCex: Order[], ordersDb: Order[]): void {
     this.checkStatus(ordersCex);
     this.checkNotEmpty(ordersCex);
     this.checkCoherentNumber(ordersCex, ordersDb);
     this.checkCexOrderExistsInDb(ordersCex, ordersDb);
   }
 
-  checkStatus(ordersCex: Order[]) {
+  checkStatus(ordersCex: Order[]): void {
     ordersCex.forEach((order: Order) => {
       if (!OPEN_ORDER_STATUS.includes(order.status)) {
         this.logger.error(`Order ${order._id} is not open`);
@@ -25,12 +25,14 @@ export class SyncOrderCheckSvc {
       }
     });
   }
-  checkNotEmpty(ordersCex: Order[]) {
+
+  checkNotEmpty(ordersCex: Order[]): void {
     if (ordersCex.length === 0) {
       throw new FunctionalException('No order on CEX', `NO_ORDERS_ON_CEX`);
     }
   }
-  checkCoherentNumber(ordersCex: Order[], ordersDb: Order[]) {
+
+  checkCoherentNumber(ordersCex: Order[], ordersDb: Order[]): void {
     this.logger.info(`Found ${ordersCex.length} orders on cex`);
     if (ordersDb.length < ordersCex.length) {
       throw new FunctionalException('There is more order on CEX', `MORE_ORDER_ON_CEX`);
@@ -45,7 +47,8 @@ export class SyncOrderCheckSvc {
       );
     }
   }
-  checkCexOrderExistsInDb(ordersCex: Order[], ordersDb: Order[]) {
+
+  checkCexOrderExistsInDb(ordersCex: Order[], ordersDb: Order[]): void {
     ordersCex.forEach((order: Order) => {
       const orderDb = ordersDb.find((orderDb: Order) => orderDb._id == order._id);
       if (!orderDb) {

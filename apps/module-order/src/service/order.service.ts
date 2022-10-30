@@ -1,7 +1,7 @@
 import { createCustomLogger, Method, ModuleCallerSvc } from '@app/core';
 import { GridRequest, IncreaseCeilingRequest, Pair, Utils } from '@model/common';
 import { Exchange, PostOrderRequest } from '@model/network';
-import { Order, OrderBuilder, OrderPrice, OrderStatus, PriceType, Side } from '@model/order';
+import { FilterRequest, Order, OrderBuilder, OrderPrice, OrderStatus, PriceType, Side } from '@model/order';
 import { Plan } from '@model/plan';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -22,7 +22,7 @@ export class OrderSvc {
     return this.orderModel.findById(id).exec();
   }
 
-  async findByPlanId(planId: string, filter?: any): Promise<Order[]> {
+  async findByPlanId(planId: string, filter?: FilterRequest): Promise<Order[]> {
     return await this.orderModel.find({ planId, ...filter }).exec();
   }
 
@@ -72,7 +72,7 @@ export class OrderSvc {
     return sentOrders;
   }
 
-  private async markMarketOrdersAsFilled(createdOrders: Order[]) {
+  private async markMarketOrdersAsFilled(createdOrders: Order[]): Promise<void> {
     const marketOrdersSaved: Order[] = createdOrders.filter((order) => order.price.type === PriceType.MARKET);
     const modifiedOrder = [];
     for (const order of marketOrdersSaved) {
