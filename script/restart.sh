@@ -14,7 +14,7 @@ source "$scriptFolder/stop.sh"
 for module in "${moduleList[@]}"
 do
   echo "restart $module"
-  node "${scriptFolder}"/../dist/apps/"$module"/main > /dev/null 2>&1 &
+  node "${scriptFolder}"/../dist/apps/"$module"/main >> /home/"${USER}"/volatility-trading-bot/log/console/log.log 2>&1 &
 done
 
 echo "done"
