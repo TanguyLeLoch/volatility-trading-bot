@@ -16,7 +16,7 @@ export interface GetMatchingOrderRequest extends CexRequest {
 }
 
 export interface PostOrderRequest extends CexRequest {
-  orders: Array<Order>;
+  orders: Order[];
 }
 
 export interface GetPriceRequest extends CexRequest {

@@ -26,7 +26,7 @@ export class OrderSvc {
     return await this.orderModel.find({ planId, ...filter }).exec();
   }
 
-  async createByPlan(plan: Plan): Promise<Array<Order>> {
+  async createByPlan(plan: Plan): Promise<Order[]> {
     this.logger.info(`Creating orders for plan ${plan._id}`);
     plan.pair = new Pair(plan.pair);
 
@@ -36,7 +36,7 @@ export class OrderSvc {
     });
     const currentPrice = Number(currentPriceStr);
     this.logger.info(`Current price for ${plan.pair.toString()} is ${currentPrice}`);
-    const orders: Array<Order> = [];
+    const orders: Order[] = [];
     const firstMarketOrder = createFirstMarketOrder(plan);
     orders.push(firstMarketOrder);
     for (const stepLevel of plan.stepLevels) {
@@ -94,7 +94,7 @@ export class OrderSvc {
     return this.orderModel.findByIdAndUpdate(order._id, order, { new: true }).exec();
   }
 
-  async findAllMatchingFilters(filtersObj: object): Promise<Array<Order>> {
+  async findAllMatchingFilters(filtersObj: object): Promise<Order[]> {
     const filterQuery: FilterQuery<any> = {};
     if (filtersObj['status']) {
       filterQuery['status'] = filtersObj['status'];

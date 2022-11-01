@@ -21,7 +21,7 @@ export class OrderController {
   }
 
   @Post('orders/plan')
-  postOrdersWithPlan(@Body() plan: Plan): Promise<Array<Order>> {
+  postOrdersWithPlan(@Body() plan: Plan): Promise<Order[]> {
     return this.orderSvc.createByPlan(plan);
   }
 
@@ -32,7 +32,7 @@ export class OrderController {
   }
 
   @Get('orders')
-  getOrders(@Query('filters') filters?: string): Promise<Array<Order>> {
+  getOrders(@Query('filters') filters?: string): Promise<Order[]> {
     const filtersObj = filters ? JSON.parse(filters) : {};
     return this.orderSvc.findAllMatchingFilters(filtersObj);
   }

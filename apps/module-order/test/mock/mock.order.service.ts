@@ -1,7 +1,7 @@
 import { Pair } from '@model/common';
 import { Order, OrderStatus, PriceType, Side } from '@model/order';
 
-export const orderToCreate: Array<Order> = [
+export const orderToCreate: Order[] = [
   {
     planId: 'id123',
     pair: new Pair({ token1: 'BTC', token2: 'USDT' }),
