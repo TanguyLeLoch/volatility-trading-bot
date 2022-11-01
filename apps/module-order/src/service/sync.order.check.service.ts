@@ -37,7 +37,7 @@ export class SyncOrderCheckSvc {
     if (ordersDb.length < ordersCex.length) {
       throw new FunctionalException('There is more order on CEX', `MORE_ORDER_ON_CEX`);
     }
-    if (ordersCex.length <= Math.floor(ordersDb.length * 0.75)) {
+    if (ordersCex.length <= Math.floor(ordersDb.length * 0.65)) {
       this.logger.error(
         `${ordersCex.length} orders on CEX and ${ordersDb.length} orders in DB : too many CEX order triggered`,
       );

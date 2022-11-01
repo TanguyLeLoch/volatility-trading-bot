@@ -4,7 +4,7 @@ import { SyncOrderCheckSvc } from './sync.order.check.service';
 import { SyncOrderSvc } from './sync.order.service';
 import { Exchange } from '@model/network';
 import { dumbOrdersCex, dumbOrdersDb, dumbPlan } from '../../test/testHelper';
-import { Order, OrderStatus } from '@model/order';
+import { Order, OrderBuilder, OrderStatus, PriceType, Side } from '@model/order';
 
 describe('SyncOrderSvc', () => {
   let syncOrderSvc: SyncOrderSvc;
@@ -35,30 +35,34 @@ describe('SyncOrderSvc', () => {
 
       orderSvcMock.findByPlanId = jest
         .fn()
-        .mockResolvedValue(dumbOrdersDbInit)
-        .mockImplementationOnce(() => {
-          return dumbOrdersDbInit.filter((order: Order) =>
-            [OrderStatus.NEW, OrderStatus.PARTIALLY_FILLED].includes(order.status),
-          );
-        });
+        .mockResolvedValueOnce(dumbOrdersDbInit)
+        .mockResolvedValueOnce(dumbOrdersDbInit.filter((order: Order) => order.price.value !== 19546.736));
       moduleCallerSvcMock.callPlanModule = jest.fn().mockResolvedValue(dumbPlan);
       moduleCallerSvcMock.callNetworkModule = jest
         .fn()
         .mockResolvedValueOnce(dumbOrdersCexWithChange)
-        .mockImplementationOnce(() => {
-          const order: Order = dumbOrdersCex().find((order) => order.price.value === 19546.736);
-          order.status = OrderStatus.FILLED;
-          return order;
-        })
         .mockReturnValueOnce([new Exchange()]);
       orderSvcMock.markAsFilled = jest.fn().mockImplementation((order: Order) => {
         order.status = OrderStatus.FILLED;
         return order;
       });
-      orderSvcMock.create = jest.fn().mockImplementation((order: Order) => order);
+      orderSvcMock.create = jest.fn().mockImplementationOnce((order: Order) => {
+        expect(order).toEqual(
+          new OrderBuilder()
+            .withAmount(50)
+            .withPrice({ value: 18615.939, type: PriceType.LIMIT })
+            .withStatus(OrderStatus.NEW)
+            .withPair({ token1: 'BTC', token2: 'USDT' })
+            .withSide(Side.BUY)
+            .withPlanId('planId')
+            .build(),
+        );
+        return order;
+      });
 
       const exchanges: Exchange[] = await syncOrderSvc.synchronize('planId');
       expect(exchanges).toHaveLength(1);
+      expect(orderSvcMock.create).toHaveBeenCalledTimes(1);
     });
   });
 });

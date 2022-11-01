@@ -1,7 +1,7 @@
 import { createCustomLogger, Method, ModuleCallerSvc } from '@app/core';
 import { Utils } from '@model/common';
 import { DiscordMessage, DiscordMessageType } from '@model/discord';
-import { Exchange, GetMatchingOrderRequest, GetOrdersRequest, PostOrderRequest } from '@model/network';
+import { Exchange, GetOrdersRequest, PostOrderRequest } from '@model/network';
 import { Order, OrderBuilder, OrderStatus, PriceType, Side } from '@model/order';
 import { Plan } from '@model/plan';
 import { Injectable } from '@nestjs/common';
@@ -31,32 +31,20 @@ export class SyncOrderSvc {
     const ordersCex: Order[] = await this.moduleCallerSvc.callNetworkModule(Method.POST, 'cex/orders', request);
     this.logger.verbose(`ordersCex: ${JSON.stringify(ordersCex)}`);
     this.syncOrderCheckSvc.checkOrders(ordersCex, ordersDb);
-    const desyncOrders: Order[] = getDesyncOrders(ordersDb, ordersCex);
-    if (desyncOrders.length === 0) {
+    const triggerredOrders: Order[] = getDesyncOrdersSorted(ordersDb, ordersCex);
+    if (triggerredOrders.length === 0) {
       this.logger.info(`DB and cex orders are synced`);
       this.postDiscordSyncMessage(plan);
       return [];
     }
-    this.logger.warn(`${desyncOrders.length} orders are not on cex, they has been triggered`);
-    const triggerMessage: DiscordMessage = { type: DiscordMessageType.TRIGGER, params: { orders: desyncOrders } };
+    this.logger.warn(`${triggerredOrders.length} orders are not on cex, they has been triggered`);
+    const triggerMessage: DiscordMessage = { type: DiscordMessageType.TRIGGER, params: { orders: triggerredOrders } };
     this.moduleCallerSvc.postMessageWithParamsOnDiscord(triggerMessage);
 
-    const desyncCexOrders: Order[] = [];
-    for (const desyncOrder of desyncOrders) {
-      const request: GetMatchingOrderRequest = this.createGetMatchingOrderRequest(desyncOrder, plan);
-      const orderCex: Order = await this.moduleCallerSvc.callNetworkModule(Method.POST, 'cex/order', request);
-      desyncCexOrders.push(orderCex);
+    for (const triggerredOrder of triggerredOrders) {
+      await this.orderSvc.markAsFilled(triggerredOrder);
     }
-
-    desyncCexOrders.sort((a, b) => new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime());
-
-    const lastUpdatedCexOrder: Order = desyncCexOrders[desyncCexOrders.length - 1];
-
-    for (const desyncOrder of desyncOrders) {
-      await this.orderSvc.markAsFilled(desyncOrder);
-    }
-
-    return await this.createOrdersAfterTrigger(lastUpdatedCexOrder, plan);
+    return await this.createOrdersAfterTrigger(triggerredOrders, plan);
   }
 
   private postDiscordSyncMessage(plan: Plan): void {
@@ -68,27 +56,28 @@ export class SyncOrderSvc {
     this.moduleCallerSvc.postMessageWithParamsOnDiscord(syncMessage);
   }
 
-  private async createOrdersAfterTrigger(lastUpdatedCexOrder: Order, plan: Plan): Promise<Exchange[]> {
+  private async createOrdersAfterTrigger(triggerredOrders: Order[], plan: Plan): Promise<Exchange[]> {
     const steps = plan.stepLevels;
     const ordersDb = await this.orderSvc.findByPlanId(plan._id, { status: OPEN_STATUS });
-    const side: Side = lastUpdatedCexOrder.side;
     const existingStep: number[] = ordersDb.map((order) => order.price.value);
-    const stepToCreate: number[] = steps.filter(
-      (step) => !existingStep.includes(step) && step !== lastUpdatedCexOrder.price.value,
-    );
+    const stepWithoutOrder: number[] = steps.filter((step) => !existingStep.includes(step));
     const ordersToCreate: Order[] = [];
-    for (const step of stepToCreate) {
-      const order: Order = new OrderBuilder()
-        .withPlanId(plan._id)
-        .withSide(side === Side.BUY ? Side.SELL : Side.BUY)
-        .withPrice({ value: step, type: PriceType.LIMIT })
-        .withStatus(OrderStatus.NEW)
-        .withAmount(plan.amountPerStep)
-        .withPair(plan.pair)
-        .build();
-      const orderDb: Order = await this.orderSvc.create(order);
-      ordersToCreate.push(orderDb);
+    this.logger.warn(`stepWithoutOrder: ${JSON.stringify(stepWithoutOrder)}`);
+    for (const order of triggerredOrders) {
+      let side;
+      let step;
+      if (order.side === Side.BUY) {
+        side = Side.SELL;
+        step = stepWithoutOrder[stepWithoutOrder.length - 1];
+        stepWithoutOrder.splice(stepWithoutOrder.length - 1, 1);
+      } else {
+        side = Side.BUY;
+        step = stepWithoutOrder[0];
+        stepWithoutOrder.splice(0, 1);
+      }
+      await this.createOrderDb(plan, side, step, ordersToCreate);
     }
+    this.logger.warn(`ordersToCreate: ${JSON.stringify(ordersToCreate)}`);
     const postOrderRequest: PostOrderRequest = {
       platform: plan.platform,
       orders: ordersToCreate,
@@ -105,6 +94,19 @@ export class SyncOrderSvc {
     return exchanges;
   }
 
+  private async createOrderDb(plan: Plan, side: Side, step: number, ordersToCreate: Order[]): Promise<void> {
+    const order: Order = new OrderBuilder()
+      .withPlanId(plan._id)
+      .withSide(side)
+      .withPrice({ value: step, type: PriceType.LIMIT })
+      .withStatus(OrderStatus.NEW)
+      .withAmount(plan.amountPerStep)
+      .withPair(plan.pair)
+      .build();
+    const orderDb: Order = await this.orderSvc.create(order);
+    ordersToCreate.push(orderDb);
+  }
+
   private createOrderRequestByPlan(planId: string, plan: any): GetOrdersRequest {
     return {
       planId,
@@ -113,19 +115,12 @@ export class SyncOrderSvc {
     };
   }
 
-  private createGetMatchingOrderRequest(order: Order, plan: Plan): GetMatchingOrderRequest {
-    return {
-      platform: plan.platform,
-      order,
-    };
-  }
-
   private async getPlan(planId: string): Promise<Plan> {
     return await this.moduleCallerSvc.callPlanModule(Method.GET, `plans/${planId}`, null);
   }
 }
 
-function getDesyncOrders(ordersDb: Order[], ordersCex: any): Order[] {
+function getDesyncOrdersSorted(ordersDb: Order[], ordersCex: Order[]): Order[] {
   const desyncOrders: Order[] = [];
   ordersDb.forEach((order: Order) => {
     const orderCex = ordersCex.find((orderCex: Order) => orderCex._id == order._id);
@@ -133,5 +128,5 @@ function getDesyncOrders(ordersDb: Order[], ordersCex: any): Order[] {
       desyncOrders.push(order);
     }
   });
-  return desyncOrders;
+  return desyncOrders.sort((a, b) => a.price.value - b.price.value);
 }
