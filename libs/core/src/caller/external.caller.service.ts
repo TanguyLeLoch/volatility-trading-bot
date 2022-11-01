@@ -58,13 +58,9 @@ export class ExternalCallerSvc {
     }
     try {
       this.logger.warn(error.response.data);
-      this.logger.warn(error.response.data.toString());
       this.logger.warn(JSON.stringify(error.response.data));
-
       this.logger.warn(error.response.status);
-
       this.logger.warn(error.response.headers);
-      this.logger.warn(error.response.headers.toString());
       this.logger.warn(JSON.stringify(error.response.headers));
     } catch (error: any) {
       this.logger.error('Failed to log error');

@@ -92,7 +92,8 @@ export class PlanSvc {
   }
 
   public static isClose(nextStep: number, step: number): boolean {
-    return Math.abs(step - nextStep) <= 0.001;
+    const diff = Math.abs(nextStep - step);
+    return diff / nextStep < 0.01;
   }
 
   public static recomputeStep(tokensLeft: number, plan: Plan): Array<number> {
@@ -116,7 +117,11 @@ export class PlanSvc {
     return PlanSvc.roundPrice(newStepLevels, 3);
   }
 
-  public static roundPrice(steps: number[], nbDecimal: number): number[] {
+  public static roundPrice(steps: number[], nbMaxDecimal: number): number[] {
+    const minStep = steps[0];
+    const nbFigure = Math.floor(Math.log10(minStep));
+
+    const nbDecimal = nbMaxDecimal - Math.floor(nbFigure / 2);
     return steps.map((step) => Math.round(step * Math.pow(10, nbDecimal)) / Math.pow(10, nbDecimal));
   }
 }
