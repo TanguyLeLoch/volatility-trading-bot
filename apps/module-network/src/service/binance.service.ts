@@ -14,10 +14,8 @@ export class BinanceSvc extends AbstractExchangeSvc {
   private static readonly headers =
     process.env.ENV === 'prod'
       ? { 'X-MBX-APIKEY': process.env.BINANCE_ACCESS_KEY }
-      : {
-          'X-MBX-APIKEY': 'test',
-          platform: 'BINANCE',
-        };
+      : { 'X-MBX-APIKEY': 'test', platform: 'BINANCE' };
+
   private static readonly platform: string = 'BINANCE';
 
   constructor(

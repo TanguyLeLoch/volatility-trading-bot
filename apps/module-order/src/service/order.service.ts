@@ -124,6 +124,12 @@ export class OrderSvc {
     return this.orderModel.findByIdAndDelete(id).exec();
   }
 
+  async cancel(id: string): Promise<Order> {
+    const orderToCancel: Order = await this.findById(id);
+    orderToCancel.status = OrderStatus.CANCELLED;
+    return this.modify(orderToCancel);
+  }
+
   async deleteAll(): Promise<void> {
     await this.orderModel.deleteMany({}).exec();
   }

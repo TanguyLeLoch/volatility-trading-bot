@@ -42,6 +42,12 @@ export class OrderController {
     return this.orderSvc.modify(order);
   }
 
+  @Put('orders/:id/cancel')
+  cancelOrder(@Param('id') id: string): Promise<Order> {
+    this.logger.info(`Canceling order ${id}`);
+    return this.orderSvc.cancel(id);
+  }
+
   @Post('orders')
   postOrder(@Body() order: Order): Promise<Order> {
     return this.orderSvc.create(order);
@@ -54,6 +60,7 @@ export class OrderController {
 
   @Delete('orders/:id')
   deleteOrder(@Param() { id }: { id: string }): Promise<Order> {
+    this.logger.info(`Deleting order ${id}`);
     return this.orderSvc.delete(id);
   }
 
