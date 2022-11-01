@@ -34,21 +34,22 @@ export abstract class AbstractExchangeSvc {
 
   abstract getPlatform(): string;
 
-  async getActiveOrders(pair: Pair): Promise<Array<Order>> {
+  async getActiveOrders(pair: Pair): Promise<Order[]> {
     const callbacks: ExternalCallback = new ExternalCallback(3);
     callbacks.addCallback(400, () => this.getActiveOrdersWithCallBack(pair, callbacks));
-    return await this.getActiveOrdersWithCallBack(pair, callbacks);
+    const cexOrders: CexOrder[] = await this.getActiveOrdersWithCallBack(pair, callbacks);
+    return cexOrders.map((cexOrder) => cexOrderToOrder(cexOrder, pair));
   }
 
-  async getActiveOrdersWithCallBack(pair: Pair, callbacks: ExternalCallback): Promise<Array<Order>> {
+  async getActiveOrdersWithCallBack(pair: Pair, callbacks: ExternalCallback): Promise<CexOrder[]> {
     const url = this.getBaseUrl() + '/api/v3/openOrders';
     const params: Map<string, string> = new Map();
     params.set('symbol', pair.token1 + pair.token2);
     params.set('timestamp', String(Date.now()));
     const fullUrl = this.signUrl(url, params);
     this.logger.verbose(`Sending request to ${fullUrl}`);
-    const cexOrders: CexOrder[] = await this.send(Method.GET, fullUrl, callbacks);
-    return cexOrders.map((cexOrder) => cexOrderToOrder(cexOrder, pair));
+    return await this.send(Method.GET, fullUrl, callbacks);
+    // return cexOrders.map((cexOrder) => cexOrderToOrder(cexOrder, pair));
   }
 
   async getOrderById(orderDb: Order): Promise<Order> {
@@ -220,7 +221,7 @@ export abstract class AbstractExchangeSvc {
 
   async send(method: Method, url: string, callbacks?: ExternalCallback): Promise<any> {
     const headers = this.getHeaders();
-    const { data } = await this.externalCallerSvc.callExternal(method, url, undefined, headers, callbacks);
+    const data = await this.externalCallerSvc.callExternal(method, url, undefined, headers, callbacks);
     this.logger.verbose(`Response data: ${JSON.stringify(data)}`);
     return data;
   }

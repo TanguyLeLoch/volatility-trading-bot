@@ -32,7 +32,7 @@ describe('ExternalCallerSvc', () => {
       service.callOnce = jest
         .fn()
         .mockImplementationOnce(() => throwErrorAtStatus(400))
-        .mockReturnValue({ myObject: 'myObject' });
+        .mockReturnValue({ data: { myObject: 'myObject' } });
       const callbacks = new ExternalCallback(3);
       callbacks.addCallback(
         400,

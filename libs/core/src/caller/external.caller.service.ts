@@ -23,7 +23,8 @@ export class ExternalCallerSvc {
     this.logger.debug(`${method} on url ${url} with body: ${JSON.stringify(body)}`);
     let response: any;
     try {
-      response = await this.callOnce(method, url, body, headers);
+      const res = await this.callOnce(method, url, body, headers);
+      response = res.data;
     } catch (error: any) {
       this.logger.warn(`Failed to call once url : ${url}`);
       this.logError(error);
@@ -31,7 +32,7 @@ export class ExternalCallerSvc {
       if (status !== undefined && callbacks !== undefined) {
         this.logger.debug(`Calling callback for status ${status}`);
         await Utils.sleep(3000);
-        response = callbacks.call(status);
+        response = await callbacks.call(status);
       } else {
         throw error;
       }
