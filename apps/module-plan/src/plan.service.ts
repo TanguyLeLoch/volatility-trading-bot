@@ -60,6 +60,10 @@ export class PlanSvc {
     await this.planModel.deleteMany({}).exec();
   }
 
+  async deleteById(id: string): Promise<Plan> {
+    return this.planModel.findByIdAndDelete(id).exec();
+  }
+
   async processRequest(request: GridRequest): Promise<any> {
     switch (request.name) {
       case 'recomputeStep':
@@ -87,7 +91,7 @@ export class PlanSvc {
     return await this.modify(plan);
   }
 
-  public static isClose(nextStep: number, step: number) {
+  public static isClose(nextStep: number, step: number): boolean {
     return Math.abs(step - nextStep) <= 0.001;
   }
 
