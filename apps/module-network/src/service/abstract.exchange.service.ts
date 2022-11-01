@@ -34,6 +34,10 @@ export abstract class AbstractExchangeSvc {
 
   abstract getPlatform(): string;
 
+  getOtherMandatoryLimitPriceOrderParams(): Map<string, string> {
+    return new Map();
+  }
+
   async getActiveOrders(pair: Pair): Promise<Order[]> {
     const callbacks: ExternalCallback = new ExternalCallback(3);
     callbacks.addCallback(400, () => this.getActiveOrdersWithCallBack(pair, callbacks));
@@ -126,6 +130,9 @@ export abstract class AbstractExchangeSvc {
         }
       }
     } else {
+      for (const [key, value] of this.getOtherMandatoryLimitPriceOrderParams()) {
+        params.set(key, value);
+      }
       params.set('type', order.price.type);
       const orderPriceValue: number | undefined = order.price.value;
       if (orderPriceValue === undefined) {

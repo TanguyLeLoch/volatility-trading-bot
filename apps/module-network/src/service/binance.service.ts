@@ -40,4 +40,11 @@ export class BinanceSvc extends AbstractExchangeSvc {
   getPlatform(): string {
     return BinanceSvc.platform;
   }
+
+  //Overriding the abstract method
+  getOtherMandatoryLimitPriceOrderParams(): Map<string, string> {
+    const mandatoryParams = new Map<string, string>();
+    mandatoryParams.set('timeInForce', 'GTC');
+    return mandatoryParams;
+  }
 }
