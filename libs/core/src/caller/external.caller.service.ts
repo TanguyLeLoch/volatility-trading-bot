@@ -53,12 +53,15 @@ export class ExternalCallerSvc {
     let message: string;
     try {
       message = JSON.stringify(error);
-
-      this.logger.error(error);
-      this.logger.error(JSON.stringify(error.response));
-      this.logger.error(JSON.stringify(error.response?.data));
     } catch (parsingError: any) {
       message = error;
+    }
+    try {
+      this.logger.warn(error.response.data);
+      this.logger.warn(error.response.status);
+      this.logger.warn(error.response.headers);
+    } catch (error: any) {
+      this.logger.error('Failed to log error');
     }
     this.logger.error(message);
   }
