@@ -34,6 +34,12 @@ export abstract class AbstractExchangeSvc {
 
   abstract getPlatform(): string;
 
+  async getActiveOrders(pair: Pair): Promise<Array<Order>> {
+    const callbacks: ExternalCallback = new ExternalCallback(3);
+    callbacks.addCallback(400, () => this.getActiveOrdersWithCallBack(pair, callbacks));
+    return await this.getActiveOrdersWithCallBack(pair, callbacks);
+  }
+
   async getActiveOrdersWithCallBack(pair: Pair, callbacks: ExternalCallback): Promise<Array<Order>> {
     const url = this.getBaseUrl() + '/api/v3/openOrders';
     const params: Map<string, string> = new Map();
@@ -43,12 +49,6 @@ export abstract class AbstractExchangeSvc {
     this.logger.verbose(`Sending request to ${fullUrl}`);
     const cexOrders: CexOrder[] = await this.send(Method.GET, fullUrl, callbacks);
     return cexOrders.map((cexOrder) => cexOrderToOrder(cexOrder, pair));
-  }
-
-  async getActiveOrders(pair: Pair): Promise<Array<Order>> {
-    const callbacks: ExternalCallback = new ExternalCallback(3);
-    callbacks.addCallback(400, () => this.getActiveOrdersWithCallBack(pair, callbacks));
-    return await this.getActiveOrdersWithCallBack(pair, callbacks);
   }
 
   async getOrderById(orderDb: Order): Promise<Order> {

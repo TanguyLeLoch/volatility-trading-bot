@@ -2,7 +2,7 @@ import { createCustomLogger, ExternalCallerSvc } from '@app/core';
 import { Injectable } from '@nestjs/common';
 import winston from 'winston';
 import { moduleName } from '../module.info';
-import { AbstractExchangeSvc } from './AbstractExchangeSvc';
+import { AbstractExchangeSvc } from './abstract.exchange.service';
 import { ExchangeSvc } from './exchange.service';
 
 @Injectable()
