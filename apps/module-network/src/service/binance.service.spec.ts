@@ -24,4 +24,15 @@ describe('test binance class', () => {
 
     expect(orders).toEqual(dumbOrderCexMapped());
   });
+
+  it('should not retry  after a 500 error', async () => {
+    httpServiceMock.axiosRef = jest.fn().mockImplementationOnce(() => throwErrorAtStatus(500));
+    await expect(
+      async () =>
+        await binanceSvc.getActiveOrders({
+          token1: 'BTC',
+          token2: 'BUSD',
+        }),
+    ).rejects.toThrow('500_NOT_RETRYABLE');
+  });
 });
