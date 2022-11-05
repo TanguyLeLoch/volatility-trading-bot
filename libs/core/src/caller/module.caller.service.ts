@@ -4,7 +4,7 @@ import { Injectable } from '@nestjs/common';
 import winston from 'winston';
 import { createCustomLogger } from '../logger';
 import { Method } from '../method';
-import { apiKeyMiddlewareheader } from '../middleware/api.middleware';
+import { apiKeyMiddlewareHeader } from '../middleware/api.middleware';
 import { getModuleName, ports } from '../module.ports';
 import { DiscordMessage } from '@model/discord';
 
@@ -64,7 +64,7 @@ export class ModuleCallerSvc {
 
   async callOnce(method: Method, url: string, body?: object): Promise<any> {
     const headers = {} as any;
-    headers[apiKeyMiddlewareheader] = process.env.API_KEY_GRID_TRADING;
+    headers[apiKeyMiddlewareHeader] = process.env.API_KEY_GRID_TRADING;
     return this.httpService.axiosRef({
       method,
       url,
