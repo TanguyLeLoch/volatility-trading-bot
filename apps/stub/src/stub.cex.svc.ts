@@ -11,6 +11,7 @@ import { Price } from '@model/common';
 const mapPair = {
   AZEROUSDT: ['AZERO', 'USDT'],
   BTCBUSD: ['BTC', 'BUSD'],
+  ETHBUSD: ['ETH', 'BUSD'],
 };
 
 @Injectable()
@@ -182,6 +183,9 @@ export class StubCexSvc {
     switch (symbol) {
       case 'BTCBUSD':
         price = 18900;
+        break;
+      case 'ETHBUSD':
+        price = 1300;
         break;
       case 'AZEROUSDT':
         price = 1.2;
