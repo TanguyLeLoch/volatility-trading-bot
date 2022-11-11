@@ -18,7 +18,7 @@ import { SynchronizeSvc } from './service/synchronize.service';
   providers: [BalanceSvc, SynchronizeSvc],
 })
 export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
+  configure(consumer: MiddlewareConsumer): void {
     consumer.apply(ApiMiddleware).forRoutes({
       path: '*',
       method: RequestMethod.ALL,

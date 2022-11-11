@@ -10,6 +10,7 @@ export const ports: Ports = {
   plan: 43005,
   async: 43006,
   discord: 43007,
+  customer: 43008,
 };
 
 let moduleName = '';
