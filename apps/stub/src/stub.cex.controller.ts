@@ -1,4 +1,4 @@
-import { Price } from '@model/common';
+import { Platform, Price } from '@model/common';
 import { PriceType, Side } from '@model/order';
 import { Controller, Delete, Get, Headers, Param, Post, Query } from '@nestjs/common';
 import { StubCexSvc } from './stub.cex.svc';
@@ -37,42 +37,11 @@ export class StubCexController {
   }
 
   @Get('api/v3/exchangeInfo?')
-  getInfo(@Query('symbol') symbol: string): CexSymbolInfoResponse {
-    this.logger.debug(`get info for ${symbol}`);
-    const symbolInfos: CexSymbolInfoResponse = {
-      timezone: 'CST',
-      serverTime: 1660751941000,
-      rateLimits: [],
-      exchangeFilters: [],
-      symbols: [
-        {
-          symbol,
-          status: 'ENABLED',
-          baseAsset: 'AZERO',
-          baseAssetPrecision: 2,
-          quoteAsset: 'USDT',
-          quotePrecision: 4,
-          quoteAssetPrecision: 4,
-          baseCommissionPrecision: 2,
-          quoteCommissionPrecision: 4,
-          orderTypes: ['LIMIT', 'LIMIT_MAKER'],
-          quoteOrderQtyMarketAllowed: false,
-          isSpotTradingAllowed: true,
-          isMarginTradingAllowed: true,
-          quoteAmountPrecision: '5',
-          baseSizePrecision: '0.01',
-          permissions: ['SPOT', 'MARGIN'],
-          filters: [],
-          maxQuoteAmount: '5000000',
-          makerCommission: '0.002',
-          takerCommission: '0.002',
-        },
-      ],
-    };
-    if (symbol !== 'AZEROUSDT') {
-      symbolInfos.symbols[0].orderTypes.push('MARKET');
-    }
-    return symbolInfos;
+  async getInfo(
+    @Query('symbol') symbol: string,
+    @Headers('platform') platform: Platform,
+  ): Promise<CexSymbolInfoResponse> {
+    return this.stubMexcSvc.getInfo(symbol, platform);
   }
 
   @Post('api/v3/order/test?')

@@ -6,6 +6,7 @@ import { ExchangeSvc } from '../service/exchange.service';
 import { MexcSvc } from '../service/mexc.service';
 import { CexController } from './cex.controller';
 import { BinanceSvc } from '../service/binance.service';
+import { PairInfoRepository } from '../PairInfo/pair.info.repository';
 
 describe('CexController', () => {
   let cexController: CexController;
@@ -16,6 +17,7 @@ describe('CexController', () => {
       };
     }),
   };
+  const pairInfoMockRepository = {} as any;
   beforeEach(async () => {
     const app: TestingModule = await Test.createTestingModule({
       imports: [CallerModule],
@@ -28,6 +30,11 @@ describe('CexController', () => {
         {
           provide: getModelToken('Exchange'),
           useValue: exchangeMockRepository,
+        },
+        PairInfoRepository,
+        {
+          provide: getModelToken('PairInfo'),
+          useValue: pairInfoMockRepository,
         },
       ],
     }).compile();

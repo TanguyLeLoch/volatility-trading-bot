@@ -4,6 +4,8 @@ import winston from 'winston';
 import { moduleName } from '../module.info';
 import { AbstractExchangeSvc } from './abstract.exchange.service';
 import { ExchangeSvc } from './exchange.service';
+import { Platform } from '@model/common';
+import { PairInfoRepository } from '../PairInfo/pair.info.repository';
 
 @Injectable()
 export class MexcSvc extends AbstractExchangeSvc {
@@ -14,17 +16,15 @@ export class MexcSvc extends AbstractExchangeSvc {
   private static readonly headers =
     process.env.ENV === 'prod'
       ? { 'X-MEXC-APIKEY': process.env.MEXC_ACCESS_KEY }
-      : {
-          'X-MBX-APIKEY': 'test',
-          platform: 'MEXC',
-        };
-  private static readonly platform: string = 'BINANCE';
+      : { 'X-MBX-APIKEY': 'test', platform: 'MEXC' };
+  private static readonly platform: Platform = 'MEXC';
 
   constructor(
-    private readonly externalCallerSvcBinance: ExternalCallerSvc,
-    private readonly exchangeSvcBinance: ExchangeSvc,
+    private readonly externalCallerSvcMexc: ExternalCallerSvc,
+    private readonly exchangeSvcMexc: ExchangeSvc,
+    private readonly pairInfoRepositoryMexc: PairInfoRepository,
   ) {
-    super(externalCallerSvcBinance, exchangeSvcBinance);
+    super(externalCallerSvcMexc, exchangeSvcMexc, pairInfoRepositoryMexc);
   }
 
   getHeaders(): object {
@@ -39,7 +39,7 @@ export class MexcSvc extends AbstractExchangeSvc {
     return MexcSvc.baseUrl;
   }
 
-  getPlatform(): string {
+  getPlatform(): Platform {
     return MexcSvc.platform;
   }
 }
