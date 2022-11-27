@@ -5,12 +5,14 @@ import { Order } from '@model/order';
 import { dumbOrderCexMapped, dumbOrdersCex, throwErrorAtStatus } from '../../test/testHelper';
 import { CexOrder } from '@model/network';
 import { Utils } from '@model/common';
+import { PairInfoRepository } from '../PairInfo/pair.info.repository';
 
 describe('test binance class', () => {
   const exchangeSvcMock: ExchangeSvc = {} as ExchangeSvc;
   const httpServiceMock: any = {} as any;
   const externalCallerSvc: ExternalCallerSvc = new ExternalCallerSvc(httpServiceMock);
-  const binanceSvc = new BinanceSvc(externalCallerSvc, exchangeSvcMock);
+  const pairInfoRepositoryMock: PairInfoRepository = {} as any;
+  const binanceSvc = new BinanceSvc(externalCallerSvc, exchangeSvcMock, pairInfoRepositoryMock);
   Utils.sleep = jest.fn(() => Promise.resolve());
 
   it('should be able retry after a 400 error', async () => {

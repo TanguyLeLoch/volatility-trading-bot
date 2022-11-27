@@ -191,7 +191,7 @@ function createFirstMarketOrder(plan: Plan): Order {
   return order;
 }
 
-function createOrder(plan: Plan, stepLevel: number, currentprice: number, firstMarketOrder: Order): Order {
+function createOrder(plan: Plan, stepLevel: number, currentPrice: number, firstMarketOrder: Order): Order {
   const order = new Order();
   order.planId = plan._id;
   order.pair = plan.pair;
@@ -201,7 +201,7 @@ function createOrder(plan: Plan, stepLevel: number, currentprice: number, firstM
   price.value = stepLevel;
   order.price = price;
   order.amount = plan.amountPerStep;
-  if (order.price.value > currentprice) {
+  if (order.price.value > currentPrice) {
     order.side = Side.SELL;
     firstMarketOrder.amount += order.amount;
   } else {

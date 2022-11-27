@@ -15,7 +15,7 @@ export class DiscordService implements OnApplicationBootstrap {
   constructor(private readonly moduleCallerSvc: ModuleCallerSvc) {}
 
   onApplicationBootstrap(): void {
-    this.client = new Discord.Client({ intents: ['GUILDS', 'GUILD_MESSAGES'] });
+    this.client = new Discord.Client({ intents: ['GUILDS', 'GUILD_MESSAGES'], restRequestTimeout: 60000 });
 
     this.client.on('ready', () => {
       this.logger.info(`Logged in as ${this.client.user.tag}!`);
