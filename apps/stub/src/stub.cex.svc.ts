@@ -1,12 +1,12 @@
-import { createCustomLogger, Method, ModuleCallerSvc } from '@app/core';
+import { createCustomLogger, ExternalCallerSvc, Method, ModuleCallerSvc } from '@app/core';
 import { Order, OrderStatus, PriceType, Side } from '@model/order';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { moduleName } from './module.info';
-import { CexBalance, CexOrder } from '@model/network';
+import { CexBalance, CexOrder, CexSymbolInfoResponse } from '@model/network';
 import { Plan } from '@model/plan';
-import { Price } from '@model/common';
+import { Platform, Price } from '@model/common';
 
 const mapPair = {
   AZEROUSDT: ['AZERO', 'USDT'],
@@ -22,6 +22,7 @@ export class StubCexSvc {
     @InjectModel('CexOrder') private readonly cexOrderModel: Model<CexOrder>,
     @InjectModel('CexBalance') private readonly cexBalanceModel: Model<CexBalance>,
     private readonly moduleCallerSvc: ModuleCallerSvc,
+    private readonly externalCallerSvc: ExternalCallerSvc,
   ) {}
 
   async getOpenOrders(symbol: string): Promise<CexOrder[]> {
@@ -127,6 +128,24 @@ export class StubCexSvc {
     );
     const plan: Plan = await this.moduleCallerSvc.callPlanModule(Method.GET, `plans/${order.planId}`, null);
     return plan.platform;
+  }
+
+  async getInfo(symbol: string, platform: Platform): Promise<CexSymbolInfoResponse> {
+    let symbolInfoResponse: CexSymbolInfoResponse;
+    if (platform === 'BINANCE') {
+      symbolInfoResponse = await this.externalCallerSvc.callExternal(
+        Method.GET,
+        `https://api.binance.com/api/v3/exchangeInfo?symbol=${symbol}`,
+      );
+    } else if (platform === 'MEXC') {
+      symbolInfoResponse = await this.externalCallerSvc.callExternal(
+        Method.GET,
+        `https://api.mexc.com/api/v3/exchangeInfo?symbol=${symbol}`,
+      );
+    } else {
+      throw new Error('Platform not supported');
+    }
+    return symbolInfoResponse;
   }
 
   async getBalance(asset: string, platform: string): Promise<CexBalance> {

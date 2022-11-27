@@ -3,3 +3,4 @@ export * from './pair';
 export * from './price';
 export * from './grid.request';
 export * from './utils';
+export * from './enums';

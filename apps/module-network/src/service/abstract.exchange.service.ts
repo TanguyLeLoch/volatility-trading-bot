@@ -1,5 +1,5 @@
 import { Balance } from '@model/balance';
-import { Pair, Price, Utils } from '@model/common';
+import { Pair, Platform, Price, Utils } from '@model/common';
 import {
   CexAccountInformation,
   CexBalance,
@@ -17,6 +17,9 @@ import winston from 'winston';
 import * as CryptoJS from 'crypto-js';
 import { moduleName } from '../module.info';
 import { ExternalCallback } from '@app/core/caller/external.callback';
+import { PairInfo } from '../PairInfo/pair.info';
+import { PairInfoRepository } from '../PairInfo/pair.info.repository';
+import { PairInfoMapper } from '../PairInfo/pair.info.mapper';
 
 export abstract class AbstractExchangeSvc {
   private readonly logger: winston.Logger = createCustomLogger(moduleName, AbstractExchangeSvc.name);
@@ -24,6 +27,7 @@ export abstract class AbstractExchangeSvc {
   protected constructor(
     private readonly externalCallerSvc: ExternalCallerSvc,
     private readonly exchangeSvc: ExchangeSvc,
+    private readonly pairInfoRepository: PairInfoRepository,
   ) {}
 
   abstract getHeaders(): object;
@@ -32,7 +36,7 @@ export abstract class AbstractExchangeSvc {
 
   abstract getBaseUrl(): string;
 
-  abstract getPlatform(): string;
+  abstract getPlatform(): Platform;
 
   getOtherMandatoryLimitPriceOrderParams(): Map<string, string> {
     return new Map();
@@ -114,8 +118,10 @@ export abstract class AbstractExchangeSvc {
     params.set('symbol', order.pair.token1 + order.pair.token2);
     params.set('side', order.side);
     let needToWait = false;
+    const pairInfo: PairInfo = await this.getPairInfo(order.pair);
+
     if (order.price.type === PriceType.MARKET) {
-      if (await this.isTokenAvailableToMarketOrder(order.pair)) {
+      if (pairInfo.isMarketTypeSupported()) {
         this.logger.info(`Token ${order.pair.token1} is available to market order`);
         params.set('type', PriceType.MARKET);
         params.set('quoteOrderQty', String(order.amount));
@@ -124,7 +130,7 @@ export abstract class AbstractExchangeSvc {
         needToWait = true;
         params.set('type', PriceType.LIMIT);
         const { price: currentPrice } = await this.getPrice(order.pair);
-        AbstractExchangeSvc.setPriceForLimitOrder(params, currentPrice * 1.01, order.amount);
+        AbstractExchangeSvc.setPriceForLimitOrder(params, currentPrice * 1.01, order.amount, pairInfo);
         if (process.env.ENV !== 'prod') {
           params.set('isMarket', 'true');
         }
@@ -139,16 +145,18 @@ export abstract class AbstractExchangeSvc {
         throw new Error('Price value is undefined');
       }
       params.set('price', String(order.price.value));
-      params.set('quantity', String(Math.round((1000000 * order.amount) / orderPriceValue) / 1000000));
-      AbstractExchangeSvc.setPriceForLimitOrder(params, orderPriceValue, order.amount);
+
+      AbstractExchangeSvc.setPriceForLimitOrder(params, orderPriceValue, order.amount, pairInfo);
     }
     params.set('newClientOrderId', <string>order._id);
     params.set('timestamp', String(Date.now()));
+    console.log('params', params);
     const fullUrl = this.signUrl(url, params);
     const exchange = new Exchange();
     exchange.status = ExchangeStatus.PENDING;
     exchange.date = new Date();
     exchange.url = fullUrl;
+    console.log('fullUrl', fullUrl);
 
     // save exchange before sending order
     const createdExchange = await this.exchangeSvc.create(exchange);
@@ -196,7 +204,18 @@ export abstract class AbstractExchangeSvc {
     return orderCex;
   }
 
-  async isTokenAvailableToMarketOrder(pair: Pair): Promise<boolean> {
+  public async getPairInfo(pair: Pair): Promise<PairInfo> {
+    let pairInfo = await this.pairInfoRepository.find(pair, this.getPlatform());
+    if (!(pairInfo === null || pairInfo.isExpired())) {
+      return pairInfo;
+    }
+    this.logger.info(`PairInfo for ${pair} on ${this.getPlatform()} is ${pairInfo === null ? 'null' : 'expired'}`);
+    pairInfo = await this.callExternalPairInfo(pair);
+    pairInfo = await this.pairInfoRepository.save(pairInfo);
+    return pairInfo;
+  }
+
+  private async callExternalPairInfo(pair: Pair): Promise<PairInfo> {
     const url = this.getBaseUrl() + '/api/v3/exchangeInfo';
     const params: Map<string, string> = new Map();
     params.set('symbol', pair.token1 + pair.token2);
@@ -204,11 +223,7 @@ export abstract class AbstractExchangeSvc {
       Method.GET,
       AbstractExchangeSvc.addParameters(url, params),
     );
-    const symbol = symbolInfo.symbols.find((symb) => symb.symbol === pair.token1 + pair.token2);
-    if (symbol === undefined) {
-      throw new Error(`Symbol ${pair.token1 + pair.token2} not found`);
-    }
-    return undefined !== symbol.orderTypes.find((orderType) => orderType === PriceType.MARKET);
+    return PairInfoMapper.toPairInfoFromCex(symbolInfo, this.getPlatform());
   }
 
   static getParamsAsString(params: Map<string, string>): string {
@@ -229,7 +244,7 @@ export abstract class AbstractExchangeSvc {
   async send(method: Method, url: string, callbacks?: ExternalCallback): Promise<any> {
     const headers = this.getHeaders();
     const data = await this.externalCallerSvc.callExternal(method, url, undefined, headers, callbacks);
-    this.logger.verbose(`Response data: ${JSON.stringify(data)}`);
+    this.logger.debug(`Response data: ${JSON.stringify(data)}`);
     return data;
   }
 
@@ -256,8 +271,14 @@ export abstract class AbstractExchangeSvc {
     return signature.toString();
   }
 
-  private static setPriceForLimitOrder(params: Map<string, string>, price: number, amount: number): void {
+  private static setPriceForLimitOrder(
+    params: Map<string, string>,
+    price: number,
+    amount: number,
+    pairInfo: PairInfo,
+  ): void {
     params.set('price', String(price));
-    params.set('quantity', String(Utils.roundAmount(amount / price, 5)));
+    const quantity = Math.round(amount / pairInfo.StepSize / price) / Math.round(1 / pairInfo.StepSize);
+    params.set('quantity', quantity.toString());
   }
 }

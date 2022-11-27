@@ -4,6 +4,8 @@ import winston from 'winston';
 import { moduleName } from '../module.info';
 import { AbstractExchangeSvc } from './abstract.exchange.service';
 import { ExchangeSvc } from './exchange.service';
+import { Platform } from '@model/common';
+import { PairInfoRepository } from '../PairInfo/pair.info.repository';
 
 @Injectable()
 export class BinanceSvc extends AbstractExchangeSvc {
@@ -16,13 +18,14 @@ export class BinanceSvc extends AbstractExchangeSvc {
       ? { 'X-MBX-APIKEY': process.env.BINANCE_ACCESS_KEY }
       : { 'X-MBX-APIKEY': 'test', platform: 'BINANCE' };
 
-  private static readonly platform: string = 'BINANCE';
+  private static readonly platform: Platform = 'BINANCE';
 
   constructor(
     private readonly externalCallerSvcBinance: ExternalCallerSvc,
     private readonly exchangeSvcBinance: ExchangeSvc,
+    private readonly pairInfoRepositoryBinance: PairInfoRepository,
   ) {
-    super(externalCallerSvcBinance, exchangeSvcBinance);
+    super(externalCallerSvcBinance, exchangeSvcBinance, pairInfoRepositoryBinance);
   }
 
   getHeaders(): object {
@@ -37,7 +40,7 @@ export class BinanceSvc extends AbstractExchangeSvc {
     return BinanceSvc.baseUrl;
   }
 
-  getPlatform(): string {
+  getPlatform(): Platform {
     return BinanceSvc.platform;
   }
 
