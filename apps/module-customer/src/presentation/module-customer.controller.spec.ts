@@ -1,6 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ModuleCustomerController } from './module-customer.controller';
-import { ModuleCustomerService } from './module-customer.service';
 
 describe('ModuleCustomerController', () => {
   let moduleCustomerController: ModuleCustomerController;
@@ -8,15 +7,15 @@ describe('ModuleCustomerController', () => {
   beforeEach(async () => {
     const app: TestingModule = await Test.createTestingModule({
       controllers: [ModuleCustomerController],
-      providers: [ModuleCustomerService],
+      providers: [],
     }).compile();
 
     moduleCustomerController = app.get<ModuleCustomerController>(ModuleCustomerController);
   });
 
   describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(moduleCustomerController.getHello()).toBe('Hello World!');
+    it('should be defined', () => {
+      expect(moduleCustomerController).toBeDefined();
     });
   });
 });
