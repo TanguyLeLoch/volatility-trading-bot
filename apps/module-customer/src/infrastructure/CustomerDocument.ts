@@ -1,6 +1,10 @@
-export class Customer {
+import { Schema } from '@nestjs/mongoose';
+
+@Schema({ timestamps: true })
+export class CustomerDocument {
   private readonly name: string;
   private readonly email: string;
+
   private readonly hashPassword: string;
 
   get Name(): string {
@@ -9,10 +13,6 @@ export class Customer {
 
   get Email(): string {
     return this.email;
-  }
-
-  get HashPassword(): string {
-    return this.hashPassword;
   }
 
   constructor(name: string, email: string, hashPassword: string) {
