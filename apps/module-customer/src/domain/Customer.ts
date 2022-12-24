@@ -1,19 +1,23 @@
-import { GridCredential } from './GridCredential';
-
 export class Customer {
-  id: number;
-  name: string;
-  email: string;
-  credentials: GridCredential[];
+  private readonly id: string;
+  private readonly name: string;
+  private readonly email: string;
 
-  constructor(id: number, name: string, email: string) {
+  get Id(): string {
+    return this.id;
+  }
+
+  get Name(): string {
+    return this.name;
+  }
+
+  get Email(): string {
+    return this.email;
+  }
+
+  constructor(id: string, name: string, email: string) {
     this.id = id;
     this.name = name;
     this.email = email;
-    this.credentials = [];
-  }
-
-  addCredential(credential: GridCredential): void {
-    this.credentials.push(credential);
   }
 }
