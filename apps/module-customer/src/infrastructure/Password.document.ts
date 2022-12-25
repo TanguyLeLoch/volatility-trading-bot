@@ -1,18 +1,12 @@
-import { Schema } from '@nestjs/mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Password } from '../domain/Password';
 
 @Schema({ timestamps: true })
 export class PasswordDocument {
-  private readonly customerId: string;
-  private readonly hashPassword: string;
-
-  get CustomerId(): string {
-    return this.customerId;
-  }
-
-  get HashPassword(): string {
-    return this.hashPassword;
-  }
+  @Prop({ required: true })
+  public readonly customerId: string;
+  @Prop({ required: true })
+  public readonly hashPassword: string;
 
   constructor(customerId: string, hashPassword: string) {
     this.customerId = customerId;
@@ -27,3 +21,5 @@ export class PasswordDocument {
     return new Password(this.customerId, this.hashPassword);
   }
 }
+
+export const PasswordSchema = SchemaFactory.createForClass(PasswordDocument);

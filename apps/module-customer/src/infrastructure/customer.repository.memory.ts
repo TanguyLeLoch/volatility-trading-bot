@@ -7,7 +7,7 @@ export class CustomerRepositoryMemory implements CustomerRepository {
 
   async save(customer: Customer): Promise<void> {
     const customerDocument: CustomerDocument = CustomerDocument.fromCustomer(customer);
-    CustomerRepositoryMemory.customers.set(customerDocument.Id, customerDocument);
+    CustomerRepositoryMemory.customers.set(customerDocument.id, customerDocument);
   }
 
   async get(id: string): Promise<Customer | null> {

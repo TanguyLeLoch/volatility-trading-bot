@@ -1,3 +1,3 @@
 export class CustomerResponse {
-  constructor(public Id: string, public Name: string, public Email: string) {}
+  constructor(public id: string, public name: string, public email: string) {}
 }

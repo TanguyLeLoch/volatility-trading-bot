@@ -1,11 +1,10 @@
 import { PasswordDocument } from './Password.document';
 import { PasswordRepository } from './Password.repository';
 import { Password } from '../domain/Password';
-import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
-export class PasswordRepositoryMemory implements PasswordRepository {
-  constructor(@InjectModel('Password') private readonly passwordModel: Model<PasswordDocument>) {}
+export class PasswordRepositoryMongo implements PasswordRepository {
+  constructor(private readonly passwordModel: Model<PasswordDocument>) {}
 
   async save(password: Password): Promise<void> {
     const passwordDocument: PasswordDocument = PasswordDocument.fromDomain(password);

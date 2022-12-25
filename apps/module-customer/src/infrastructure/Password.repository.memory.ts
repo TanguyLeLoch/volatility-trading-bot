@@ -7,7 +7,7 @@ export class PasswordRepositoryMemory implements PasswordRepository {
 
   async save(password: Password): Promise<void> {
     const passwordDocument: PasswordDocument = PasswordDocument.fromDomain(password);
-    PasswordRepositoryMemory.passwords.set(passwordDocument.CustomerId, passwordDocument);
+    PasswordRepositoryMemory.passwords.set(passwordDocument.customerId, passwordDocument);
   }
 
   async get(customerId: string): Promise<Password | null> {

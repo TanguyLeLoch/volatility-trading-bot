@@ -4,19 +4,19 @@ import { Customer } from '../domain/Customer';
 export class CustomerResource {
   constructor(private readonly customer: Customer) {}
 
-  get Id(): string {
-    return this.customer.Id;
+  get id(): string {
+    return this.customer.id;
   }
 
-  get Name(): string {
-    return this.customer.Name;
+  get name(): string {
+    return this.customer.name;
   }
 
-  get Email(): string {
-    return this.customer.Email;
+  get email(): string {
+    return this.customer.email;
   }
 
   toResponse(): CustomerResponse {
-    return new CustomerResponse(this.customer.Id, this.customer.Name, this.customer.Email);
+    return new CustomerResponse(this.customer.id, this.customer.name, this.customer.email);
   }
 }

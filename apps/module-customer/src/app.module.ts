@@ -4,14 +4,16 @@ import { ApiMiddleware } from '@app/core';
 import { PasswordHasherService } from './application/Password.hasher.service';
 import { CustomerService } from './application/Customer.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import { CustomerDocument } from './infrastructure/CustomerDocument';
-import { PasswordDocument } from './infrastructure/Password.document';
+import { CustomerSchema } from './infrastructure/CustomerDocument';
+import { PasswordSchema } from './infrastructure/Password.document';
 
 @Module({
   imports: [
     MongooseModule.forRoot('mongodb://localhost/grid-trading-bot'),
-    MongooseModule.forFeature([{ name: 'Customer', schema: CustomerDocument }], 'customers'),
-    MongooseModule.forFeature([{ name: 'Password', schema: PasswordDocument }], 'passwords'),
+    MongooseModule.forFeature([
+      { name: 'Customer', schema: CustomerSchema },
+      { name: 'Password', schema: PasswordSchema },
+    ]),
   ],
   controllers: [CustomerController],
   providers: [CustomerService, PasswordHasherService],

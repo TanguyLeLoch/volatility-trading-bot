@@ -1,22 +1,21 @@
-import { Schema } from '@nestjs/mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Customer } from '../domain/Customer';
+import mongoose from 'mongoose';
 
 @Schema({ timestamps: true })
 export class CustomerDocument {
+  @Prop({
+    type: mongoose.Types.ObjectId,
+    required: true,
+  })
   private readonly _id: string;
-  private readonly name: string;
-  private readonly email: string;
+  @Prop({ required: true })
+  public readonly name: string;
+  @Prop({ required: true })
+  public readonly email: string;
 
-  get Id(): string {
+  get id(): string {
     return this._id;
-  }
-
-  get Name(): string {
-    return this.name;
-  }
-
-  get Email(): string {
-    return this.email;
   }
 
   constructor(id: string, name: string, email: string) {
@@ -26,9 +25,12 @@ export class CustomerDocument {
   }
 
   static fromCustomer(customer: Customer): CustomerDocument {
-    return new CustomerDocument(customer.Id, customer.Name, customer.Email);
+    return new CustomerDocument(customer.id, customer.name, customer.email);
   }
+
   toCustomer(): Customer {
     return new Customer(this._id, this.name, this.email);
   }
 }
+
+export const CustomerSchema = SchemaFactory.createForClass(CustomerDocument);

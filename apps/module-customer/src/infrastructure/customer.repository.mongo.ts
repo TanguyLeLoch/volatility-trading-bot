@@ -1,11 +1,10 @@
 import { Customer } from '../domain/Customer';
 import { CustomerRepository } from './Customer.repository';
-import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CustomerDocument } from './CustomerDocument';
 
 export class CustomerRepositoryMongo implements CustomerRepository {
-  constructor(@InjectModel('Customer') private readonly customerModel: Model<CustomerDocument>) {}
+  constructor(private readonly customerModel: Model<CustomerDocument>) {}
 
   async save(customer: Customer): Promise<void> {
     const customerDocument: CustomerDocument = CustomerDocument.fromCustomer(customer);

@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, UsePipes, ValidationPipe } from '@nestjs/common';
 import { CustomerResponse } from './CustomerResponse';
 import { CustomerRequest } from './CustomerRequest';
 import winston from 'winston';
@@ -14,9 +14,10 @@ export class CustomerController {
   constructor(private readonly customerService: CustomerService) {}
 
   @Post()
+  @UsePipes(new ValidationPipe())
   async createCustomer(@Body() customer: CustomerRequest): Promise<CustomerResponse> {
     const customerResource: CustomerResource = await this.customerService.createCustomer(customer);
-    this.logger.info(`Customer created with id: ${customerResource.Id}`);
+    this.logger.info(`Customer created with id: ${customerResource.id}`);
     return customerResource.toResponse();
   }
 }

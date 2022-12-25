@@ -9,7 +9,7 @@ describe('customer mapper', () => {
     // when
     const customerDocument: CustomerDocument = Mapper.toDocument(customer);
     // then
-    expect(customerDocument.Name).toBe('Sam');
-    expect(customerDocument.Email).toBe('sam@ftx.com');
+    expect(customerDocument.name).toBe('Sam');
+    expect(customerDocument.email).toBe('sam@ftx.com');
   });
 });
