@@ -8,18 +8,14 @@ export class CustomerDocument {
     type: mongoose.Types.ObjectId,
     required: true,
   })
-  private readonly _id: string;
+  public readonly _id: string;
   @Prop({ required: true })
   public readonly name: string;
   @Prop({ required: true })
   public readonly email: string;
 
-  get id(): string {
-    return this._id;
-  }
-
-  constructor(id: string, name: string, email: string) {
-    this._id = id;
+  constructor(_id: string, name: string, email: string) {
+    this._id = _id;
     this.name = name;
     this.email = email;
   }
@@ -34,3 +30,5 @@ export class CustomerDocument {
 }
 
 export const CustomerSchema = SchemaFactory.createForClass(CustomerDocument);
+// create Index
+CustomerSchema.index({ email: 1 }, { unique: true });

@@ -14,7 +14,7 @@ export class PasswordDocument {
   }
 
   static fromDomain(password: Password): PasswordDocument {
-    return new PasswordDocument(password.CustomerId, password.HashedPassword);
+    return new PasswordDocument(password.customerId, password.hashedPassword);
   }
 
   toDomain(): Password {

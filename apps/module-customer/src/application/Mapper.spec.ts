@@ -5,7 +5,7 @@ import { Mapper } from './Mapper';
 describe('customer mapper', () => {
   it('should map a customer to a customerDocument', () => {
     // given
-    const customer: Customer = new Customer('Sam', 'sam@ftx.com', 'solid-password-hash');
+    const customer: Customer = new Customer('id', 'Sam', 'sam@ftx.com');
     // when
     const customerDocument: CustomerDocument = Mapper.toDocument(customer);
     // then

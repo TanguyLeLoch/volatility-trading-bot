@@ -7,7 +7,16 @@ export class CustomerRepositoryMemory implements CustomerRepository {
 
   async save(customer: Customer): Promise<void> {
     const customerDocument: CustomerDocument = CustomerDocument.fromCustomer(customer);
-    CustomerRepositoryMemory.customers.set(customerDocument.id, customerDocument);
+    CustomerRepositoryMemory.customers.set(customerDocument._id, customerDocument);
+  }
+
+  async findByEmail(email: string): Promise<Customer | null> {
+    for (const customerDocument of CustomerRepositoryMemory.customers.values()) {
+      if (customerDocument.email === email) {
+        return customerDocument.toCustomer();
+      }
+    }
+    return null;
   }
 
   async get(id: string): Promise<Customer | null> {

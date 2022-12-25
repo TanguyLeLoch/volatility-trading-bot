@@ -2,6 +2,7 @@ import { PasswordDocument } from './Password.document';
 import { PasswordRepository } from './Password.repository';
 import { Password } from '../domain/Password';
 import { Model } from 'mongoose';
+import { plainToClass } from 'class-transformer';
 
 export class PasswordRepositoryMongo implements PasswordRepository {
   constructor(private readonly passwordModel: Model<PasswordDocument>) {}
@@ -12,9 +13,11 @@ export class PasswordRepositoryMongo implements PasswordRepository {
   }
 
   async get(customerId: string): Promise<Password | null> {
-    const passwordDocument: PasswordDocument = await this.passwordModel.findById(customerId).exec();
+    const passwordDocument = await this.passwordModel.findOne({ customerId }).exec();
+    const passwordJson = passwordDocument.toJSON();
     if (passwordDocument) {
-      return passwordDocument.toDomain();
+      const instance: PasswordDocument = plainToClass(PasswordDocument, passwordJson);
+      return instance.toDomain();
     }
     return null;
   }

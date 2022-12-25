@@ -25,4 +25,28 @@ describe('ModuleCustomerController (e2e)', () => {
     expect(response.body).toHaveProperty('email', 'john@example.com');
     expect(response.body).not.toHaveProperty('password');
   });
+  it('/login (POST)', async () => {
+    await request(app.getHttpServer())
+      .post('/customers')
+      .send({ name: 'John', email: 'john2@example.com', password: '123Soleil' })
+      .expect(201);
+
+    const response = await request(app.getHttpServer())
+      .post('/customers/login')
+      .send({ email: 'john2@example.com', password: '123Soleil' })
+      .expect(201);
+    expect(response.body).toHaveProperty('token');
+  });
+  it('/login fail (POST)', async () => {
+    const response = await request(app.getHttpServer())
+      .post('/customers/login')
+      .send({ email: 'john3@example.com', password: '123Soleil' })
+      .expect(403);
+    expect(response.body).toHaveProperty('message', 'Customer not found');
+  });
+
+  // teardown
+  afterAll(async () => {
+    await app.close();
+  });
 });

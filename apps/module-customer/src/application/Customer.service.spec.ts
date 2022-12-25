@@ -1,21 +1,13 @@
 import { CustomerRequest } from '../presentation/CustomerRequest';
-import { PasswordHasherService } from './Password.hasher.service';
 import { CustomerService } from './Customer.service';
 import { CustomerResource } from './Customer.resource';
 import { PasswordRepositoryMemory } from '../infrastructure/Password.repository.memory';
 import { Password } from '../domain/Password';
 
 describe('customer service', () => {
-  const passwordHasherService = new PasswordHasherService();
-  const connectionMock = {} as any;
-  const sessionMock = {} as any;
-  connectionMock.startSession = jest.fn().mockReturnValue(sessionMock);
-  sessionMock.startTransaction = jest.fn().mockReturnValue({});
-  sessionMock.commitTransaction = jest.fn().mockReturnValue({});
-  sessionMock.endSession = jest.fn().mockReturnValue({});
-
+  const connectionMock = initConnectionMock();
   const passwordRepository = new PasswordRepositoryMemory();
-  const customerService = new CustomerService(passwordHasherService, connectionMock, null, null);
+  const customerService = new CustomerService(connectionMock, null, null);
   it('should create a customer', async () => {
     // given
     const customerRequest: CustomerRequest = new CustomerRequest('Sam', 'bankman@fried.com', '123Soleil');
@@ -33,3 +25,13 @@ describe('customer service', () => {
     expect(password.HashedPassword).toHaveLength(60);
   });
 });
+
+export function initConnectionMock(): any {
+  const connectionMock = {} as any;
+  const sessionMock = {} as any;
+  connectionMock.startSession = jest.fn().mockReturnValue(sessionMock);
+  sessionMock.startTransaction = jest.fn().mockReturnValue({});
+  sessionMock.commitTransaction = jest.fn().mockReturnValue({});
+  sessionMock.endSession = jest.fn().mockReturnValue({});
+  return connectionMock;
+}
