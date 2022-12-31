@@ -21,8 +21,8 @@ describe('customer service', () => {
 
     const password: Password = await passwordRepository.get(customerResource.id);
 
-    expect(password.CustomerId).toBe(customerResource.id);
-    expect(password.HashedPassword).toHaveLength(60);
+    expect(password.customerId).toBe(customerResource.id);
+    expect(password.hashedPassword).toHaveLength(60);
   });
 });
 
