@@ -26,11 +26,8 @@ export class PairInfoMapper {
     let stepSize;
     if (lot_size !== undefined) {
       stepSize = parseFloat(lot_size.stepSize);
-      console.log(`Step size with lot size is ${stepSize}`);
     } else {
       stepSize = Math.pow(10, -symbol.quoteAssetPrecision).toPrecision(symbol.quoteAssetPrecision);
-
-      console.log(`Step size with quoteAssetPrecision is ${stepSize}`);
     }
     return new PairInfo(pair, orderTypes, stepSize, platform, new Date());
   }

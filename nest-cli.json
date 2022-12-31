@@ -161,6 +161,15 @@
       "compilerOptions": {
         "tsConfigPath": "apps/stub/tsconfig.app.json"
       }
+    },
+    "module-customer": {
+      "type": "application",
+      "root": "apps/module-customer",
+      "entryFile": "main",
+      "sourceRoot": "apps/module-customer/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/module-customer/tsconfig.app.json"
+      }
     }
   }
 }

@@ -150,13 +150,11 @@ export abstract class AbstractExchangeSvc {
     }
     params.set('newClientOrderId', <string>order._id);
     params.set('timestamp', String(Date.now()));
-    console.log('params', params);
     const fullUrl = this.signUrl(url, params);
     const exchange = new Exchange();
     exchange.status = ExchangeStatus.PENDING;
     exchange.date = new Date();
     exchange.url = fullUrl;
-    console.log('fullUrl', fullUrl);
 
     // save exchange before sending order
     const createdExchange = await this.exchangeSvc.create(exchange);
